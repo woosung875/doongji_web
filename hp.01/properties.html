@@ -94,7 +94,7 @@
         </div>
     </footer>
 
-    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=3e8097eb16c9e4942d0cbb215d2da6e6" onerror="alert('카카오 지도 서버(dapi.kakao.com)로부터 스크립트 로드가 거부되었습니다. 키 등록이 완료되지 않았거나, PC 백신/광고 차단기가 카카오 API 통신을 강제로 막고 있는 상태입니다. 네트워크 환경을 점검해 주세요.')"></script>
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=3e8097eb16c9e4942d0cbb215d2da6e6" onerror="window.kakaoMapFailed = true;"></script>
     <script>
         // Mobile Menu Toggle
         const menuToggle = document.getElementById('mobile-menu');
@@ -212,16 +212,16 @@
 
         function initMap() {
             // Check if Kakao Maps API is loaded, else fallback to Leaflet Map
-            if (typeof kakao === 'undefined' || !kakao.maps) {
-                console.warn("Kakao Maps API failed to load. Initiating Leaflet fallback map...");
+            if (typeof kakao === 'undefined' || !kakao.maps || window.kakaoMapFailed) {
+                console.warn("Kakao Maps API failed to load or was blocked. Initiating Leaflet fallback map...");
                 
                 // Show brief fallback message inside #map before loading Leaflet
                 document.getElementById('map').innerHTML = `
                     <div style="padding: 20px; text-align: center; color: #666; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #f9f9f9; font-family: sans-serif;">
                         <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #C5A059; margin-bottom: 15px;"></i>
-                        <h4 style="margin: 0 0 10px 0; color: #0c1222;">대체 지도 로드 중</h4>
+                        <h4 style="margin: 0 0 10px 0; color: #0c1222;">안전 대체 지도 연결 중</h4>
                         <p style="font-size: 0.85rem; max-width: 300px; line-height: 1.5; margin: 0 0 15px 0;">
-                            카카오 지도 인증 처리 중입니다. 임시로 무인증 안전 지도를 연결합니다.
+                            카카오 지도 도메인 승인 대기 상태입니다. 임시로 무인증 안전 지도를 즉시 가동합니다.
                         </p>
                     </div>
                 `;
@@ -236,6 +236,29 @@
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                         attribution: '&copy; OpenStreetMap contributors'
                     }).addTo(leafletMap);
+
+                    // Add a tiny gold indicator badge on top of map container
+                    const badge = document.createElement('div');
+                    badge.style.position = 'absolute';
+                    badge.style.top = '15px';
+                    badge.style.left = '60px';
+                    badge.style.zIndex = '1000';
+                    badge.style.background = 'rgba(12, 18, 34, 0.95)';
+                    badge.style.color = '#C5A059';
+                    badge.style.padding = '6px 12px';
+                    badge.style.borderRadius = '4px';
+                    badge.style.fontSize = '11px';
+                    badge.style.fontWeight = '600';
+                    badge.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+                    badge.style.pointerEvents = 'none';
+                    badge.style.fontFamily = 'sans-serif';
+                    badge.innerHTML = '<i class="fas fa-info-circle" style="margin-right: 5px;"></i>대체 지도 작동 중 (카카오 인증 대기)';
+                    document.getElementById('map').appendChild(badge);
+
+                    // Invalidate size after brief timeout to avoid leaflet rendering breaks
+                    setTimeout(() => {
+                        leafletMap.invalidateSize();
+                    }, 100);
 
                     // Parse params & render
                     parseUrlParameters();
