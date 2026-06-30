@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>전체 매물 정보 | 둥지부동산중개법인</title>
+    <link rel="stylesheet" href="style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Playfair+Display:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+</head>
+
+<body>
+    <header id="header" class="scrolled"> <!-- Force header background color on static page -->
+        <div class="container">
+            <a href="index.html" class="logo" style="text-decoration: none;">(주)둥지부동산중개법인</a>
+            <div class="menu-toggle" id="mobile-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+            <nav>
+                <ul class="nav-list">
+                    <li><a href="index.html#home">홈</a></li>
+                    <li><a href="index.html#about">법인소개</a></li>
+                    <li><a href="properties.html">매물정보</a></li>
+                    <li><a href="index.html#data-guide">시세</a></li>
+                    <li><a href="index.html#data-guide">임대차 가이드</a></li>
+                    <li><a href="index.html#contact">기업서비스</a></li>
+                    <li><a href="index.html#contact">임대위탁서비스</a></li>
+                    <li><a href="index.html#contact">인재모집</a></li>
+                    <li><a href="index.html#contact" class="btn-consult">상담문의</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Filter Header -->
+    <div class="properties-filter-header">
+        <select id="filterRegion" onchange="applyFilters()">
+            <option value="">전체지역</option>
+            <option value="서울">서울</option>
+            <option value="경기">경기</option>
+        </select>
+        <select id="filterType" onchange="applyFilters()">
+            <option value="">매물종류</option>
+            <option value="사무실">사무실</option>
+            <option value="상가">상가</option>
+            <option value="빌딩">빌딩</option>
+            <option value="토지">토지</option>
+            <option value="주거용">주거용</option>
+        </select>
+        <select id="filterFloor" onchange="applyFilters()">
+            <option value="">층수</option>
+        </select>
+        <span style="font-size: 13px; color: #64748b; font-weight: 500;" id="filterCount">검색된 매물: 0개</span>
+        
+        <!-- Admin Login Button -->
+        <a href="admin.html" class="btn-admin-link" 
+           style="margin-left: auto; text-decoration: none; font-size: 12px; color: #64748b; border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 50px; transition: all 0.3s; display: inline-flex; align-items: center; gap: 6px; font-weight: 500; background: var(--white); box-shadow: 0 2px 5px rgba(0,0,0,0.05);"
+           onmouseenter="this.style.borderColor='var(--accent-color)'; this.style.color='var(--primary-color)'; this.style.boxShadow='0 2px 8px rgba(197, 160, 89, 0.25)';" 
+           onmouseleave="this.style.borderColor='var(--border-color)'; this.style.color='#64748b'; this.style.boxShadow='0 2px 5px rgba(0,0,0,0.05)';">
+            <i class="fas fa-lock" style="font-size: 10px; color: var(--accent-color);"></i> 관리자 로그인
+        </a>
+    </div>
+
+    <section class="properties-split-container" style="margin-top: 122px; height: calc(100vh - 122px);">
+        <!-- Left Side: Listings -->
+        <div class="listings-side">
+            <div class="section-header" style="margin-bottom: 30px; text-align: left;">
+                <h2 style="font-size: 2.2rem; margin-bottom: 10px; color: var(--primary-color); font-family: 'Playfair Display', serif; font-weight: 700;">ALL LISTINGS</h2>
+                <p>강남 전 지역 및 주요 핵심 업무지구의 비주거용 실매물 정보입니다</p>
+            </div>
+            
+            <div class="property-grid" id="propertiesGrid">
+                <!-- Dynamic Content Loaded from localStorage -->
+            </div>
+            
+            <div style="display: flex; justify-content: center; margin-top: 50px; margin-bottom: 30px;">
+                <a href="index.html" class="btn-consult" style="padding: 12px 30px; font-size: 15px; text-decoration: none;">메인 페이지로 돌아가기</a>
+            </div>
+        </div>
+        
+        <!-- Right Side: Interactive Map -->
+        <div class="map-side">
+            <div id="map"></div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 doongji Real Estate Corp. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=a30b6397fa11a0fce9d4da9d5d542a34"></script>
+    <script>
+        // Mobile Menu Toggle
+        const menuToggle = document.getElementById('mobile-menu');
+        const navList = document.querySelector('.nav-list');
+
+        menuToggle.addEventListener('click', () => {
+            navList.classList.toggle('active');
+        });
+
+        // Dynamic Loading from localStorage & Kakao Map integration
+        function getProperties() {
+            let props = localStorage.getItem('nest_properties');
+            // Fallback default properties (Gangnam Datasets)
+            const defaultProperties = [
+                {
+                    id: "prop-1",
+                    tag: "서울",
+                    type: "사무실",
+                    floor: "5층",
+                    title: "역삼역 초역세권 대형 프라임 오피스",
+                    desc: "전용 150평 / 테헤란로 뷰 / 고층 오피스 빌딩 내 지상 5층",
+                    price: "보증금 5억 / 월 4,500만",
+                    imageUrl: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800",
+                    lat: 37.5019,
+                    lng: 127.0374
+                },
+                {
+                    id: "prop-2",
+                    tag: "서울",
+                    type: "상가",
+                    floor: "1층",
+                    title: "청담동 명품거리 1층 로드샵 상가",
+                    desc: "전용 80평 / 쇼룸 완비 / 1층 테라스 활용 가능",
+                    price: "가격 협의",
+                    imageUrl: "https://images.unsplash.com/photo-1554469384-e58fac16e23a?auto=format&fit=crop&q=80&w=800",
+                    lat: 37.5251,
+                    lng: 127.0435
+                },
+                {
+                    id: "prop-3",
+                    tag: "경기",
+                    type: "토지",
+                    floor: "1층",
+                    title: "용인 기흥 상업용 개발 토지 매매",
+                    desc: "토지면적 450평 / 대로변 코너 / 근생 및 물류 부지 추천",
+                    price: "매매 45억",
+                    imageUrl: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=800",
+                    lat: 37.2804,
+                    lng: 127.1179
+                },
+                {
+                    id: "prop-4",
+                    tag: "서울",
+                    type: "상가",
+                    floor: "-1층",
+                    title: "강남역 인근 지하 대형 F&B 상가",
+                    desc: "전용 120평 / 지하 1층 단독 진입 계단 / 주방 설비 완비 및 층고 4m",
+                    price: "보증금 2억 / 월 1,500만",
+                    imageUrl: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&q=80&w=800",
+                    lat: 37.4979,
+                    lng: 127.0276
+                },
+                {
+                    id: "prop-5",
+                    tag: "경기",
+                    type: "주거용",
+                    floor: "12층",
+                    title: "분당 정자동 오피스텔 주거용 풀옵션",
+                    desc: "전용 24평 / 지상 12층 탄천 뷰 / 침실 2개 / 즉시 입주 가능",
+                    price: "보증금 3,000만 / 월 180만",
+                    imageUrl: "https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80&w=800",
+                    lat: 37.3614,
+                    lng: 127.1086
+                },
+                {
+                    id: "prop-6",
+                    tag: "서울",
+                    type: "빌딩",
+                    floor: "7층",
+                    title: "테헤란로 삼성동 대로변 프라임 사옥 빌딩",
+                    desc: "연면적 450평 / 지상 7층 전체 통임대 / 자주식 주차 10대",
+                    price: "보증금 8억 / 월 6,000만",
+                    imageUrl: "https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&q=80&w=800",
+                    lat: 37.5097,
+                    lng: 127.0620
+                }
+            ];
+
+            if (!props || JSON.parse(props).length === 0 || JSON.parse(props)[0].tag === "부산진구" || (JSON.parse(props)[0].tag !== "서울" && JSON.parse(props)[0].tag !== "경기")) {
+                localStorage.setItem('nest_properties', JSON.stringify(defaultProperties));
+                return defaultProperties;
+            }
+            return JSON.parse(props);
+        }
+
+        const propertiesGrid = document.getElementById('propertiesGrid');
+        let map;
+        let markers = {}; 
+
+        function initMap() {
+            // Check if Kakao Maps API is loaded, else fallback or show error
+            if (typeof kakao === 'undefined' || !kakao.maps) {
+                console.error("Kakao Maps API is not loaded. Please make sure you have set a valid App Key.");
+                document.getElementById('map').innerHTML = `
+                    <div style="padding: 20px; text-align: center; color: #666; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #f9f9f9; font-family: sans-serif;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: #C5A059; margin-bottom: 15px;"></i>
+                        <h4 style="margin: 0 0 10px 0; color: #0c1222;">카카오 지도 로드 실패</h4>
+                        <p style="font-size: 0.85rem; max-width: 300px; line-height: 1.5; margin: 0 0 15px 0;">
+                            카카오 개발자 플랫폼에서 발급받은 <strong>JavaScript 키</strong>가 필요합니다. <code>properties.html</code>의 스크립트 태그에 App Key를 입력하세요.
+                        </p>
+                        <span style="font-size: 0.8rem; background: #eee; padding: 4px 8px; border-radius: 4px;">appkey=a30b6397fa11a0fce9d4da9d5d542a34</span>
+                    </div>
+                `;
+                parseUrlParameters(); // Run properties rendering even if Map API load failed
+                return;
+            }
+
+            map = new kakao.maps.Map(document.getElementById('map'), {
+                center: new kakao.maps.LatLng(37.5080, 127.0360), // Centered around Gangnam/Yeoksam, Seoul
+                level: 5 // Default Kakao map zoom level (4 or 5 is default zoom)
+            });
+
+            // Add standard zoom control UI for better usability
+            const zoomControl = new kakao.maps.ZoomControl();
+            map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
+
+            // If we have URL parameters, apply them after map is initialized
+            parseUrlParameters();
+        }
+
+        function closeAllInfoWindows() {
+            for (let id in markers) {
+                if (markers[id] && markers[id].infoWindow) {
+                    markers[id].infoWindow.close();
+                }
+            }
+        }
+
+        function renderAllProperties(customProps) {
+            const props = customProps || getProperties();
+            propertiesGrid.innerHTML = '';
+            
+            // Clear existing markers
+            if (map) {
+                for (let id in markers) {
+                    if (markers[id] && markers[id].marker) {
+                        markers[id].marker.setMap(null);
+                    }
+                }
+                markers = {};
+            }
+            
+            if (props.length === 0) {
+                propertiesGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px;">조건에 맞는 매물이 없습니다.</p>';
+                return;
+            }
+
+            props.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'property-card';
+                card.id = `card-${p.id}`;
+                card.innerHTML = `
+                    <div class="card-image" style="background-image: url('${p.imageUrl}');">
+                        <span class="tag" style="background: var(--accent-color);">${escapeHtml(p.tag)} | ${escapeHtml(p.floor && p.floor.startsWith('-') ? '지하 ' + p.floor.substring(1) : p.floor)}</span>
+                    </div>
+                    <div class="card-body">
+                        <h3>${escapeHtml(p.title)}</h3>
+                        <p class="desc">${escapeHtml(p.desc)}</p>
+                        <div class="card-footer">
+                            <span class="price">${escapeHtml(p.price)}</span>
+                            <button class="btn-text">자세히 보기 &rarr;</button>
+                        </div>
+                    </div>
+                `;
+                propertiesGrid.appendChild(card);
+
+                // Add Hover/Click events for chasing
+                card.addEventListener('mouseenter', () => {
+                    highlightProperty(p.id, false); 
+                });
+
+                card.addEventListener('click', () => {
+                    highlightProperty(p.id, true); 
+                });
+
+                // Add Marker to Kakao Map
+                if (map && p.lat && p.lng) {
+                    const latlng = new kakao.maps.LatLng(parseFloat(p.lat), parseFloat(p.lng));
+                    const marker = new kakao.maps.Marker({
+                        position: latlng,
+                        map: map,
+                        title: p.title
+                    });
+                    
+                    const popupContent = `
+                        <div class="map-popup-content" style="padding: 10px; min-width: 180px; font-family: 'Noto Sans KR', sans-serif; background: #fff;">
+                            <h4 style="margin: 0 0 5px 0; font-size: 13px; color: #0c1222; font-weight: 700; line-height: 1.3;">${escapeHtml(p.title)}</h4>
+                            <p style="margin: 0 0 6px 0; font-size: 11px; color: #666; line-height: 1.4;">${escapeHtml(p.desc)}</p>
+                            <strong style="font-size: 12px; color: #C5A059;">${escapeHtml(p.price)}</strong>
+                        </div>
+                    `;
+
+                    const infoWindow = new kakao.maps.InfoWindow({
+                        content: popupContent,
+                        removable: true
+                    });
+                    
+                    kakao.maps.event.addListener(marker, 'click', () => {
+                        closeAllInfoWindows();
+                        infoWindow.open(map, marker);
+                        
+                        const cardElement = document.getElementById(`card-${p.id}`);
+                        if (cardElement) {
+                            document.querySelectorAll('.property-card').forEach(el => el.classList.remove('active-card'));
+                            cardElement.classList.add('active-card');
+                            cardElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        }
+                    });
+
+                    markers[p.id] = {
+                        marker: marker,
+                        infoWindow: infoWindow
+                    };
+                }
+            });
+        }
+
+        // Chasing logic
+        function highlightProperty(id, shouldZoom) {
+            document.querySelectorAll('.property-card').forEach(el => el.classList.remove('active-card'));
+            const activeCard = document.getElementById(`card-${id}`);
+            if (activeCard) {
+                activeCard.classList.add('active-card');
+            }
+
+            const markerObj = markers[id];
+            if (map && markerObj) {
+                const marker = markerObj.marker;
+                const infoWindow = markerObj.infoWindow;
+                const latLng = marker.getPosition();
+                
+                if (shouldZoom) {
+                    map.setLevel(3); // Level 3 is close-up zoom in Kakao Maps
+                    map.panTo(latLng);
+                    closeAllInfoWindows();
+                    infoWindow.open(map, marker);
+                } else {
+                    map.panTo(latLng);
+                }
+            }
+        }
+
+        // Filtering logic
+        function applyFilters() {
+            const selectedRegion = document.getElementById('filterRegion').value;
+            const selectedType = document.getElementById('filterType').value;
+            const selectedFloor = document.getElementById('filterFloor').value;
+            const allProps = getProperties();
+
+            const filtered = allProps.filter(p => {
+                const regionMatch = !selectedRegion || p.tag === selectedRegion;
+                const typeMatch = !selectedType || p.type === selectedType;
+                const floorMatch = !selectedFloor || p.floor === selectedFloor;
+                return regionMatch && typeMatch && floorMatch;
+            });
+
+            // Update count display
+            document.getElementById('filterCount').innerText = `검색된 매물: ${filtered.length}개`;
+
+            // Render filtered properties
+            renderAllProperties(filtered);
+
+            // Relocate map center to the first matched property if exists
+            if (filtered.length > 0 && map) {
+                const first = filtered[0];
+                if (first.lat && first.lng) {
+                    map.panTo(new kakao.maps.LatLng(parseFloat(first.lat), parseFloat(first.lng)));
+                    map.setLevel(4);
+                }
+            }
+        }
+
+        // URL query parameter parsing
+        function parseUrlParameters() {
+            const params = new URLSearchParams(window.location.search);
+            const regionParam = params.get('region');
+            const typeParam = params.get('type');
+            const floorParam = params.get('floor');
+            const focusParam = params.get('focus');
+
+            if (regionParam) {
+                document.getElementById('filterRegion').value = regionParam;
+            }
+            if (typeParam) {
+                document.getElementById('filterType').value = typeParam;
+            }
+            if (floorParam) {
+                document.getElementById('filterFloor').value = floorParam;
+            }
+
+            if (regionParam || typeParam || floorParam) {
+                applyFilters();
+            } else {
+                // Initialize default view
+                document.getElementById('filterCount').innerText = `검색된 매물: ${getProperties().length}개`;
+                renderAllProperties();
+            }
+
+            // If focused on map, scroll map into view (for mobile/tablet layouts)
+            if (focusParam === 'map') {
+                const mapSection = document.getElementById('map');
+                if (mapSection) {
+                    mapSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        }
+
+        // Simple HTML Escaping for security
+        function escapeHtml(string) {
+            return String(string).replace(/[&<>"']/g, function (s) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;'
+                }[s];
+            });
+        }
+
+        // Populate floor dropdown (-6F to 30F)
+        function populateFloorOptions() {
+            const select = document.getElementById('filterFloor');
+            select.innerHTML = '<option value="">층수</option>';
+            // 지하 6층 ~ 지하 1층
+            for (let i = -6; i <= -1; i++) {
+                const opt = document.createElement('option');
+                opt.value = `${i}층`;
+                opt.innerText = `지하 ${Math.abs(i)}층`;
+                select.appendChild(opt);
+            }
+            // 1층 ~ 30층
+            for (let i = 1; i <= 30; i++) {
+                const opt = document.createElement('option');
+                opt.value = `${i}층`;
+                opt.innerText = `${i}층`;
+                select.appendChild(opt);
+            }
+        }
+
+        // Run
+        populateFloorOptions();
+        initMap();
+    </script>
+</body>
+
+</html>

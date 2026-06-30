@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>매물 관리 시스템 | (주)둥지부동산중개법인</title>
+    <link rel="stylesheet" href="style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Playfair+Display:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body class="admin-login-body" id="adminBody">
+
+    <!-- LOGIN CARD (VISIBLE BY DEFAULT) -->
+    <div class="login-card" id="loginCard">
+        <h2>둥지부동산 관리자</h2>
+        <p>서비스 관리를 위해 아이디와 비밀번호를 입력하세요.</p>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label>아이디</label>
+                <input type="text" id="username" placeholder="아이디를 입력하세요" required>
+            </div>
+            <div class="form-group" style="margin-bottom: 25px;">
+                <label>비밀번호</label>
+                <input type="password" id="password" placeholder="비밀번호를 입력하세요" required>
+            </div>
+            <button type="submit" class="btn-submit">로그인</button>
+        </form>
+    </div>
+
+    <!-- DASHBOARD CONTAINER (HIDDEN BY DEFAULT) -->
+    <div class="admin-dashboard" id="dashboardContainer" style="display: none; width: 100%;">
+        <header class="admin-header">
+            <div class="container">
+                <h1>(주)둥지부동산중개법인 <span>관리자 모드</span></h1>
+                <div class="admin-nav">
+                    <a href="index.html" class="btn-logout" style="text-decoration: none;"><i class="fas fa-home"></i> 홈 바로가기</a>
+                    <button class="btn-logout" id="btnLogout"><i class="fas fa-sign-out-alt"></i> 로그아웃</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="admin-main">
+            <div class="container">
+                <div class="dashboard-title-bar">
+                    <h2>매물 목록 관리</h2>
+                    <button class="btn-admin-action" id="btnNewProperty">
+                        <i class="fas fa-plus"></i> 새 매물 등록
+                    </button>
+                </div>
+
+                <!-- Admin Properties Filter Header -->
+                <div class="admin-filter-bar" style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                    <select id="adminFilterRegion" onchange="applyAdminFilters()" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; outline: none; background: white; font-family: inherit;">
+                        <option value="">전체지역</option>
+                        <option value="서울">서울</option>
+                        <option value="경기">경기</option>
+                    </select>
+                    <select id="adminFilterType" onchange="applyAdminFilters()" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; outline: none; background: white; font-family: inherit;">
+                        <option value="">매물종류</option>
+                        <option value="사무실">사무실</option>
+                        <option value="상가">상가</option>
+                        <option value="빌딩">빌딩</option>
+                        <option value="토지">토지</option>
+                        <option value="주거용">주거용</option>
+                    </select>
+                    <select id="adminFilterFloor" onchange="applyAdminFilters()" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; outline: none; background: white; font-family: inherit;">
+                        <option value="">층수</option>
+                        <option value="지하">지하</option>
+                        <option value="1층">1층</option>
+                        <option value="지상">지상</option>
+                    </select>
+                    <span style="font-size: 13px; color: #64748b; font-weight: 500; margin-left: auto;" id="adminFilterCount">검색된 매물: 0개</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 120px;">이미지</th>
+                                <th style="width: 140px;">지역 / 층수</th>
+                                <th>매물명</th>
+                                <th>설명</th>
+                                <th style="width: 220px;">가격</th>
+                                <th style="width: 110px; text-align: center;">관리</th>
+                            </tr>
+                        </thead>
+                        <tbody id="propertyTableBody">
+                            <!-- Dynamic Content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- PROPERTY FORM MODAL (ADD / EDIT) -->
+    <div class="admin-modal" id="propertyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">새 매물 등록</h3>
+                <button class="modal-close" id="btnModalClose">&times;</button>
+            </div>
+            <form id="propertyForm">
+                <input type="hidden" id="propertyId">
+                <div class="form-group">
+                    <label>지역 (선택)</label>
+                    <select id="propTag" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; font-family: inherit; transition: border-color 0.3s; background-color: white;">
+                        <option value="">지역을 선택하세요</option>
+                        <option value="서울">서울</option>
+                        <option value="경기">경기</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>매물종류</label>
+                    <select id="propType" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; font-family: inherit; transition: border-color 0.3s; background-color: white;">
+                        <option value="">매물종류를 선택하세요</option>
+                        <option value="사무실">사무실</option>
+                        <option value="상가">상가</option>
+                        <option value="빌딩">빌딩</option>
+                        <option value="토지">토지</option>
+                        <option value="주거용">주거용</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>층수</label>
+                    <select id="propFloor" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; font-family: inherit; transition: border-color 0.3s; background-color: white;">
+                        <option value="">층수를 선택하세요</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>매물명 (제목)</label>
+                    <input type="text" id="propTitle" placeholder="매물 서비스명을 입력하세요" required>
+                </div>
+                <div class="form-group">
+                    <label>설명 (예: 전용 150평 / 고층 뷰 / 최고급 인테리어)</label>
+                    <input type="text" id="propDesc" placeholder="매물의 요약 설명을 입력하세요" required>
+                </div>
+                <div class="form-group">
+                    <label>가격 (예: 보증금 5억 / 월 4,500만 또는 가격 협의)</label>
+                    <input type="text" id="propPrice" placeholder="가격 정보를 입력하세요" required>
+                </div>
+                <div style="display: flex; gap: 15px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>위도 (예: 37.5019)</label>
+                        <input type="number" step="any" id="propLat" placeholder="37.XXXX" required>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>경도 (예: 127.0374)</label>
+                        <input type="number" step="any" id="propLng" placeholder="127.XXXX" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>이미지 첨부 (직접 업로드)</label>
+                    <input type="file" id="propFile" accept="image/*" style="border: none; padding: 5px 0;">
+                    <input type="hidden" id="propImageUrl">
+                    <div id="imagePreviewContainer" style="margin-top: 10px; display: none;">
+                        <p style="font-size: 0.85rem; color: #777; margin-bottom: 5px;">이미지 미리보기:</p>
+                        <img id="formImagePreview" src="" alt="미리보기" style="max-width: 100%; height: 120px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="btnModalCancel">취소</button>
+                    <button type="submit" class="btn-submit" style="width: auto; padding: 12px 30px;" id="btnModalSave">저장하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- DATABASE LOGIC & ROUTING SCRIPT -->
+    <script>
+        // Mock Properties Data Array (fallback for initialization)
+        const defaultProperties = [
+            {
+                id: "prop-1",
+                tag: "서울",
+                type: "사무실",
+                floor: "지상",
+                title: "역삼역 초역세권 대형 프라임 오피스",
+                desc: "전용 150평 / 테헤란로 뷰 / 고층 오피스 빌딩 내 지상층",
+                price: "보증금 5억 / 월 4,500만",
+                imageUrl: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800",
+                lat: 37.5019,
+                lng: 127.0374
+            },
+            {
+                id: "prop-2",
+                tag: "서울",
+                type: "상가",
+                floor: "1층",
+                title: "청담동 명품거리 1층 로드샵 상가",
+                desc: "전용 80평 / 쇼룸 완비 / 1층 테라스 활용 가능",
+                price: "가격 협의",
+                imageUrl: "https://images.unsplash.com/photo-1554469384-e58fac16e23a?auto=format&fit=crop&q=80&w=800",
+                lat: 37.5251,
+                lng: 127.0435
+            },
+            {
+                id: "prop-3",
+                tag: "경기",
+                type: "토지",
+                floor: "지상",
+                title: "용인 기흥 상업용 개발 토지 매매",
+                desc: "토지면적 450평 / 대로변 코너 / 근생 및 물류 부지 추천",
+                price: "매매 45억",
+                imageUrl: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=800",
+                lat: 37.2804,
+                lng: 127.1179
+            },
+            {
+                id: "prop-4",
+                tag: "서울",
+                type: "상가",
+                floor: "지하",
+                title: "강남역 인근 지하 대형 F&B 상가",
+                desc: "전용 120평 / 단독 진입 계단 / 주방 설비 완비 및 층고 4m",
+                price: "보증금 2억 / 월 1,500만",
+                imageUrl: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&q=80&w=800",
+                lat: 37.4979,
+                lng: 127.0276
+            },
+            {
+                id: "prop-5",
+                tag: "경기",
+                type: "주거용",
+                floor: "지상",
+                title: "분당 정자동 오피스텔 주거용 풀옵션",
+                desc: "전용 24평 / 탄천 뷰 / 침실 2개 / 즉시 입주 가능",
+                price: "보증금 3,000만 / 월 180만",
+                imageUrl: "https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80&w=800",
+                lat: 37.3614,
+                lng: 127.1086
+            },
+            {
+                id: "prop-6",
+                tag: "서울",
+                type: "빌딩",
+                floor: "지상",
+                title: "테헤란로 삼성동 대로변 프라임 사옥 빌딩",
+                desc: "연면적 450평 / 지상 전체 통임대 / 자주식 주차 10대",
+                price: "보증금 8억 / 월 6,000만",
+                imageUrl: "https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&q=80&w=800",
+                lat: 37.5097,
+                lng: 127.0620
+            }
+        ];
+
+        // Auth credentials
+        const ADMIN_ID = "admin";
+        const ADMIN_PW = "admin";
+
+        // DOM Elements
+        const adminBody = document.getElementById('adminBody');
+        const loginCard = document.getElementById('loginCard');
+        const loginForm = document.getElementById('loginForm');
+        const dashboardContainer = document.getElementById('dashboardContainer');
+        const btnLogout = document.getElementById('btnLogout');
+        
+        const propertyTableBody = document.getElementById('propertyTableBody');
+        const btnNewProperty = document.getElementById('btnNewProperty');
+        const propertyModal = document.getElementById('propertyModal');
+        const propertyForm = document.getElementById('propertyForm');
+        const modalTitle = document.getElementById('modalTitle');
+        const btnModalClose = document.getElementById('btnModalClose');
+        const btnModalCancel = document.getElementById('btnModalCancel');
+
+        const inputId = document.getElementById('propertyId');
+        const inputTag = document.getElementById('propTag');
+        const inputType = document.getElementById('propType');
+        const inputFloor = document.getElementById('propFloor');
+        const inputTitle = document.getElementById('propTitle');
+        const inputDesc = document.getElementById('propDesc');
+        const inputPrice = document.getElementById('propPrice');
+        const inputImageUrl = document.getElementById('propImageUrl');
+        const inputFile = document.getElementById('propFile');
+        const previewContainer = document.getElementById('imagePreviewContainer');
+        const formImagePreview = document.getElementById('formImagePreview');
+        const inputLat = document.getElementById('propLat');
+        const inputLng = document.getElementById('propLng');
+
+        // Check Login Session
+        function checkSession() {
+            if (sessionStorage.getItem('admin_logged') === 'true') {
+                showDashboard();
+            } else {
+                showLoginForm();
+            }
+        }
+
+        function showDashboard() {
+            adminBody.classList.remove('admin-login-body');
+            loginCard.style.display = 'none';
+            dashboardContainer.style.display = 'block';
+            applyAdminFilters();
+        }
+
+        function showLoginForm() {
+            adminBody.classList.add('admin-login-body');
+            loginCard.style.display = 'block';
+            dashboardContainer.style.display = 'none';
+        }
+
+        // Login Logic
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const uid = document.getElementById('username').value.trim();
+            const upw = document.getElementById('password').value;
+
+            if (uid === ADMIN_ID && upw === ADMIN_PW) {
+                sessionStorage.setItem('admin_logged', 'true');
+                showDashboard();
+                loginForm.reset();
+            } else {
+                alert("아이디 또는 비밀번호가 일치하지 않습니다.");
+            }
+        });
+
+        // Logout Logic
+        btnLogout.addEventListener('click', () => {
+            sessionStorage.removeItem('admin_logged');
+            showLoginForm();
+        });
+
+        // Data Controller (localStorage)
+        function getProperties() {
+            let props = localStorage.getItem('nest_properties');
+            if (!props || JSON.parse(props).length === 0 || JSON.parse(props)[0].tag === "부산진구" || (JSON.parse(props)[0].tag !== "서울" && JSON.parse(props)[0].tag !== "경기")) {
+                localStorage.setItem('nest_properties', JSON.stringify(defaultProperties));
+                return defaultProperties;
+            }
+            return JSON.parse(props);
+        }
+
+        function saveProperties(props) {
+            localStorage.setItem('nest_properties', JSON.stringify(props));
+        }
+
+        // Table Render Logic
+        function renderTable(customProps) {
+            const props = customProps || getProperties();
+            propertyTableBody.innerHTML = '';
+
+            if (props.length === 0) {
+                propertyTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <i class="fas fa-folder-open"></i>
+                            <p>등록된 매물이 없습니다. 새 매물을 등록해 주세요.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            props.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><div class="img-preview" style="background-image: url('${p.imageUrl}')"></div></td>
+                    <td>
+                        <span class="badge-tag">${escapeHtml(p.tag)}</span>
+                        <span style="font-size: 0.9rem; color: #475569; margin-left: 6px; font-weight: 500;">
+                            ${escapeHtml(p.floor && p.floor.startsWith('-') ? '지하 ' + p.floor.substring(1) : p.floor)}
+                        </span>
+                    </td>
+                    <td><strong style="color: var(--primary-color);">${escapeHtml(p.title)}</strong></td>
+                    <td style="color: #666; font-size: 0.9rem;">${escapeHtml(p.desc)}</td>
+                    <td><strong style="color: var(--primary-color); font-weight: 700;">${escapeHtml(p.price)}</strong></td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn-icon edit" onclick="openEditModal('${p.id}')" title="수정"><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon delete" onclick="deleteProperty('${p.id}')" title="삭제"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </td>
+                `;
+                propertyTableBody.appendChild(tr);
+            });
+        }
+
+        // Admin Filter Logic
+        function applyAdminFilters() {
+            const selectedRegion = document.getElementById('adminFilterRegion').value;
+            const selectedType = document.getElementById('adminFilterType').value;
+            const selectedFloor = document.getElementById('adminFilterFloor').value;
+            const allProps = getProperties();
+
+            const filtered = allProps.filter(p => {
+                const regionMatch = !selectedRegion || p.tag === selectedRegion;
+                const typeMatch = !selectedType || p.type === selectedType;
+                const floorMatch = !selectedFloor || p.floor === selectedFloor;
+                return regionMatch && typeMatch && floorMatch;
+            });
+
+            document.getElementById('adminFilterCount').innerText = `검색된 매물: ${filtered.length}개`;
+            renderTable(filtered);
+        }
+
+        // Modal Form Controller
+        function showModal(title, editId = null) {
+            modalTitle.innerText = title;
+            propertyModal.classList.add('open');
+
+            if (editId) {
+                const props = getProperties();
+                const target = props.find(p => p.id === editId);
+                if (target) {
+                    inputId.value = target.id;
+                    inputTag.value = target.tag;
+                    inputType.value = target.type || '';
+                    inputFloor.value = target.floor || '';
+                    inputTitle.value = target.title;
+                    inputDesc.value = target.desc;
+                    inputPrice.value = target.price;
+                    inputImageUrl.value = target.imageUrl;
+                    inputLat.value = target.lat || '';
+                    inputLng.value = target.lng || '';
+                    
+                    // Show current image preview
+                    if (target.imageUrl) {
+                        formImagePreview.src = target.imageUrl;
+                        previewContainer.style.display = 'block';
+                    } else {
+                        previewContainer.style.display = 'none';
+                    }
+                }
+            } else {
+                propertyForm.reset();
+                inputId.value = '';
+                inputType.value = '';
+                inputFloor.value = '';
+                previewContainer.style.display = 'none';
+                formImagePreview.src = '';
+            }
+        }
+
+        function closeModal() {
+            propertyModal.classList.remove('open');
+            propertyForm.reset();
+            previewContainer.style.display = 'none';
+            formImagePreview.src = '';
+        }
+
+        btnNewProperty.addEventListener('click', () => showModal('새 매물 등록'));
+        btnModalClose.addEventListener('click', closeModal);
+        btnModalCancel.addEventListener('click', closeModal);
+
+        // File Reader Base64 Encoding, Canvas Compression & Validation
+        inputFile.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Pre-validation to prevent browser crash from massive files (> 15MB)
+            if (file.size > 15000000) {
+                alert("파일 크기가 너무 큽니다. 15MB 이하의 이미지만 업로드 가능합니다.");
+                inputFile.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    // Create Canvas
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+
+                    // Resize if width exceeds 1200px
+                    const MAX_WIDTH = 1200;
+                    if (width > MAX_WIDTH) {
+                        height = Math.round((height * MAX_WIDTH) / width);
+                        width = MAX_WIDTH;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    // Draw to canvas
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Compress to JPEG with 0.7 quality
+                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+
+                    inputImageUrl.value = compressedDataUrl;
+                    formImagePreview.src = compressedDataUrl;
+                    previewContainer.style.display = 'block';
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Edit Action handler (Global for inline onclick)
+        window.openEditModal = function(id) {
+            showModal('매물 정보 수정', id);
+        }
+
+        // Delete Action handler
+        window.deleteProperty = function(id) {
+            if (confirm("정말로 이 매물을 삭제하시겠습니까?")) {
+                let props = getProperties();
+                props = props.filter(p => p.id !== id);
+                saveProperties(props);
+                applyAdminFilters();
+            }
+        }
+
+        // Form Submit (Save / Edit)
+        propertyForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const id = inputId.value;
+            const tag = inputTag.value.trim();
+            const type = inputType.value.trim();
+            const floor = inputFloor.value.trim();
+            const title = inputTitle.value.trim();
+            const desc = inputDesc.value.trim();
+            const price = inputPrice.value.trim();
+            const imageUrl = inputImageUrl.value.trim();
+            const lat = parseFloat(inputLat.value);
+            const lng = parseFloat(inputLng.value);
+
+            if (!imageUrl) {
+                alert("매물 이미지를 업로드해 주세요.");
+                return;
+            }
+
+            if (isNaN(lat) || isNaN(lng)) {
+                alert("올바른 위도와 경도 좌표값을 입력해 주세요.");
+                return;
+            }
+
+            let props = getProperties();
+
+            if (id) {
+                // Update
+                props = props.map(p => {
+                    if (p.id === id) {
+                        return { id, tag, type, floor, title, desc, price, imageUrl, lat, lng };
+                    }
+                    return p;
+                });
+                alert("매물 정보가 성공적으로 수정되었습니다.");
+            } else {
+                // Create
+                const newId = 'prop-' + Date.now();
+                const newProp = { id: newId, tag, type, floor, title, desc, price, imageUrl, lat, lng };
+                props.push(newProp);
+                alert("새 매물이 등록되었습니다.");
+            }
+
+            saveProperties(props);
+            closeModal();
+            applyAdminFilters();
+        });
+
+        // Simple HTML Escaping for security
+        function escapeHtml(string) {
+            return String(string).replace(/[&<>"']/g, function (s) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;'
+                }[s];
+            });
+        }
+
+        // Populate floor options dynamically (-6F to 30F)
+        function populateAdminFloorOptions() {
+            const filterSelect = document.getElementById('adminFilterFloor');
+            if (filterSelect) {
+                filterSelect.innerHTML = '<option value="">층수</option>';
+                for (let i = -6; i <= -1; i++) {
+                    const opt = document.createElement('option');
+                    opt.value = `${i}층`;
+                    opt.innerText = `지하 ${Math.abs(i)}층`;
+                    filterSelect.appendChild(opt);
+                }
+                for (let i = 1; i <= 30; i++) {
+                    const opt = document.createElement('option');
+                    opt.value = `${i}층`;
+                    opt.innerText = `${i}층`;
+                    filterSelect.appendChild(opt);
+                }
+            }
+            
+            const formSelect = document.getElementById('propFloor');
+            if (formSelect) {
+                formSelect.innerHTML = '<option value="">층수를 선택하세요</option>';
+                for (let i = -6; i <= -1; i++) {
+                    const opt = document.createElement('option');
+                    opt.value = `${i}층`;
+                    opt.innerText = `지하 ${Math.abs(i)}층`;
+                    formSelect.appendChild(opt);
+                }
+                for (let i = 1; i <= 30; i++) {
+                    const opt = document.createElement('option');
+                    opt.value = `${i}층`;
+                    opt.innerText = `${i}층`;
+                    formSelect.appendChild(opt);
+                }
+            }
+        }
+
+        // Run Init
+        populateAdminFloorOptions();
+        checkSession();
+    </script>
+</body>
+
+</html>
