@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>임대차 가이드 상세 | (주)둥지부동산중개법인</title>
+    <link rel="stylesheet" href="style.css?v=2">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Playfair+Display:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .detail-container {
+            max-width: 900px;
+            margin: 140px auto 80px auto;
+            padding: 0 20px;
+        }
+
+        .detail-header {
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 30px;
+            margin-bottom: 45px;
+        }
+
+        .detail-meta {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .detail-meta span i {
+            color: var(--accent-color);
+            margin-right: 5px;
+        }
+
+        .detail-header h1 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            font-weight: 700;
+            line-height: 1.35;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        .detail-banner {
+            width: 100%;
+            height: 450px;
+            border-radius: 12px;
+            background-size: cover;
+            background-position: center;
+            margin-bottom: 45px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+
+        .detail-content {
+            font-size: 1.1rem;
+            color: #334155;
+            line-height: 1.85;
+            letter-spacing: -0.2px;
+            white-space: pre-wrap; /* Crucial to keep paragraphs and layout formatting */
+            font-family: 'Noto Sans KR', sans-serif;
+            margin-bottom: 60px;
+        }
+
+        .detail-content p {
+            margin-bottom: 25px;
+        }
+
+        .detail-footer {
+            border-top: 1px solid #e2e8f0;
+            padding-top: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-list-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 30px;
+            border: 1px solid var(--border-color);
+            color: var(--primary-color);
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s;
+            background: #fff;
+        }
+
+        .btn-list-back:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            box-shadow: 0 4px 10px rgba(197,160,89,0.15);
+        }
+    </style>
+</head>
+
+<body>
+    <header id="header" class="scrolled"> <!-- Force header background color on static page -->
+        <div class="container">
+            <a href="index.html" class="logo" style="text-decoration: none;">(주)둥지부동산중개법인</a>
+            <div class="menu-toggle" id="mobile-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+            <nav>
+                <ul class="nav-list">
+                    <li><a href="index.html#home">홈</a></li>
+                    <li><a href="index.html#about">법인소개</a></li>
+                    <li><a href="properties.html">매물정보</a></li>
+                    <li><a href="map.html">지도보기</a></li>
+                    <li><a href="index.html#submit-property">매물내놓기</a></li>
+                    <li><a href="index.html#data-guide">시세</a></li>
+                    <li><a href="guide.html" class="active" style="color: var(--accent-color); font-weight: 700;">임대차 가이드</a></li>
+                    <li><a href="corporate.html">기업서비스</a></li>
+                    <li><a href="recruit.html">인재모집</a></li>
+                    <li><a href="https://www.doongji.co.kr/" target="_blank">건물관리서비스</a></li>
+                    <li><a href="index.html#contact" class="btn-consult">상담문의</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Detail Content -->
+    <main class="detail-container">
+        <article id="articleArea" style="display: none;">
+            <div class="detail-header">
+                <div class="detail-meta">
+                    <span><i class="far fa-calendar-alt"></i> <span id="articleDate">2026.06.30</span></span>
+                    <span><i class="far fa-user"></i> 둥지부동산 임대차연구원</span>
+                </div>
+                <h1 id="articleTitle">빌딩 렌트프리(Rent-free) 협상 기술과 주의점</h1>
+            </div>
+
+            <!-- Big Banner Image -->
+            <div class="detail-banner" id="articleBanner"></div>
+
+            <!-- Body text -->
+            <div class="detail-content" id="articleContent"></div>
+
+            <div class="detail-footer">
+                <a href="guide.html" class="btn-list-back"><i class="fas fa-arrow-left"></i> 목록으로 돌아가기</a>
+                <a href="index.html#contact" class="btn-consult" style="padding: 12px 35px; text-decoration: none;">전문가 자문 신청</a>
+            </div>
+        </article>
+
+        <!-- Fallback / Error Message -->
+        <div id="errorArea" style="text-align: center; padding: 80px 20px; display: none;">
+            <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--accent-color); margin-bottom: 20px;"></i>
+            <h2>존재하지 않는 게시글입니다</h2>
+            <p style="color: #64748b; margin-top: 10px; margin-bottom: 30px;">게시글 주소가 잘못되었거나 삭제되었습니다.</p>
+            <a href="guide.html" class="btn-list-back">임대차 가이드 목록으로 가기</a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 doongji Real Estate Corp. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile Menu Toggle
+        const menuToggle = document.getElementById('mobile-menu');
+        const navList = document.querySelector('.nav-list');
+
+        menuToggle.addEventListener('click', () => {
+            navList.classList.toggle('active');
+        });
+
+        // Load Article detail based on URL query param id
+        function loadArticleDetail() {
+            const params = new URLSearchParams(window.location.search);
+            const articleId = params.get('id');
+
+            const articleArea = document.getElementById('articleArea');
+            const errorArea = document.getElementById('errorArea');
+
+            if (!articleId) {
+                errorArea.style.display = 'block';
+                return;
+            }
+
+            // Retrieve from LocalStorage
+            let guides = localStorage.getItem('nest_guides');
+            if (!guides) {
+                // If local storage is empty, fallback to guide.html to load defaults
+                window.location.href = 'guide.html';
+                return;
+            }
+
+            const guideList = JSON.parse(guides);
+            const matched = guideList.find(g => g.id === articleId);
+
+            if (!matched) {
+                errorArea.style.display = 'block';
+                return;
+            }
+
+            // Populate text content safely
+            document.getElementById('articleTitle').innerText = matched.title;
+            document.getElementById('articleDate').innerText = matched.date || '2026.06.30';
+            document.getElementById('articleContent').innerText = matched.content;
+            
+            // Set image
+            const banner = document.getElementById('articleBanner');
+            banner.style.backgroundImage = `url('${matched.imageUrl || 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=800'}')`;
+
+            // Update page Title tag for SEO
+            document.title = `${matched.title} | (주)둥지부동산중개법인`;
+
+            // Display article
+            articleArea.style.display = 'block';
+        }
+
+        // Run
+        loadArticleDetail();
+    </script>
+</body>
+
+</html>

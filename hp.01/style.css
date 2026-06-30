@@ -60,6 +60,7 @@ header .container {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    max-width: 1400px;
 }
 
 .logo {
@@ -75,7 +76,7 @@ nav ul {
     list-style: none;
     display: flex;
     align-items: center;
-    gap: 30px;
+    gap: 16px;
 }
 
 nav a {

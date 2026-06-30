@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>전체 매물 정보 | 둥지부동산중개법인</title>
+    <title>지도보기 | 둥지부동산중개법인</title>
     <link rel="stylesheet" href="style.css?v=2">
     <link
         href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Playfair+Display:wght@400;700&display=swap"
@@ -13,7 +13,7 @@
 
 </head>
 
-<body>
+<body style="overflow: hidden;"> <!-- Lock scroll for full screen map feel -->
     <header id="header" class="scrolled"> <!-- Force header background color on static page -->
         <div class="container">
             <a href="index.html" class="logo" style="text-decoration: none;">(주)둥지부동산중개법인</a>
@@ -24,8 +24,8 @@
                 <ul class="nav-list">
                     <li><a href="index.html#home">홈</a></li>
                     <li><a href="index.html#about">법인소개</a></li>
-                    <li><a href="properties.html" class="active" style="color: var(--accent-color); font-weight: 700;">매물정보</a></li>
-                    <li><a href="map.html">지도보기</a></li>
+                    <li><a href="properties.html">매물정보</a></li>
+                    <li><a href="map.html" class="active" style="color: var(--accent-color); font-weight: 700;">지도보기</a></li>
                     <li><a href="index.html#submit-property">매물내놓기</a></li>
                     <li><a href="index.html#data-guide">시세</a></li>
                     <li><a href="guide.html">임대차 가이드</a></li>
@@ -67,29 +67,12 @@
         </a>
     </div>
 
-    <!-- Main Full Width Container -->
-    <section class="container" style="margin-top: 150px; padding-bottom: 80px; min-height: calc(100vh - 250px);">
-        <div class="section-header" style="margin-bottom: 40px; text-align: center;">
-            <h2 style="font-size: 2.5rem; margin-bottom: 10px; color: var(--primary-color); font-family: 'Playfair Display', serif; font-weight: 700;">ALL LISTINGS</h2>
-            <p>강남 전 지역 및 주요 핵심 업무지구의 비주거용 실매물 정보입니다</p>
-        </div>
-        
-        <div class="property-grid" id="propertiesGrid">
-            <!-- Dynamic Content Loaded from localStorage -->
-        </div>
-        
-        <div style="display: flex; flex-direction: column; align-items: center; gap: 15px; margin-top: 50px; margin-bottom: 30px;">
-            <a href="map.html" class="btn-consult" style="padding: 12px 40px; font-size: 15px; text-decoration: none; background: var(--accent-color); color: var(--primary-color) !important; border-color: var(--accent-color); font-weight: 700;">지도보기</a>
-            <a href="index.html" class="btn-consult" style="padding: 12px 30px; font-size: 15px; text-decoration: none;">메인 페이지로 돌아가기</a>
-        </div>
+    <!-- Main Full Screen Map -->
+    <section style="margin-top: 122px; height: calc(100vh - 122px); width: 100%; position: relative;">
+        <div id="map" style="width: 100%; height: 100%;"></div>
     </section>
 
-    <footer>
-        <div class="container">
-            <p>&copy; 2024 doongji Real Estate Corp. All rights reserved.</p>
-        </div>
-    </footer>
-
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=3e8097eb16c9e4942d0cbb215d2da6e6" onerror="window.kakaoMapFailed = true;"></script>
     <script>
         // Mobile Menu Toggle
         const menuToggle = document.getElementById('mobile-menu');
@@ -99,7 +82,7 @@
             navList.classList.toggle('active');
         });
 
-        // Dynamic Loading from localStorage
+        // Dynamic Loading from localStorage & Kakao Map integration
         function getProperties() {
             let props = localStorage.getItem('nest_properties');
             // Fallback default properties (Gangnam Datasets)
@@ -185,35 +168,182 @@
             return JSON.parse(props);
         }
 
-        const propertiesGrid = document.getElementById('propertiesGrid');
+        let map;
+        let leafletMap;
+        let markers = {}; 
 
-        function renderAllProperties(customProps) {
-            const props = customProps || getProperties();
-            propertiesGrid.innerHTML = '';
-            
-            if (props.length === 0) {
-                propertiesGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px;">조건에 맞는 매물이 없습니다.</p>';
+        // Dynamic Leaflet Loader
+        function loadLeaflet(callback) {
+            // Leaflet CSS
+            const css = document.createElement('link');
+            css.rel = 'stylesheet';
+            css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+            document.head.appendChild(css);
+
+            // Leaflet JS
+            const js = document.createElement('script');
+            js.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+            js.onload = callback;
+            document.head.appendChild(js);
+        }
+
+        function initMap() {
+            // Check if Kakao Maps API is loaded, else fallback to Leaflet Map
+            if (typeof kakao === 'undefined' || !kakao.maps || window.kakaoMapFailed) {
+                console.warn("Kakao Maps API failed to load or was blocked. Initiating Leaflet fallback map...");
+                
+                // Show brief fallback message inside #map before loading Leaflet
+                document.getElementById('map').innerHTML = `
+                    <div style="padding: 20px; text-align: center; color: #666; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #f9f9f9; font-family: sans-serif;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #C5A059; margin-bottom: 15px;"></i>
+                        <h4 style="margin: 0 0 10px 0; color: #0c1222;">안전 대체 지도 연결 중</h4>
+                        <p style="font-size: 0.85rem; max-width: 300px; line-height: 1.5; margin: 0 0 15px 0;">
+                            카카오 지도 도메인 승인 대기 상태입니다. 임시로 무인증 안전 지도를 즉시 가동합니다.
+                        </p>
+                    </div>
+                `;
+
+                loadLeaflet(() => {
+                    document.getElementById('map').innerHTML = ''; // Clear loading message
+                    
+                    // Center around Gangnam/Yeoksam (37.5080, 127.0360)
+                    leafletMap = L.map('map').setView([37.5080, 127.0360], 13);
+                    
+                    // Load standard OpenStreetMap tiles
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; OpenStreetMap contributors'
+                    }).addTo(leafletMap);
+
+                    // Add a tiny gold indicator badge on top of map container
+                    const badge = document.createElement('div');
+                    badge.style.position = 'absolute';
+                    badge.style.top = '15px';
+                    badge.style.left = '60px';
+                    badge.style.zIndex = '1000';
+                    badge.style.background = 'rgba(12, 18, 34, 0.95)';
+                    badge.style.color = '#C5A059';
+                    badge.style.padding = '6px 12px';
+                    badge.style.borderRadius = '4px';
+                    badge.style.fontSize = '11px';
+                    badge.style.fontWeight = '600';
+                    badge.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+                    badge.style.pointerEvents = 'none';
+                    badge.style.fontFamily = 'sans-serif';
+                    badge.innerHTML = '<i class="fas fa-info-circle" style="margin-right: 5px;"></i>대체 지도 작동 중 (카카오 인증 대기)';
+                    document.getElementById('map').appendChild(badge);
+
+                    // Invalidate size after brief timeout to avoid leaflet rendering breaks
+                    setTimeout(() => {
+                        leafletMap.invalidateSize();
+                    }, 100);
+
+                    // Parse params & render
+                    parseUrlParameters();
+                });
                 return;
             }
 
+            map = new kakao.maps.Map(document.getElementById('map'), {
+                center: new kakao.maps.LatLng(37.5080, 127.0360), // Centered around Gangnam/Yeoksam, Seoul
+                level: 5 // Default Kakao map zoom level
+            });
+
+            // Add standard zoom control UI for better usability
+            const zoomControl = new kakao.maps.ZoomControl();
+            map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
+
+            // If we have URL parameters, apply them after map is initialized
+            parseUrlParameters();
+        }
+
+        function closeAllInfoWindows() {
+            for (let id in markers) {
+                if (markers[id]) {
+                    if (markers[id].infoWindow) {
+                        markers[id].infoWindow.close();
+                    } else if (markers[id].marker && markers[id].marker.closePopup) {
+                        markers[id].marker.closePopup();
+                    }
+                }
+            }
+        }
+
+        function renderAllProperties(customProps) {
+            const props = customProps || getProperties();
+            
+            // Clear existing markers
+            if (map) {
+                for (let id in markers) {
+                    if (markers[id] && markers[id].marker) {
+                        markers[id].marker.setMap(null);
+                    }
+                }
+                markers = {};
+            } else if (leafletMap) {
+                for (let id in markers) {
+                    if (markers[id] && markers[id].marker) {
+                        leafletMap.removeLayer(markers[id].marker);
+                    }
+                }
+                markers = {};
+            }
+
             props.forEach(p => {
-                const card = document.createElement('div');
-                card.className = 'property-card';
-                card.id = `card-${p.id}`;
-                card.innerHTML = `
-                    <div class="card-image" style="background-image: url('${p.imageUrl}');">
-                        <span class="tag" style="background: var(--accent-color);">${escapeHtml(p.tag)} | ${escapeHtml(p.floor && p.floor.startsWith('-') ? '지하 ' + p.floor.substring(1) : p.floor)}</span>
-                    </div>
-                    <div class="card-body">
-                        <h3>${escapeHtml(p.title)}</h3>
-                        <p class="desc">${escapeHtml(p.desc)}</p>
-                        <div class="card-footer">
-                            <span class="price">${escapeHtml(p.price)}</span>
-                            <button class="btn-text" onclick="alert('둥지부동산에 매물 관련 문의 전화를 주시면 상세 안내를 도와드립니다.')">자세히 보기 &rarr;</button>
+                // Add Marker to Kakao Map
+                if (map && p.lat && p.lng) {
+                    const latlng = new kakao.maps.LatLng(parseFloat(p.lat), parseFloat(p.lng));
+                    const marker = new kakao.maps.Marker({
+                        position: latlng,
+                        map: map,
+                        title: p.title
+                    });
+                    
+                    const popupContent = `
+                        <div class="map-popup-content" style="padding: 10px; min-width: 180px; font-family: 'Noto Sans KR', sans-serif; background: #fff;">
+                            <h4 style="margin: 0 0 5px 0; font-size: 13px; color: #0c1222; font-weight: 700; line-height: 1.3;">${escapeHtml(p.title)}</h4>
+                            <p style="margin: 0 0 6px 0; font-size: 11px; color: #666; line-height: 1.4;">${escapeHtml(p.desc)}</p>
+                            <strong style="font-size: 12px; color: #C5A059;">${escapeHtml(p.price)}</strong>
                         </div>
-                    </div>
-                `;
-                propertiesGrid.appendChild(card);
+                    `;
+
+                    const infoWindow = new kakao.maps.InfoWindow({
+                        content: popupContent,
+                        removable: true
+                    });
+                    
+                    kakao.maps.event.addListener(marker, 'click', () => {
+                        closeAllInfoWindows();
+                        infoWindow.open(map, marker);
+                    });
+
+                    markers[p.id] = {
+                        marker: marker,
+                        infoWindow: infoWindow
+                    };
+                } 
+                // Add Marker to Fallback Leaflet Map
+                else if (leafletMap && p.lat && p.lng) {
+                    const marker = L.marker([parseFloat(p.lat), parseFloat(p.lng)]).addTo(leafletMap);
+                    
+                    const popupContent = `
+                        <div class="map-popup-content" style="padding: 5px; min-width: 160px; font-family: 'Noto Sans KR', sans-serif;">
+                            <h4 style="margin: 0 0 5px 0; font-size: 12px; color: #0c1222; font-weight: 700; line-height: 1.3;">${escapeHtml(p.title)}</h4>
+                            <p style="margin: 0 0 6px 0; font-size: 10px; color: #666; line-height: 1.4;">${escapeHtml(p.desc)}</p>
+                            <strong style="font-size: 11px; color: #C5A059;">${escapeHtml(p.price)}</strong>
+                        </div>
+                    `;
+                    marker.bindPopup(popupContent);
+                    
+                    marker.on('click', () => {
+                        closeAllInfoWindows();
+                        marker.openPopup();
+                    });
+
+                    markers[p.id] = {
+                        marker: marker,
+                        isLeaflet: true
+                    };
+                }
             });
         }
 
@@ -236,6 +366,19 @@
 
             // Render filtered properties
             renderAllProperties(filtered);
+
+            // Relocate map center to the first matched property if exists
+            if (filtered.length > 0) {
+                const first = filtered[0];
+                if (first.lat && first.lng) {
+                    if (map) {
+                        map.panTo(new kakao.maps.LatLng(parseFloat(first.lat), parseFloat(first.lng)));
+                        map.setLevel(4);
+                    } else if (leafletMap) {
+                        leafletMap.panTo([parseFloat(first.lat), parseFloat(first.lng)]);
+                    }
+                }
+            }
         }
 
         // URL query parameter parsing
@@ -243,7 +386,7 @@
             const params = new URLSearchParams(window.location.search);
             const regionParam = params.get('region');
             const typeParam = params.get('type');
-            const floorParam = params.get('floor');
+            const floorVal = params.get('floor');
 
             if (regionParam) {
                 document.getElementById('filterRegion').value = regionParam;
@@ -251,11 +394,11 @@
             if (typeParam) {
                 document.getElementById('filterType').value = typeParam;
             }
-            if (floorParam) {
-                document.getElementById('filterFloor').value = floorParam;
+            if (floorVal) {
+                document.getElementById('filterFloor').value = floorVal;
             }
 
-            if (regionParam || typeParam || floorParam) {
+            if (regionParam || typeParam || floorVal) {
                 applyFilters();
             } else {
                 // Initialize default view
@@ -299,7 +442,7 @@
 
         // Run
         populateFloorOptions();
-        parseUrlParameters();
+        initMap();
     </script>
 </body>
 

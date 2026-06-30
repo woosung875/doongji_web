@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>임대차 가이드 | (주)둥지부동산중개법인</title>
+    <link rel="stylesheet" href="style.css?v=2">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Playfair+Display:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .guide-hero {
+            background: linear-gradient(rgba(12, 18, 34, 0.85), rgba(12, 18, 34, 0.85)), url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=1600') no-repeat center center;
+            background-size: cover;
+            color: #fff;
+            padding: 100px 20px;
+            text-align: center;
+            margin-top: 72px;
+            border-bottom: 3px solid var(--accent-color);
+        }
+
+        .guide-hero h1 {
+            font-size: 3rem;
+            color: var(--accent-color);
+            font-weight: 700;
+            font-family: 'Playfair Display', serif;
+            margin-bottom: 15px;
+        }
+
+        .guide-section {
+            padding: 80px 20px;
+            background: #f8fafc;
+            min-height: calc(100vh - 450px);
+        }
+
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .blog-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .blog-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent-color);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.08);
+        }
+
+        .blog-image {
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .blog-body {
+            padding: 25px;
+            flex-grow: 1;
+        }
+
+        .blog-date {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .blog-body h3 {
+            font-size: 1.25rem;
+            color: var(--primary-color);
+            margin-bottom: 12px;
+            line-height: 1.4;
+            font-weight: 700;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        .blog-body p {
+            font-size: 0.92rem;
+            color: #64748b;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .blog-footer {
+            padding: 0 25px 25px 25px;
+            background: #fff;
+        }
+
+        .btn-more {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .btn-more:hover {
+            color: var(--accent-hover);
+        }
+    </style>
+</head>
+
+<body>
+    <header id="header" class="scrolled"> <!-- Force header background color on static page -->
+        <div class="container">
+            <a href="index.html" class="logo" style="text-decoration: none;">(주)둥지부동산중개법인</a>
+            <div class="menu-toggle" id="mobile-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+            <nav>
+                <ul class="nav-list">
+                    <li><a href="index.html#home">홈</a></li>
+                    <li><a href="index.html#about">법인소개</a></li>
+                    <li><a href="properties.html">매물정보</a></li>
+                    <li><a href="map.html">지도보기</a></li>
+                    <li><a href="index.html#submit-property">매물내놓기</a></li>
+                    <li><a href="index.html#data-guide">시세</a></li>
+                    <li><a href="guide.html" class="active" style="color: var(--accent-color); font-weight: 700;">임대차 가이드</a></li>
+                    <li><a href="corporate.html">기업서비스</a></li>
+                    <li><a href="recruit.html">인재모집</a></li>
+                    <li><a href="https://www.doongji.co.kr/" target="_blank">건물관리서비스</a></li>
+                    <li><a href="index.html#contact" class="btn-consult">상담문의</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Top Banner -->
+    <div class="guide-hero">
+        <div class="container">
+            <h1>RENTAL GUIDE</h1>
+            <p>둥지부동산중개법인의 전문가들이 전해드리는 성공적인 사옥 이전 및 계약 실무 가이드입니다.</p>
+        </div>
+    </div>
+
+    <!-- Blog Posts Section -->
+    <section class="guide-section">
+        <div class="container">
+            <div class="section-header" style="text-align: center; margin-bottom: 50px;">
+                <h2 style="font-size: 2.2rem; color: var(--primary-color);">실무자 추천 필수 정보</h2>
+                <p style="margin-top: 10px; color: #64748b;">합리적인 거래와 예산 절감을 위한 핵심 팁을 확인해 보세요.</p>
+            </div>
+
+            <!-- Dynamic Blog Post Grid -->
+            <div class="blog-grid" id="blogGrid">
+                <!-- Dynamically Loaded Content -->
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 doongji Real Estate Corp. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile Menu Toggle
+        const menuToggle = document.getElementById('mobile-menu');
+        const navList = document.querySelector('.nav-list');
+
+        menuToggle.addEventListener('click', () => {
+            navList.classList.toggle('active');
+        });
+
+        // Default guides seed data
+        const defaultGuides = [
+            {
+                id: "guide-1",
+                title: "빌딩 렌트프리(Rent-free) 협상 기술과 주의점",
+                summary: "임대료를 절감하는 핵심 카드인 렌트프리(무상 임대)와 핏아웃(인테리어 기간) 계약서 조항의 실무 꿀팁을 대방출합니다.",
+                content: `상업용 오피스나 대형 사옥 임대차 계약 시 반드시 등장하는 개념이 바로 '렌트프리(Rent-Free)'입니다. 렌트프리는 임대 기간 중 특정 개월 동안 임대료를 면제해주는 파격적인 조건이지만, 계약서 작성법과 세금 처리 등에서 면밀히 살피지 않으면 독이 될 수 있습니다.
+
+1. 렌트프리 협상의 타이밍
+렌트프리는 통상 빌딩 공실률이 높거나 브랜드 입주사가 들어설 때 협상력이 극대화됩니다. 계약기간이 장기일수록(3년 또는 5년) 렌트프리 제공 개월 수도 늘어납니다.
+
+2. 관리비 부과 여부 확인
+대부분의 빌딩은 렌트프리 기간 동안 '임대료'만 면제하고, '관리비'는 평당 실비로 부과합니다. 따라서 임대료 0원이라고 관리비까지 면제되는 것으로 착각해서는 안 됩니다.
+
+3. 계약 해지 시 반환 조항 유의
+계약 기간 중간에 입주사가 이탈할 경우, 기제공받은 렌트프리 비용을 일할 계산하여 반환하라는 불리한 위약 조항이 계약서에 삽입되는 경우가 있습니다. 임대인과 사전 조율이 필요합니다.`,
+                imageUrl: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800",
+                date: "2026.06.30"
+            },
+            {
+                id: "guide-2",
+                title: "사무실 원상복구 범위와 보증금 반환 분쟁 예방법",
+                summary: "사옥 이전 시 가장 분쟁이 빈번한 '원상복구 의무'. 판례 분석을 통해 입주 시점의 인테리어 철거 범위와 정산 요령을 알려드립니다.",
+                content: `계약 만료를 앞두고 임대인과 임차인 간에 가장 얼굴을 붉히는 주제가 바로 '원상복구(원상회복)' 범위입니다. 어디까지 철거하고 고쳐놓아야 정상적으로 보증금을 돌려받을 수 있을까요?
+
+1. 복구의 기준점은 '입주 시점'
+대법원 판례에 따르면 별도의 특약이 없는 한, 전 임차인이 개설한 시설물까지 현 임차인이 철거할 의무는 없습니다. 자신이 입주할 당시의 상태로 돌려놓는 것이 원칙입니다.
+
+2. 사진 및 동영상 기록 필수
+계약 직후 인테리어 공사를 시작하기 전, 빌딩 바닥, 천장, 텍스 상태, 소방 감지기 위치 등을 꼼꼼히 기록에 남겨두어야 나중에 과도한 복구 비용 청구를 방어할 수 있습니다.
+
+3. 시설 합의 권리금 주의
+전 임차인에게 권리금을 주고 시설을 인수받은 경우, 임대인은 '시설 전체에 대한 원상복구 의무까지 승계했다'고 주장할 여지가 큽니다. 권리금 계약 시 이 원상복구 의무 주체를 반드시 특약으로 합의해 두어야 합니다.`,
+                imageUrl: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=800",
+                date: "2026.06.30"
+            },
+            {
+                id: "guide-3",
+                title: "보증금·월세 환산 임대료 비교 계산법 가이드",
+                summary: "빌딩마다 다른 보증금 비율과 월세를 한눈에 비교하기 위해 실무자들이 사용하는 '전환이율' 공식과 보증금 안심 반환 팁을 안내합니다.",
+                content: `A빌딩은 보증금 3억에 월세 1,500만 원, B빌딩은 보증금 1억에 월세 1,700만 원일 때, 어떤 빌딩의 임대 조건이 계약사에게 실질적으로 이득일까요? 전환율 계산 공식을 통해 명쾌하게 비교해 보겠습니다.
+
+1. 연간 전환이율의 이해
+시장 평균 전환이율(통상 4% ~ 6%)을 적용하여 보증금 차액을 월세로 환산합니다.
+계산식: 보증금 차이 × 전환율(%) ÷ 12개월 = 월세 상당액
+
+2. 직접 비교 예시
+예를 들어 보증금 차이가 2억이고 전환이율이 5%라면,
+2억 × 0.05 ÷ 12 = 약 83만 원입니다.
+즉 보증금 2억을 추가 납부하는 것은 월세 83만 원을 깎는 것과 금융적으로 동일한 가치를 가집니다.
+
+3. 보증금 안심 확보 수단
+대형 빌딩이 아닌 개인 소유 빌딩의 고액 보증금을 지키기 위해서는 임대차 전세권 설정 등기 또는 확정일자 부여 외에 전세금반환보증보험 가입 요건을 반드시 검토해야 합니다.`,
+                imageUrl: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=800",
+                date: "2026.06.30"
+            }
+        ];
+
+        // Fetch guide data from localStorage
+        function getGuides() {
+            let guides = localStorage.getItem('nest_guides');
+            if (!guides || JSON.parse(guides).length === 0) {
+                localStorage.setItem('nest_guides', JSON.stringify(defaultGuides));
+                return defaultGuides;
+            }
+            return JSON.parse(guides);
+        }
+
+        // Render guide cards
+        function renderGuides() {
+            const blogGrid = document.getElementById('blogGrid');
+            const guides = getGuides();
+            blogGrid.innerHTML = '';
+
+            guides.forEach(g => {
+                const card = document.createElement('article');
+                card.className = 'blog-card';
+                card.innerHTML = `
+                    <div>
+                        <div class="blog-image" style="background-image: url('${g.imageUrl || 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=800'}');"></div>
+                        <div class="blog-body">
+                            <span class="blog-date"><i class="far fa-calendar-alt"></i> ${escapeHtml(g.date || '2026.06.30')}</span>
+                            <h3>${escapeHtml(g.title)}</h3>
+                            <p>${escapeHtml(g.summary)}</p>
+                        </div>
+                    </div>
+                    <div class="blog-footer">
+                        <a href="guide-detail.html?id=${g.id}" class="btn-more">더보기 <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                `;
+                blogGrid.appendChild(card);
+            });
+        }
+
+        // Simple HTML Escaping for security
+        function escapeHtml(string) {
+            return String(string).replace(/[&<>"']/g, function (s) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;'
+                }[s];
+            });
+        }
+
+        // Run
+        renderGuides();
+    </script>
+</body>
+
+</html>

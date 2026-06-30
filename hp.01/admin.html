@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>매물 관리 시스템 | (주)둥지부동산중개법인</title>
-    <link rel="stylesheet" href="style.css">
+    <title>매물 및 가이드 관리 시스템 | (주)둥지부동산중개법인</title>
+    <link rel="stylesheet" href="style.css?v=2">
     <link
         href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Playfair+Display:wght@400;700&display=swap"
         rel="stylesheet">
@@ -46,54 +46,98 @@
 
         <main class="admin-main">
             <div class="container">
-                <div class="dashboard-title-bar">
-                    <h2>매물 목록 관리</h2>
-                    <button class="btn-admin-action" id="btnNewProperty">
-                        <i class="fas fa-plus"></i> 새 매물 등록
+                
+                <!-- Tab switching buttons -->
+                <div class="admin-tabs" style="display: flex; gap: 12px; margin-bottom: 25px; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px;">
+                    <button class="tab-btn active" id="tabBtnProperties" onclick="switchTab('properties')" 
+                            style="padding: 10px 20px; background: var(--primary-color); color: #fff; border: 1px solid var(--primary-color); border-radius: 6px; font-weight: 700; cursor: pointer; transition: all 0.3s; font-family: inherit; font-size: 14px;">
+                        <i class="fas fa-building" style="margin-right: 6px;"></i> 매물 목록 관리
+                    </button>
+                    <button class="tab-btn" id="tabBtnGuides" onclick="switchTab('guides')" 
+                            style="padding: 10px 20px; background: #fff; color: #64748b; border: 1px solid #e2e8f0; border-radius: 6px; font-weight: 500; cursor: pointer; transition: all 0.3s; font-family: inherit; font-size: 14px;">
+                        <i class="fas fa-book" style="margin-right: 6px;"></i> 임대차 가이드 관리
                     </button>
                 </div>
 
-                <!-- Admin Properties Filter Header -->
-                <div class="admin-filter-bar" style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
-                    <select id="adminFilterRegion" onchange="applyAdminFilters()" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; outline: none; background: white; font-family: inherit;">
-                        <option value="">전체지역</option>
-                        <option value="서울">서울</option>
-                        <option value="경기">경기</option>
-                    </select>
-                    <select id="adminFilterType" onchange="applyAdminFilters()" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; outline: none; background: white; font-family: inherit;">
-                        <option value="">매물종류</option>
-                        <option value="사무실">사무실</option>
-                        <option value="상가">상가</option>
-                        <option value="빌딩">빌딩</option>
-                        <option value="토지">토지</option>
-                        <option value="주거용">주거용</option>
-                    </select>
-                    <select id="adminFilterFloor" onchange="applyAdminFilters()" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; outline: none; background: white; font-family: inherit;">
-                        <option value="">층수</option>
-                        <option value="지하">지하</option>
-                        <option value="1층">1층</option>
-                        <option value="지상">지상</option>
-                    </select>
-                    <span style="font-size: 13px; color: #64748b; font-weight: 500; margin-left: auto;" id="adminFilterCount">검색된 매물: 0개</span>
+                <!-- 1. PROPERTIES TAB SECTION -->
+                <div id="propertiesTabArea">
+                    <div class="dashboard-title-bar">
+                        <h2>매물 목록 관리</h2>
+                        <button class="btn-admin-action" id="btnNewProperty">
+                            <i class="fas fa-plus"></i> 새 매물 등록
+                        </button>
+                    </div>
+
+                    <!-- Admin Properties Filter Header -->
+                    <div class="admin-filter-bar" style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                        <select id="adminFilterRegion" onchange="applyAdminFilters()" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; outline: none; background: white; font-family: inherit;">
+                            <option value="">전체지역</option>
+                            <option value="서울">서울</option>
+                            <option value="경기">경기</option>
+                        </select>
+                        <select id="adminFilterType" onchange="applyAdminFilters()" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; outline: none; background: white; font-family: inherit;">
+                            <option value="">매물종류</option>
+                            <option value="사무실">사무실</option>
+                            <option value="상가">상가</option>
+                            <option value="빌딩">빌딩</option>
+                            <option value="토지">토지</option>
+                            <option value="주거용">주거용</option>
+                        </select>
+                        <select id="adminFilterFloor" onchange="applyAdminFilters()" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; outline: none; background: white; font-family: inherit;">
+                            <option value="">층수</option>
+                            <option value="지하">지하</option>
+                            <option value="1층">1층</option>
+                            <option value="지상">지상</option>
+                        </select>
+                        <span style="font-size: 13px; color: #64748b; font-weight: 500; margin-left: auto;" id="adminFilterCount">검색된 매물: 0개</span>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 120px;">이미지</th>
+                                    <th style="width: 140px;">지역 / 층수</th>
+                                    <th>매물명</th>
+                                    <th>설명</th>
+                                    <th style="width: 220px;">가격</th>
+                                    <th style="width: 110px; text-align: center;">관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="propertyTableBody">
+                                <!-- Dynamic Content -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
-                <div class="table-responsive">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 120px;">이미지</th>
-                                <th style="width: 140px;">지역 / 층수</th>
-                                <th>매물명</th>
-                                <th>설명</th>
-                                <th style="width: 220px;">가격</th>
-                                <th style="width: 110px; text-align: center;">관리</th>
-                            </tr>
-                        </thead>
-                        <tbody id="propertyTableBody">
-                            <!-- Dynamic Content -->
-                        </tbody>
-                    </table>
+                <!-- 2. RENTAL GUIDES TAB SECTION -->
+                <div id="guidesTabArea" style="display: none;">
+                    <div class="dashboard-title-bar">
+                        <h2>임대차 가이드 게시글 관리</h2>
+                        <button class="btn-admin-action" id="btnNewGuide" style="background: var(--accent-color); border-color: var(--accent-color); color: var(--primary-color);">
+                            <i class="fas fa-plus"></i> 새 가이드 등록
+                        </button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 120px;">대표 이미지</th>
+                                    <th style="width: 140px;">작성일</th>
+                                    <th>제목</th>
+                                    <th>요약 설명</th>
+                                    <th style="width: 110px; text-align: center;">관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="guideTableBody">
+                                <!-- Dynamic Content -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
+
             </div>
         </main>
     </div>
@@ -172,6 +216,41 @@
         </div>
     </div>
 
+    <!-- GUIDE FORM MODAL (ADD / EDIT) -->
+    <div class="admin-modal" id="guideModal" style="display: none;">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 id="guideModalTitle">새 임대차 가이드 등록</h3>
+                <button class="modal-close" id="btnGuideModalClose">&times;</button>
+            </div>
+            <form id="guideForm">
+                <input type="hidden" id="guideId">
+                <div class="form-group">
+                    <label>가이드 제목</label>
+                    <input type="text" id="guideTitle" placeholder="가이드 제목을 입력하세요" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                </div>
+                <div class="form-group">
+                    <label>요약 설명 (목록 카드 노출용)</label>
+                    <input type="text" id="guideSummary" placeholder="가이드 요약 문구를 간단히 입력하세요" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                </div>
+                <div class="form-group">
+                    <label>대표 이미지 URL</label>
+                    <input type="text" id="guideImageUrl" placeholder="https://images.unsplash.com/... 또는 비워두면 기본 이미지 적용" style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                </div>
+                <div class="form-group">
+                    <label>상세 본문 내용</label>
+                    <textarea id="guideContent" rows="12" placeholder="가이드의 상세 본문 내용을 자유롭게 입력하세요. 줄바꿈이 그대로 보존됩니다." required 
+                              style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit; font-size: 14px; resize: vertical; line-height: 1.6;"></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="btnGuideModalCancel">취소</button>
+                    <button type="submit" class="btn-submit" style="width: auto; padding: 12px 30px; background: var(--accent-color); border-color: var(--accent-color); color: var(--primary-color); font-weight: bold;" id="btnGuideModalSave">저장하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- DATABASE LOGIC & ROUTING SCRIPT -->
     <script>
         // Mock Properties Data Array (fallback for initialization)
@@ -180,9 +259,9 @@
                 id: "prop-1",
                 tag: "서울",
                 type: "사무실",
-                floor: "지상",
+                floor: "5층",
                 title: "역삼역 초역세권 대형 프라임 오피스",
-                desc: "전용 150평 / 테헤란로 뷰 / 고층 오피스 빌딩 내 지상층",
+                desc: "전용 150평 / 테헤란로 뷰 / 고층 오피스 빌딩 내 지상 5층",
                 price: "보증금 5억 / 월 4,500만",
                 imageUrl: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800",
                 lat: 37.5019,
@@ -204,7 +283,7 @@
                 id: "prop-3",
                 tag: "경기",
                 type: "토지",
-                floor: "지상",
+                floor: "1층",
                 title: "용인 기흥 상업용 개발 토지 매매",
                 desc: "토지면적 450평 / 대로변 코너 / 근생 및 물류 부지 추천",
                 price: "매매 45억",
@@ -216,9 +295,9 @@
                 id: "prop-4",
                 tag: "서울",
                 type: "상가",
-                floor: "지하",
+                floor: "-1층",
                 title: "강남역 인근 지하 대형 F&B 상가",
-                desc: "전용 120평 / 단독 진입 계단 / 주방 설비 완비 및 층고 4m",
+                desc: "전용 120평 / 지하 1층 단독 진입 계단 / 주방 설비 완비 및 층고 4m",
                 price: "보증금 2억 / 월 1,500만",
                 imageUrl: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&q=80&w=800",
                 lat: 37.4979,
@@ -228,9 +307,9 @@
                 id: "prop-5",
                 tag: "경기",
                 type: "주거용",
-                floor: "지상",
+                floor: "12층",
                 title: "분당 정자동 오피스텔 주거용 풀옵션",
-                desc: "전용 24평 / 탄천 뷰 / 침실 2개 / 즉시 입주 가능",
+                desc: "전용 24평 / 지상 12층 탄천 뷰 / 침실 2개 / 즉시 입주 가능",
                 price: "보증금 3,000만 / 월 180만",
                 imageUrl: "https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80&w=800",
                 lat: 37.3614,
@@ -240,9 +319,9 @@
                 id: "prop-6",
                 tag: "서울",
                 type: "빌딩",
-                floor: "지상",
+                floor: "7층",
                 title: "테헤란로 삼성동 대로변 프라임 사옥 빌딩",
-                desc: "연면적 450평 / 지상 전체 통임대 / 자주식 주차 10대",
+                desc: "연면적 450평 / 지상 7층 전체 통임대 / 자주식 주차 10대",
                 price: "보증금 8억 / 월 6,000만",
                 imageUrl: "https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&q=80&w=800",
                 lat: 37.5097,
@@ -296,7 +375,7 @@
             adminBody.classList.remove('admin-login-body');
             loginCard.style.display = 'none';
             dashboardContainer.style.display = 'block';
-            applyAdminFilters();
+            switchTab('properties'); // Default to properties tab
         }
 
         function showLoginForm() {
@@ -305,75 +384,108 @@
             dashboardContainer.style.display = 'none';
         }
 
-        // Login Logic
+        // Login Handler
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const uid = document.getElementById('username').value.trim();
-            const upw = document.getElementById('password').value;
+            const id = document.getElementById('username').value;
+            const pw = document.getElementById('password').value;
 
-            if (uid === ADMIN_ID && upw === ADMIN_PW) {
+            if (id === ADMIN_ID && pw === ADMIN_PW) {
                 sessionStorage.setItem('admin_logged', 'true');
                 showDashboard();
-                loginForm.reset();
             } else {
-                alert("아이디 또는 비밀번호가 일치하지 않습니다.");
+                alert('아이디 또는 비밀번호가 올바르지 않습니다.');
             }
         });
 
-        // Logout Logic
+        // Logout Handler
         btnLogout.addEventListener('click', () => {
             sessionStorage.removeItem('admin_logged');
             showLoginForm();
         });
 
-        // Data Controller (localStorage)
+        // Get Properties Data
         function getProperties() {
             let props = localStorage.getItem('nest_properties');
-            if (!props || JSON.parse(props).length === 0 || JSON.parse(props)[0].tag === "부산진구" || (JSON.parse(props)[0].tag !== "서울" && JSON.parse(props)[0].tag !== "경기")) {
+            if (!props || JSON.parse(props).length === 0) {
                 localStorage.setItem('nest_properties', JSON.stringify(defaultProperties));
                 return defaultProperties;
             }
             return JSON.parse(props);
         }
 
-        function saveProperties(props) {
-            localStorage.setItem('nest_properties', JSON.stringify(props));
+        // Populate Floor Option Dropdown (-6F to 30F)
+        function populateFloorOptions() {
+            const select = document.getElementById('propFloor');
+            select.innerHTML = '<option value="">층수를 선택하세요</option>';
+            // -6층 ~ -1층 (지하)
+            for (let i = -6; i <= -1; i++) {
+                const opt = document.createElement('option');
+                opt.value = `${i}층`;
+                opt.innerText = `지하 ${Math.abs(i)}층`;
+                select.appendChild(opt);
+            }
+            // 1층 ~ 30층
+            for (let i = 1; i <= 30; i++) {
+                const opt = document.createElement('option');
+                opt.value = `${i}층`;
+                opt.innerText = `${i}층`;
+                select.appendChild(opt);
+            }
         }
 
-        // Table Render Logic
-        function renderTable(customProps) {
-            const props = customProps || getProperties();
-            propertyTableBody.innerHTML = '';
+        // Apply Admin Side Filters
+        function applyAdminFilters() {
+            const region = document.getElementById('adminFilterRegion').value;
+            const type = document.getElementById('adminFilterType').value;
+            const floorType = document.getElementById('adminFilterFloor').value;
+            const allProps = getProperties();
 
-            if (props.length === 0) {
-                propertyTableBody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="empty-state">
-                            <i class="fas fa-folder-open"></i>
-                            <p>등록된 매물이 없습니다. 새 매물을 등록해 주세요.</p>
-                        </td>
-                    </tr>
-                `;
+            const filtered = allProps.filter(p => {
+                const regionMatch = !region || p.tag === region;
+                const typeMatch = !type || p.type === type;
+                
+                let floorMatch = true;
+                if (floorType === '지하') {
+                    floorMatch = p.floor && p.floor.startsWith('-');
+                } else if (floorType === '1층') {
+                    floorMatch = p.floor === '1층';
+                } else if (floorType === '지상') {
+                    floorMatch = p.floor && !p.floor.startsWith('-') && p.floor !== '1층';
+                }
+                
+                return regionMatch && typeMatch && floorMatch;
+            });
+
+            document.getElementById('adminFilterCount').innerText = `검색된 매물: ${filtered.length}개`;
+            renderAdminProperties(filtered);
+        }
+
+        // Render Property rows in table
+        function renderAdminProperties(list) {
+            propertyTableBody.innerHTML = '';
+            
+            if (list.length === 0) {
+                propertyTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #888; padding: 30px;">검색 조건에 맞는 매물이 없습니다.</td></tr>';
                 return;
             }
 
-            props.forEach(p => {
+            list.forEach(p => {
+                const displayFloor = p.floor && p.floor.startsWith('-') ? '지하 ' + p.floor.substring(1) : p.floor;
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td><div class="img-preview" style="background-image: url('${p.imageUrl}')"></div></td>
+                    <td><img src="${p.imageUrl}" style="width: 70px; height: 50px; object-fit: cover; border-radius: 4px;"></td>
                     <td>
-                        <span class="badge-tag">${escapeHtml(p.tag)}</span>
-                        <span style="font-size: 0.9rem; color: #475569; margin-left: 6px; font-weight: 500;">
-                            ${escapeHtml(p.floor && p.floor.startsWith('-') ? '지하 ' + p.floor.substring(1) : p.floor)}
-                        </span>
+                        <span style="background: #e2e8f0; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; color: #475569; display: inline-block; margin-bottom: 4px;">${escapeHtml(p.tag)}</span>
+                        <div style="font-size: 12px; color: #64748b;">${escapeHtml(displayFloor)}</div>
                     </td>
-                    <td><strong style="color: var(--primary-color);">${escapeHtml(p.title)}</strong></td>
-                    <td style="color: #666; font-size: 0.9rem;">${escapeHtml(p.desc)}</td>
-                    <td><strong style="color: var(--primary-color); font-weight: 700;">${escapeHtml(p.price)}</strong></td>
-                    <td>
-                        <div class="actions">
-                            <button class="btn-icon edit" onclick="openEditModal('${p.id}')" title="수정"><i class="fas fa-edit"></i></button>
-                            <button class="btn-icon delete" onclick="deleteProperty('${p.id}')" title="삭제"><i class="fas fa-trash-alt"></i></button>
+                    <td style="font-weight: 700; color: var(--primary-color);">${escapeHtml(p.title)}</td>
+                    <td style="font-size: 13px; color: #64748b;">${escapeHtml(p.desc)}</td>
+                    <td style="font-weight: bold; color: var(--accent-color); font-size: 14px;">${escapeHtml(p.price)}</td>
+                    <td style="text-align: center;">
+                        <div style="display: flex; gap: 6px; justify-content: center;">
+                            <button onclick="editProperty('${p.id}')" style="padding: 5px 10px; font-size: 11px; background: #e2e8f0; border: 1px solid #cbd5e1; border-radius: 4px; cursor: pointer;">수정</button>
+                            <button onclick="deleteProperty('${p.id}')" style="padding: 5px 10px; font-size: 11px; background: #fee2e2; border: 1px solid #fca5a5; color: #b91c1c; border-radius: 4px; cursor: pointer;">삭제</button>
                         </div>
                     </td>
                 `;
@@ -381,185 +493,111 @@
             });
         }
 
-        // Admin Filter Logic
-        function applyAdminFilters() {
-            const selectedRegion = document.getElementById('adminFilterRegion').value;
-            const selectedType = document.getElementById('adminFilterType').value;
-            const selectedFloor = document.getElementById('adminFilterFloor').value;
-            const allProps = getProperties();
-
-            const filtered = allProps.filter(p => {
-                const regionMatch = !selectedRegion || p.tag === selectedRegion;
-                const typeMatch = !selectedType || p.type === selectedType;
-                const floorMatch = !selectedFloor || p.floor === selectedFloor;
-                return regionMatch && typeMatch && floorMatch;
-            });
-
-            document.getElementById('adminFilterCount').innerText = `검색된 매물: ${filtered.length}개`;
-            renderTable(filtered);
-        }
-
-        // Modal Form Controller
-        function showModal(title, editId = null) {
-            modalTitle.innerText = title;
-            propertyModal.classList.add('open');
-
-            if (editId) {
-                const props = getProperties();
-                const target = props.find(p => p.id === editId);
-                if (target) {
-                    inputId.value = target.id;
-                    inputTag.value = target.tag;
-                    inputType.value = target.type || '';
-                    inputFloor.value = target.floor || '';
-                    inputTitle.value = target.title;
-                    inputDesc.value = target.desc;
-                    inputPrice.value = target.price;
-                    inputImageUrl.value = target.imageUrl;
-                    inputLat.value = target.lat || '';
-                    inputLng.value = target.lng || '';
-                    
-                    // Show current image preview
-                    if (target.imageUrl) {
-                        formImagePreview.src = target.imageUrl;
-                        previewContainer.style.display = 'block';
-                    } else {
-                        previewContainer.style.display = 'none';
-                    }
-                }
-            } else {
-                propertyForm.reset();
-                inputId.value = '';
-                inputType.value = '';
-                inputFloor.value = '';
-                previewContainer.style.display = 'none';
-                formImagePreview.src = '';
-            }
-        }
-
-        function closeModal() {
-            propertyModal.classList.remove('open');
+        // Open Property Modal (Add)
+        btnNewProperty.addEventListener('click', () => {
+            modalTitle.innerText = "새 매물 등록";
+            inputId.value = '';
             propertyForm.reset();
+            inputImageUrl.value = '';
             previewContainer.style.display = 'none';
             formImagePreview.src = '';
-        }
+            propertyModal.style.display = 'flex';
+        });
 
-        btnNewProperty.addEventListener('click', () => showModal('새 매물 등록'));
+        // Close Modal Handlers
+        function closeModal() {
+            propertyModal.style.display = 'none';
+        }
         btnModalClose.addEventListener('click', closeModal);
         btnModalCancel.addEventListener('click', closeModal);
 
-        // File Reader Base64 Encoding, Canvas Compression & Validation
+        // File upload encoding (Base64)
         inputFile.addEventListener('change', (e) => {
             const file = e.target.files[0];
-            if (!file) return;
-
-            // Pre-validation to prevent browser crash from massive files (> 15MB)
-            if (file.size > 15000000) {
-                alert("파일 크기가 너무 큽니다. 15MB 이하의 이미지만 업로드 가능합니다.");
-                inputFile.value = '';
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const img = new Image();
-                img.onload = () => {
-                    // Create Canvas
-                    const canvas = document.createElement('canvas');
-                    let width = img.width;
-                    let height = img.height;
-
-                    // Resize if width exceeds 1200px
-                    const MAX_WIDTH = 1200;
-                    if (width > MAX_WIDTH) {
-                        height = Math.round((height * MAX_WIDTH) / width);
-                        width = MAX_WIDTH;
-                    }
-
-                    canvas.width = width;
-                    canvas.height = height;
-
-                    // Draw to canvas
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-
-                    // Compress to JPEG with 0.7 quality
-                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
-
-                    inputImageUrl.value = compressedDataUrl;
-                    formImagePreview.src = compressedDataUrl;
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    inputImageUrl.value = event.target.result;
+                    formImagePreview.src = event.target.result;
                     previewContainer.style.display = 'block';
                 };
-                img.src = event.target.result;
-            };
-            reader.readAsDataURL(file);
+                reader.readAsDataURL(file);
+            }
         });
 
-        // Edit Action handler (Global for inline onclick)
-        window.openEditModal = function(id) {
-            showModal('매물 정보 수정', id);
-        }
-
-        // Delete Action handler
-        window.deleteProperty = function(id) {
-            if (confirm("정말로 이 매물을 삭제하시겠습니까?")) {
-                let props = getProperties();
-                props = props.filter(p => p.id !== id);
-                saveProperties(props);
-                applyAdminFilters();
-            }
-        }
-
-        // Form Submit (Save / Edit)
+        // Save Property (Add or Edit)
         propertyForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            
+            const list = getProperties();
             const id = inputId.value;
-            const tag = inputTag.value.trim();
-            const type = inputType.value.trim();
-            const floor = inputFloor.value.trim();
-            const title = inputTitle.value.trim();
-            const desc = inputDesc.value.trim();
-            const price = inputPrice.value.trim();
-            const imageUrl = inputImageUrl.value.trim();
+
+            const tag = inputTag.value;
+            const type = inputType.value;
+            const floor = inputFloor.value;
+            const title = inputTitle.value;
+            const desc = inputDesc.value;
+            const price = inputPrice.value;
             const lat = parseFloat(inputLat.value);
             const lng = parseFloat(inputLng.value);
-
-            if (!imageUrl) {
-                alert("매물 이미지를 업로드해 주세요.");
-                return;
-            }
-
-            if (isNaN(lat) || isNaN(lng)) {
-                alert("올바른 위도와 경도 좌표값을 입력해 주세요.");
-                return;
-            }
-
-            let props = getProperties();
+            
+            // Set image fallback if none selected
+            const imageUrl = inputImageUrl.value || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800';
 
             if (id) {
-                // Update
-                props = props.map(p => {
-                    if (p.id === id) {
-                        return { id, tag, type, floor, title, desc, price, imageUrl, lat, lng };
-                    }
-                    return p;
-                });
-                alert("매물 정보가 성공적으로 수정되었습니다.");
+                // Edit mode
+                const idx = list.findIndex(p => p.id === id);
+                if (idx !== -1) {
+                    list[idx] = { id, tag, type, floor, title, desc, price, imageUrl, lat, lng };
+                }
             } else {
-                // Create
-                const newId = 'prop-' + Date.now();
-                const newProp = { id: newId, tag, type, floor, title, desc, price, imageUrl, lat, lng };
-                props.push(newProp);
-                alert("새 매물이 등록되었습니다.");
+                // Add mode
+                const newProp = {
+                    id: "prop-" + Date.now(),
+                    tag, type, floor, title, desc, price, imageUrl, lat, lng
+                };
+                list.unshift(newProp); // Put new items at the beginning
             }
 
-            saveProperties(props);
+            localStorage.setItem('nest_properties', JSON.stringify(list));
             closeModal();
             applyAdminFilters();
+            alert('매물 정보가 성공적으로 반영되었습니다.');
         });
 
-        // Simple HTML Escaping for security
+        // Edit Property
+        window.editProperty = function(id) {
+            const list = getProperties();
+            const matched = list.find(p => p.id === id);
+            if (!matched) return;
+
+            modalTitle.innerText = "매물 정보 수정";
+            inputId.value = matched.id;
+            inputTag.value = matched.tag;
+            inputType.value = matched.type;
+            inputFloor.value = matched.floor;
+            inputTitle.value = matched.title;
+            inputDesc.value = matched.desc;
+            inputPrice.value = matched.price;
+            inputLat.value = matched.lat;
+            inputLng.value = matched.lng;
+            inputImageUrl.value = matched.imageUrl;
+            
+            formImagePreview.src = matched.imageUrl;
+            previewContainer.style.display = 'block';
+            
+            propertyModal.style.display = 'flex';
+        };
+
+        // Delete Property
+        window.deleteProperty = function(id) {
+            if (!confirm('정말 이 매물 정보를 영구 삭제하시겠습니까?')) return;
+            let list = getProperties();
+            list = list.filter(p => p.id !== id);
+            localStorage.setItem('nest_properties', JSON.stringify(list));
+            applyAdminFilters();
+        };
+
+        // Helper: Simple HTML Escape
         function escapeHtml(string) {
             return String(string).replace(/[&<>"']/g, function (s) {
                 return {
@@ -572,45 +610,218 @@
             });
         }
 
-        // Populate floor options dynamically (-6F to 30F)
-        function populateAdminFloorOptions() {
-            const filterSelect = document.getElementById('adminFilterFloor');
-            if (filterSelect) {
-                filterSelect.innerHTML = '<option value="">층수</option>';
-                for (let i = -6; i <= -1; i++) {
-                    const opt = document.createElement('option');
-                    opt.value = `${i}층`;
-                    opt.innerText = `지하 ${Math.abs(i)}층`;
-                    filterSelect.appendChild(opt);
-                }
-                for (let i = 1; i <= 30; i++) {
-                    const opt = document.createElement('option');
-                    opt.value = `${i}층`;
-                    opt.innerText = `${i}층`;
-                    filterSelect.appendChild(opt);
-                }
-            }
-            
-            const formSelect = document.getElementById('propFloor');
-            if (formSelect) {
-                formSelect.innerHTML = '<option value="">층수를 선택하세요</option>';
-                for (let i = -6; i <= -1; i++) {
-                    const opt = document.createElement('option');
-                    opt.value = `${i}층`;
-                    opt.innerText = `지하 ${Math.abs(i)}층`;
-                    formSelect.appendChild(opt);
-                }
-                for (let i = 1; i <= 30; i++) {
-                    const opt = document.createElement('option');
-                    opt.value = `${i}층`;
-                    opt.innerText = `${i}층`;
-                    formSelect.appendChild(opt);
-                }
+        // ==============================================================
+        // ================= TAB SYSTEM & BLOG CMS LOGIC ================
+        // ==============================================================
+        
+        // Tab switching logic
+        function switchTab(tabName) {
+            const propTabArea = document.getElementById('propertiesTabArea');
+            const guideTabArea = document.getElementById('guidesTabArea');
+            const tabBtnProp = document.getElementById('tabBtnProperties');
+            const tabBtnGuide = document.getElementById('tabBtnGuides');
+
+            if (tabName === 'properties') {
+                propTabArea.style.display = 'block';
+                guideTabArea.style.display = 'none';
+                
+                // Active button style
+                tabBtnProp.style.background = 'var(--primary-color)';
+                tabBtnProp.style.color = '#fff';
+                tabBtnProp.style.fontWeight = '700';
+                tabBtnProp.style.borderColor = 'var(--primary-color)';
+
+                // Inactive button style
+                tabBtnGuide.style.background = '#fff';
+                tabBtnGuide.style.color = '#64748b';
+                tabBtnGuide.style.fontWeight = '500';
+                tabBtnGuide.style.borderColor = '#e2e8f0';
+                
+                applyAdminFilters();
+            } else {
+                propTabArea.style.display = 'none';
+                guideTabArea.style.display = 'block';
+
+                // Active button style
+                tabBtnGuide.style.background = 'var(--primary-color)';
+                tabBtnGuide.style.color = '#fff';
+                tabBtnGuide.style.fontWeight = '700';
+                tabBtnGuide.style.borderColor = 'var(--primary-color)';
+
+                // Inactive button style
+                tabBtnProp.style.background = '#fff';
+                tabBtnProp.style.color = '#64748b';
+                tabBtnProp.style.fontWeight = '500';
+                tabBtnProp.style.borderColor = '#e2e8f0';
+
+                renderAdminGuides();
             }
         }
 
-        // Run Init
-        populateAdminFloorOptions();
+        // Default guides data (seed)
+        const initialGuides = [
+            {
+                id: "guide-1",
+                title: "빌딩 렌트프리(Rent-free) 협상 기술과 주의점",
+                summary: "임대료를 절감하는 핵심 카드인 렌트프리(무상 임대)와 핏아웃(인테리어 기간) 계약서 조항의 실무 꿀팁을 대방출합니다.",
+                content: `상업용 오피스나 대형 사옥 임대차 계약 시 반드시 등장하는 개념이 바로 '렌트프리(Rent-Free)'입니다. 렌트프리는 임대 기간 중 특정 개월 동안 임대료를 면제해주는 파격적인 조건이지만, 계약서 작성법과 세금 처리 등에서 면밀히 살피지 않으면 독이 될 수 있습니다.\n\n1. 렌트프리 협상의 타이밍\n렌트프리는 통상 빌딩 공실률이 높거나 브랜드 입주사가 들어설 때 협상력이 극대화됩니다. 계약기간이 장기일수록(3년 또는 5년) 렌트프리 제공 개월 수도 늘어납니다.\n\n2. 관리비 부과 여부 확인\n대부분의 빌딩은 렌트프리 기간 동안 '임대료'만 면제하고, '관리비'는 평당 실비로 부과합니다. 따라서 임대료 0원이라고 관리비까지 면제되는 것으로 착각해서는 안 됩니다.\n\n3. 계약 해지 시 반환 조항 유의\n계약 기간 중간에 입주사가 이탈할 경우, 기제공받은 렌트프리 비용을 일할 계산하여 반환하라는 불리한 위약 조항이 계약서에 삽입되는 경우가 있습니다. 임대인과 사전 조율이 필요합니다.`,
+                imageUrl: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800",
+                date: "2026.06.30"
+            },
+            {
+                id: "guide-2",
+                title: "사무실 원상복구 범위와 보증금 반환 분쟁 예방법",
+                summary: "사옥 이전 시 가장 분쟁이 빈번한 '원상복구 의무'. 판례 분석을 통해 입주 시점의 인테리어 철거 범위와 정산 요령을 알려드립니다.",
+                content: `계약 만료를 앞두고 임대인과 임차인 간에 가장 얼굴을 붉히는 주제가 바로 '원상복구(원상회복)' 범위입니다. 어디까지 철거하고 고쳐놓아야 정상적으로 보증금을 돌려받을 수 있을까요?\n\n1. 복구의 기준점은 '입주 시점'\n대법원 판례에 따르면 별도의 특약이 없는 한, 전 임차인이 개설한 시설물까지 현 임차인이 철거할 의무는 없습니다. 자신이 입주할 당시의 상태로 돌려놓는 것이 원칙입니다.\n\n2. 사진 및 동영상 기록 필수\n계약 직후 인테리어 공사를 시작하기 전, 빌딩 바닥, 천장, 텍스 상태, 소방 감지기 위치 등을 꼼꼼히 기록에 남겨두어야 나중에 과도한 복구 비용 청구를 방어할 수 있습니다.\n\n3. 시설 합의 권리금 주의\n전 임차인에게 권리금을 주고 시설을 인수받은 경우, 임대인은 '시설 전체에 대한 원상복구 의무까지 승계했다'고 주장할 여지가 큽니다. 권리금 계약 시 이 원상복구 의무 주체를 반드시 특약으로 합의해 두어야 합니다.`,
+                imageUrl: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=800",
+                date: "2026.06.30"
+            },
+            {
+                id: "guide-3",
+                title: "보증금·월세 환산 임대료 비교 계산법 가이드",
+                summary: "빌딩마다 다른 보증금 비율과 월세를 한눈에 비교하기 위해 실무자들이 사용하는 '전환이율' 공식과 보증금 안심 반환 팁을 안내합니다.",
+                content: `A빌딩은 보증금 3억에 월세 1,500만 원, B빌딩은 보증금 1억에 월세 1,700만 원일 때, 어떤 빌딩의 임대 조건이 계약사에게 실질적으로 이득일까요? 전환율 계산 공식을 통해 명쾌하게 비교해 보겠습니다.\n\n1. 연간 전환이율의 이해\n시장 평균 전환이율(통상 4% ~ 6%)을 적용하여 보증금 차액을 월세로 환산합니다.\n계산식: 보증금 차이 × 전환율(%) ÷ 12개월 = 월세 상당액\n\n2. 직접 비교 예시\n예를 들어 보증금 차이가 2억이고 전환이율이 5%라면,\n2억 × 0.05 ÷ 12 = 약 83만 원입니다.\n즉 보증금 2억을 추가 납부하는 것은 월세 83만 원을 깎는 것과 금융적으로 동일한 가치를 가집니다.\n\n3. 보증금 안심 확보 수단\n대형 빌딩이 아닌 개인 소유 빌딩의 고액 보증금을 지키기 위해서는 임대차 전세권 설정 등기 또는 확정일자 부여 외에 전세금반환보증보험 가입 요건을 반드시 검토해야 합니다.`,
+                imageUrl: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=800",
+                date: "2026.06.30"
+            }
+        ];
+
+        // Fetch guide lists from localStorage
+        function getGuides() {
+            let guides = localStorage.getItem('nest_guides');
+            if (!guides || JSON.parse(guides).length === 0) {
+                localStorage.setItem('nest_guides', JSON.stringify(initialGuides));
+                return initialGuides;
+            }
+            return JSON.parse(guides);
+        }
+
+        const guideTableBody = document.getElementById('guideTableBody');
+        const btnNewGuide = document.getElementById('btnNewGuide');
+        const guideModal = document.getElementById('guideModal');
+        const guideForm = document.getElementById('guideForm');
+        const guideModalTitle = document.getElementById('guideModalTitle');
+        const btnGuideModalClose = document.getElementById('btnGuideModalClose');
+        const btnGuideModalCancel = document.getElementById('btnGuideModalCancel');
+
+        const inputGuideId = document.getElementById('guideId');
+        const inputGuideTitle = document.getElementById('guideTitle');
+        const inputGuideSummary = document.getElementById('guideSummary');
+        const inputGuideImageUrl = document.getElementById('guideImageUrl');
+        const inputGuideContent = document.getElementById('guideContent');
+
+        function renderAdminGuides() {
+            const list = getGuides();
+            guideTableBody.innerHTML = '';
+            
+            if (list.length === 0) {
+                guideTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #888; padding: 30px;">등록된 가이드 글이 없습니다.</td></tr>';
+                return;
+            }
+
+            list.forEach(g => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><img src="${g.imageUrl || 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=800'}" style="width: 70px; height: 50px; object-fit: cover; border-radius: 4px;"></td>
+                    <td style="color: #64748b; font-size: 13px;">${escapeHtml(g.date || '2026.06.30')}</td>
+                    <td style="font-weight: 700; color: var(--primary-color);">${escapeHtml(g.title)}</td>
+                    <td style="font-size: 13px; color: #64748b;">${escapeHtml(g.summary)}</td>
+                    <td style="text-align: center;">
+                        <div style="display: flex; gap: 6px; justify-content: center;">
+                            <button onclick="editGuide('${g.id}')" style="padding: 5px 10px; font-size: 11px; background: #e2e8f0; border: 1px solid #cbd5e1; border-radius: 4px; cursor: pointer;">수정</button>
+                            <button onclick="deleteGuide('${g.id}')" style="padding: 5px 10px; font-size: 11px; background: #fee2e2; border: 1px solid #fca5a5; color: #b91c1c; border-radius: 4px; cursor: pointer;">삭제</button>
+                        </div>
+                    </td>
+                `;
+                guideTableBody.appendChild(tr);
+            });
+        }
+
+        // Open Guide Modal (Add)
+        btnNewGuide.addEventListener('click', () => {
+            guideModalTitle.innerText = "새 임대차 가이드 등록";
+            inputGuideId.value = '';
+            guideForm.reset();
+            guideModal.style.display = 'flex';
+        });
+
+        // Close Guide Modal
+        function closeGuideModal() {
+            guideModal.style.display = 'none';
+        }
+        btnGuideModalClose.addEventListener('click', closeGuideModal);
+        btnGuideModalCancel.addEventListener('click', closeGuideModal);
+
+        // Save Guide (Add / Edit)
+        guideForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const list = getGuides();
+            const id = inputGuideId.value;
+            const title = inputGuideTitle.value;
+            const summary = inputGuideSummary.value;
+            const imageUrl = inputGuideImageUrl.value.trim() || 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=800';
+            const content = inputGuideContent.value;
+            
+            // Format current date
+            const today = new Date();
+            const dateStr = `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}`;
+
+            if (id) {
+                // Edit
+                const idx = list.findIndex(g => g.id === id);
+                if (idx !== -1) {
+                    list[idx].title = title;
+                    list[idx].summary = summary;
+                    list[idx].imageUrl = imageUrl;
+                    list[idx].content = content;
+                    list[idx].date = dateStr;
+                }
+            } else {
+                // Add
+                const newGuide = {
+                    id: "guide-" + Date.now(),
+                    title,
+                    summary,
+                    imageUrl,
+                    content,
+                    date: dateStr
+                };
+                list.unshift(newGuide); // Put new ones at the beginning
+            }
+
+            localStorage.setItem('nest_guides', JSON.stringify(list));
+            closeGuideModal();
+            renderAdminGuides();
+            alert("가이드 게시글이 안전하게 저장되었습니다.");
+        });
+
+        // Edit Guide
+        window.editGuide = function(id) {
+            const list = getGuides();
+            const matched = list.find(g => g.id === id);
+            if (!matched) return;
+
+            guideModalTitle.innerText = "임대차 가이드 수정";
+            inputGuideId.value = matched.id;
+            inputGuideTitle.value = matched.title;
+            inputGuideSummary.value = matched.summary;
+            inputGuideImageUrl.value = matched.imageUrl === 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=800' ? '' : matched.imageUrl;
+            inputGuideContent.value = matched.content;
+
+            guideModal.style.display = 'flex';
+        }
+
+        // Delete Guide
+        window.deleteGuide = function(id) {
+            if (!confirm("정말 이 가이드 글을 삭제하시겠습니까?")) return;
+            let list = getGuides();
+            list = list.filter(g => g.id !== id);
+            localStorage.setItem('nest_guides', JSON.stringify(list));
+            renderAdminGuides();
+        };
+
+        // Initialize setup
+        populateFloorOptions();
         checkSession();
     </script>
 </body>
