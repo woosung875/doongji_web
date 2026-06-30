@@ -192,29 +192,60 @@
 
         const propertiesGrid = document.getElementById('propertiesGrid');
         let map;
+        let leafletMap;
         let markers = {}; 
 
+        // Dynamic Leaflet Loader
+        function loadLeaflet(callback) {
+            // Leaflet CSS
+            const css = document.createElement('link');
+            css.rel = 'stylesheet';
+            css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+            document.head.appendChild(css);
+
+            // Leaflet JS
+            const js = document.createElement('script');
+            js.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+            js.onload = callback;
+            document.head.appendChild(js);
+        }
+
         function initMap() {
-            // Check if Kakao Maps API is loaded, else fallback or show error
+            // Check if Kakao Maps API is loaded, else fallback to Leaflet Map
             if (typeof kakao === 'undefined' || !kakao.maps) {
-                console.error("Kakao Maps API is not loaded. Please make sure you have set a valid App Key.");
+                console.warn("Kakao Maps API failed to load. Initiating Leaflet fallback map...");
+                
+                // Show brief fallback message inside #map before loading Leaflet
                 document.getElementById('map').innerHTML = `
                     <div style="padding: 20px; text-align: center; color: #666; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #f9f9f9; font-family: sans-serif;">
-                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: #C5A059; margin-bottom: 15px;"></i>
-                        <h4 style="margin: 0 0 10px 0; color: #0c1222;">카카오 지도 로드 실패</h4>
+                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #C5A059; margin-bottom: 15px;"></i>
+                        <h4 style="margin: 0 0 10px 0; color: #0c1222;">대체 지도 로드 중</h4>
                         <p style="font-size: 0.85rem; max-width: 300px; line-height: 1.5; margin: 0 0 15px 0;">
-                            카카오 개발자 플랫폼에서 발급받은 <strong>JavaScript 키</strong>가 필요합니다. <code>properties.html</code>의 스크립트 태그에 App Key를 입력하세요.
+                            카카오 지도 인증 처리 중입니다. 임시로 무인증 안전 지도를 연결합니다.
                         </p>
-                        <span style="font-size: 0.8rem; background: #eee; padding: 4px 8px; border-radius: 4px;">appkey=3e8097eb16c9e4942d0cbb215d2da6e6</span>
                     </div>
                 `;
-                parseUrlParameters(); // Run properties rendering even if Map API load failed
+
+                loadLeaflet(() => {
+                    document.getElementById('map').innerHTML = ''; // Clear loading message
+                    
+                    // Center around Gangnam/Yeoksam (37.5080, 127.0360)
+                    leafletMap = L.map('map').setView([37.5080, 127.0360], 14);
+                    
+                    // Load standard OpenStreetMap tiles
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; OpenStreetMap contributors'
+                    }).addTo(leafletMap);
+
+                    // Parse params & render
+                    parseUrlParameters();
+                });
                 return;
             }
 
             map = new kakao.maps.Map(document.getElementById('map'), {
                 center: new kakao.maps.LatLng(37.5080, 127.0360), // Centered around Gangnam/Yeoksam, Seoul
-                level: 5 // Default Kakao map zoom level (4 or 5 is default zoom)
+                level: 5 // Default Kakao map zoom level
             });
 
             // Add standard zoom control UI for better usability
@@ -227,8 +258,12 @@
 
         function closeAllInfoWindows() {
             for (let id in markers) {
-                if (markers[id] && markers[id].infoWindow) {
-                    markers[id].infoWindow.close();
+                if (markers[id]) {
+                    if (markers[id].infoWindow) {
+                        markers[id].infoWindow.close();
+                    } else if (markers[id].marker && markers[id].marker.closePopup) {
+                        markers[id].marker.closePopup();
+                    }
                 }
             }
         }
@@ -242,6 +277,13 @@
                 for (let id in markers) {
                     if (markers[id] && markers[id].marker) {
                         markers[id].marker.setMap(null);
+                    }
+                }
+                markers = {};
+            } else if (leafletMap) {
+                for (let id in markers) {
+                    if (markers[id] && markers[id].marker) {
+                        leafletMap.removeLayer(markers[id].marker);
                     }
                 }
                 markers = {};
@@ -318,6 +360,36 @@
                         marker: marker,
                         infoWindow: infoWindow
                     };
+                } 
+                // Add Marker to Fallback Leaflet Map
+                else if (leafletMap && p.lat && p.lng) {
+                    const marker = L.marker([parseFloat(p.lat), parseFloat(p.lng)]).addTo(leafletMap);
+                    
+                    const popupContent = `
+                        <div class="map-popup-content" style="padding: 5px; min-width: 160px; font-family: 'Noto Sans KR', sans-serif;">
+                            <h4 style="margin: 0 0 5px 0; font-size: 12px; color: #0c1222; font-weight: 700; line-height: 1.3;">${escapeHtml(p.title)}</h4>
+                            <p style="margin: 0 0 6px 0; font-size: 10px; color: #666; line-height: 1.4;">${escapeHtml(p.desc)}</p>
+                            <strong style="font-size: 11px; color: #C5A059;">${escapeHtml(p.price)}</strong>
+                        </div>
+                    `;
+                    marker.bindPopup(popupContent);
+                    
+                    marker.on('click', () => {
+                        closeAllInfoWindows();
+                        marker.openPopup();
+                        
+                        const cardElement = document.getElementById(`card-${p.id}`);
+                        if (cardElement) {
+                            document.querySelectorAll('.property-card').forEach(el => el.classList.remove('active-card'));
+                            cardElement.classList.add('active-card');
+                            cardElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        }
+                    });
+
+                    markers[p.id] = {
+                        marker: marker,
+                        isLeaflet: true
+                    };
                 }
             });
         }
@@ -331,18 +403,31 @@
             }
 
             const markerObj = markers[id];
-            if (map && markerObj) {
-                const marker = markerObj.marker;
-                const infoWindow = markerObj.infoWindow;
-                const latLng = marker.getPosition();
-                
-                if (shouldZoom) {
-                    map.setLevel(3); // Level 3 is close-up zoom in Kakao Maps
-                    map.panTo(latLng);
-                    closeAllInfoWindows();
-                    infoWindow.open(map, marker);
-                } else {
-                    map.panTo(latLng);
+            if (markerObj) {
+                if (map && !markerObj.isLeaflet) {
+                    const marker = markerObj.marker;
+                    const infoWindow = markerObj.infoWindow;
+                    const latLng = marker.getPosition();
+                    
+                    if (shouldZoom) {
+                        map.setLevel(3);
+                        map.panTo(latLng);
+                        closeAllInfoWindows();
+                        infoWindow.open(map, marker);
+                    } else {
+                        map.panTo(latLng);
+                    }
+                } else if (leafletMap && markerObj.isLeaflet) {
+                    const marker = markerObj.marker;
+                    const latLng = marker.getLatLng();
+                    
+                    if (shouldZoom) {
+                        leafletMap.setView(latLng, 16);
+                        closeAllInfoWindows();
+                        marker.openPopup();
+                    } else {
+                        leafletMap.panTo(latLng);
+                    }
                 }
             }
         }
@@ -368,11 +453,15 @@
             renderAllProperties(filtered);
 
             // Relocate map center to the first matched property if exists
-            if (filtered.length > 0 && map) {
+            if (filtered.length > 0) {
                 const first = filtered[0];
                 if (first.lat && first.lng) {
-                    map.panTo(new kakao.maps.LatLng(parseFloat(first.lat), parseFloat(first.lng)));
-                    map.setLevel(4);
+                    if (map) {
+                        map.panTo(new kakao.maps.LatLng(parseFloat(first.lat), parseFloat(first.lng)));
+                        map.setLevel(4);
+                    } else if (leafletMap) {
+                        leafletMap.panTo([parseFloat(first.lat), parseFloat(first.lng)]);
+                    }
                 }
             }
         }
@@ -403,7 +492,7 @@
                 renderAllProperties();
             }
 
-            // If focused on map, scroll map into view (for mobile/tablet layouts)
+            // If focused on map, scroll map into view
             if (focusParam === 'map') {
                 const mapSection = document.getElementById('map');
                 if (mapSection) {
