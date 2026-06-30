@@ -446,11 +446,8 @@
         }
 
         // Run
-        window.addEventListener('DOMContentLoaded', () => {
-            populateFloorOptions();
-            // Provide a brief 150ms timeout for Kakao dynamically loaded script sub-modules to compile fully in browser
-            setTimeout(initMap, 150);
-        });
+        populateFloorOptions();
+        initMap();
     </script>
 </body>
 
