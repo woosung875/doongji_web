@@ -76,7 +76,16 @@ nav ul {
     list-style: none;
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 22px;
+}
+
+@media (max-width: 1350px) {
+    nav ul {
+        gap: 12px;
+    }
+    nav a {
+        font-size: 14px;
+    }
 }
 
 nav a {

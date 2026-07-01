@@ -61,11 +61,16 @@
 
                 <!-- 1. PROPERTIES TAB SECTION -->
                 <div id="propertiesTabArea">
-                    <div class="dashboard-title-bar">
+                    <div class="dashboard-title-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
                         <h2>매물 목록 관리</h2>
-                        <button class="btn-admin-action" id="btnNewProperty">
-                            <i class="fas fa-plus"></i> 새 매물 등록
-                        </button>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn-admin-action" id="btnResetProperties" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; font-weight: bold; cursor: pointer;">
+                                <i class="fas fa-sync-alt"></i> 샘플 데이터 리셋
+                            </button>
+                            <button class="btn-admin-action" id="btnNewProperty">
+                                <i class="fas fa-plus"></i> 새 매물 등록
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Admin Properties Filter Header -->
@@ -184,20 +189,81 @@
                     <label>설명 (예: 전용 150평 / 고층 뷰 / 최고급 인테리어)</label>
                     <input type="text" id="propDesc" placeholder="매물의 요약 설명을 입력하세요" required>
                 </div>
+                <!-- 거래 유형 선택 -->
                 <div class="form-group">
-                    <label>가격 (예: 보증금 5억 / 월 4,500만 또는 가격 협의)</label>
-                    <input type="text" id="propPrice" placeholder="가격 정보를 입력하세요" required>
-                </div>
-                <div style="display: flex; gap: 15px;">
-                    <div class="form-group" style="flex: 1;">
-                        <label>위도 (예: 37.5019)</label>
-                        <input type="number" step="any" id="propLat" placeholder="37.XXXX" required>
+                    <label>거래 유형 <span style="color: red;">*</span></label>
+                    <div style="display: flex; gap: 15px; margin-top: 5px;">
+                        <label style="display: inline-flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer; color: var(--primary-color);">
+                            <input type="radio" name="tradeType" value="매매" checked style="accent-color: var(--accent-color); transform: scale(1.15);"> 매매
+                        </label>
+                        <label style="display: inline-flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer; color: var(--primary-color);">
+                            <input type="radio" name="tradeType" value="전세" style="accent-color: var(--accent-color); transform: scale(1.15);"> 전세
+                        </label>
+                        <label style="display: inline-flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer; color: var(--primary-color);">
+                            <input type="radio" name="tradeType" value="월세" style="accent-color: var(--accent-color); transform: scale(1.15);"> 월세
+                        </label>
                     </div>
-                    <div class="form-group" style="flex: 1;">
-                        <label>경도 (예: 127.0374)</label>
-                        <input type="number" step="any" id="propLng" placeholder="127.XXXX" required>
+                </div>
+
+                <!-- 거래 유형별 동적 가격 영역 -->
+                <div class="form-group" id="priceInputArea" style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
+                    <!-- 매매 가격군 -->
+                    <div id="priceGroupSale">
+                        <label style="display: block; margin-bottom: 6px; font-weight: 500;">매매가 <span style="color: red;">*</span></label>
+                        <input type="text" id="priceSale" placeholder="예: 45억" style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit; background: #fff;">
+                    </div>
+                    <!-- 전세 가격군 -->
+                    <div id="priceGroupDepositOnly" style="display: none;">
+                        <label style="display: block; margin-bottom: 6px; font-weight: 500;">전세 보증금 <span style="color: red;">*</span></label>
+                        <input type="text" id="priceDepositOnly" placeholder="예: 5억" style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit; background: #fff;">
+                    </div>
+                    <!-- 월세 가격군 -->
+                    <div id="priceGroupRent" style="display: none; gap: 15px;">
+                        <div style="flex: 1;">
+                            <label style="display: block; margin-bottom: 6px; font-weight: 500;">월세 보증금 <span style="color: red;">*</span></label>
+                            <input type="text" id="priceDeposit" placeholder="예: 5,000만" style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit; background: #fff;">
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="display: block; margin-bottom: 6px; font-weight: 500;">월세 <span style="color: red;">*</span></label>
+                            <input type="text" id="priceMonthly" placeholder="예: 300만" style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit; background: #fff;">
+                        </div>
                     </div>
                 </div>
+                <div class="form-group">
+                    <label>상세 주소 (소재지) <span style="color: red;">*</span></label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="propAddress" placeholder="[주소 찾기] 버튼을 눌러 검색하세요" readonly required style="flex: 1; width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit; background-color: #f8fafc; cursor: pointer;">
+                        <button type="button" id="btnSearchAddress" style="padding: 12px 20px; background: var(--primary-color); border: 1px solid var(--primary-color); color: white; border-radius: 4px; font-weight: 700; cursor: pointer; transition: all 0.3s; white-space: nowrap;">주소 찾기</button>
+                    </div>
+                </div>
+                <!-- 관리비 및 면적 입력 필드 -->
+                <div style="display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div class="form-group" style="flex: 1; min-width: 150px;">
+                        <label>관리비 (원 단위)</label>
+                        <input type="number" id="propMaintenance" placeholder="예: 300000" style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                    </div>
+                    <div class="form-group" style="flex: 1; min-width: 150px;">
+                        <label>공급면적</label>
+                        <input type="text" id="propSupplyArea" placeholder="예: 150평 (또는 495㎡)" style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                    </div>
+                    <div class="form-group" style="flex: 1; min-width: 150px;">
+                        <label>전용면적 <span style="color: red;">*</span></label>
+                        <input type="text" id="propExclusiveArea" placeholder="예: 100평" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                    </div>
+                </div>
+
+                <!-- 임대인 정보 (비공개) -->
+                <div style="display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div class="form-group" style="flex: 1; min-width: 200px;">
+                        <label>임대인 성함 (비공개)</label>
+                        <input type="text" id="propLessorName" placeholder="예: 김둥지" style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                    </div>
+                    <div class="form-group" style="flex: 1; min-width: 200px;">
+                        <label>임대인 연락처 (비공개)</label>
+                        <input type="text" id="propLessorPhone" placeholder="예: 010-1234-5678" style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label>이미지 첨부 (직접 업로드)</label>
                     <input type="file" id="propFile" accept="image/*" style="border: none; padding: 5px 0;">
@@ -217,7 +283,7 @@
     </div>
 
     <!-- GUIDE FORM MODAL (ADD / EDIT) -->
-    <div class="admin-modal" id="guideModal" style="display: none;">
+    <div class="admin-modal" id="guideModal">
         <div class="modal-content" style="max-width: 700px;">
             <div class="modal-header">
                 <h3 id="guideModalTitle">새 임대차 가이드 등록</h3>
@@ -264,6 +330,7 @@
                 desc: "전용 150평 / 테헤란로 뷰 / 고층 오피스 빌딩 내 지상 5층",
                 price: "보증금 5억 / 월 4,500만",
                 imageUrl: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800",
+                address: "서울특별시 강남구 테헤란로 152",
                 lat: 37.5019,
                 lng: 127.0374
             },
@@ -276,6 +343,7 @@
                 desc: "전용 80평 / 쇼룸 완비 / 1층 테라스 활용 가능",
                 price: "가격 협의",
                 imageUrl: "https://images.unsplash.com/photo-1554469384-e58fac16e23a?auto=format&fit=crop&q=80&w=800",
+                address: "서울특별시 강남구 압구정로 407",
                 lat: 37.5251,
                 lng: 127.0435
             },
@@ -288,6 +356,7 @@
                 desc: "토지면적 450평 / 대로변 코너 / 근생 및 물류 부지 추천",
                 price: "매매 45억",
                 imageUrl: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=800",
+                address: "경기도 용인시 기흥구 흥덕중앙로 120",
                 lat: 37.2804,
                 lng: 127.1179
             },
@@ -300,6 +369,7 @@
                 desc: "전용 120평 / 지하 1층 단독 진입 계단 / 주방 설비 완비 및 층고 4m",
                 price: "보증금 2억 / 월 1,500만",
                 imageUrl: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&q=80&w=800",
+                address: "서울특별시 강남구 강남대로 396",
                 lat: 37.4979,
                 lng: 127.0276
             },
@@ -312,6 +382,7 @@
                 desc: "전용 24평 / 지상 12층 탄천 뷰 / 침실 2개 / 즉시 입주 가능",
                 price: "보증금 3,000만 / 월 180만",
                 imageUrl: "https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80&w=800",
+                address: "경기도 성남시 분당구 정자일로 132",
                 lat: 37.3614,
                 lng: 127.1086
             },
@@ -324,6 +395,7 @@
                 desc: "연면적 450평 / 지상 7층 전체 통임대 / 자주식 주차 10대",
                 price: "보증금 8억 / 월 6,000만",
                 imageUrl: "https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&q=80&w=800",
+                address: "서울특별시 강남구 영동대로 513",
                 lat: 37.5097,
                 lng: 127.0620
             }
@@ -354,13 +426,89 @@
         const inputFloor = document.getElementById('propFloor');
         const inputTitle = document.getElementById('propTitle');
         const inputDesc = document.getElementById('propDesc');
-        const inputPrice = document.getElementById('propPrice');
+        // Dynamic Price DOM bindings
+        const tradeTypeRadios = document.getElementsByName('tradeType');
+        const priceGroupSale = document.getElementById('priceGroupSale');
+        const priceGroupDepositOnly = document.getElementById('priceGroupDepositOnly');
+        const priceGroupRent = document.getElementById('priceGroupRent');
+        
+        const inputPriceSale = document.getElementById('priceSale');
+        const inputPriceDepositOnly = document.getElementById('priceDepositOnly');
+        const inputPriceDeposit = document.getElementById('priceDeposit');
+        const inputPriceMonthly = document.getElementById('priceMonthly');
+
+        function updatePriceFields() {
+            let selectedType = "매매";
+            for (const radio of tradeTypeRadios) {
+                if (radio.checked) selectedType = radio.value;
+            }
+
+            if (selectedType === "매매") {
+                priceGroupSale.style.display = "block";
+                priceGroupDepositOnly.style.display = "none";
+                priceGroupRent.style.display = "none";
+                
+                inputPriceSale.setAttribute('required', 'required');
+                inputPriceDepositOnly.removeAttribute('required');
+                inputPriceDeposit.removeAttribute('required');
+                inputPriceMonthly.removeAttribute('required');
+            } else if (selectedType === "전세") {
+                priceGroupSale.style.display = "none";
+                priceGroupDepositOnly.style.display = "block";
+                priceGroupRent.style.display = "none";
+                
+                inputPriceSale.removeAttribute('required');
+                inputPriceDepositOnly.setAttribute('required', 'required');
+                inputPriceDeposit.removeAttribute('required');
+                inputPriceMonthly.removeAttribute('required');
+            } else if (selectedType === "월세") {
+                priceGroupSale.style.display = "none";
+                priceGroupDepositOnly.style.display = "none";
+                priceGroupRent.style.display = "flex";
+                
+                inputPriceSale.removeAttribute('required');
+                inputPriceDepositOnly.removeAttribute('required');
+                inputPriceDeposit.setAttribute('required', 'required');
+                inputPriceMonthly.setAttribute('required', 'required');
+            }
+        }
+
+        for (const radio of tradeTypeRadios) {
+            radio.addEventListener('change', updatePriceFields);
+        }
         const inputImageUrl = document.getElementById('propImageUrl');
         const inputFile = document.getElementById('propFile');
         const previewContainer = document.getElementById('imagePreviewContainer');
         const formImagePreview = document.getElementById('formImagePreview');
-        const inputLat = document.getElementById('propLat');
-        const inputLng = document.getElementById('propLng');
+        const inputAddress = document.getElementById('propAddress');
+        const inputMaintenance = document.getElementById('propMaintenance');
+        const inputSupplyArea = document.getElementById('propSupplyArea');
+        const inputExclusiveArea = document.getElementById('propExclusiveArea');
+        const inputLessorName = document.getElementById('propLessorName');
+        const inputLessorPhone = document.getElementById('propLessorPhone');
+        const btnSearchAddress = document.getElementById('btnSearchAddress');
+
+        function execDaumPostcode() {
+            new daum.Postcode({
+                oncomplete: function(data) {
+                    inputAddress.value = data.address;
+                }
+            }).open();
+        }
+        btnSearchAddress.addEventListener('click', execDaumPostcode);
+        inputAddress.addEventListener('click', execDaumPostcode);
+
+        // Reset Properties Dummy Data
+        const btnResetProperties = document.getElementById('btnResetProperties');
+        if (btnResetProperties) {
+            btnResetProperties.addEventListener('click', () => {
+                if (confirm("과거 수동 입력하셨던 낡은 매물이 전부 삭제되며, 100% 카카오 표준 주소와 좌표가 이식된 기본 6대 오피스 매물로 초기화됩니다. 리셋하시겠습니까?")) {
+                    localStorage.removeItem('nest_properties');
+                    alert("매물 데이터가 성공적으로 리셋되었습니다! 화면이 새로고침됩니다.");
+                    location.reload();
+                }
+            });
+        }
 
         // Check Login Session
         function checkSession() {
@@ -479,7 +627,15 @@
                         <span style="background: #e2e8f0; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; color: #475569; display: inline-block; margin-bottom: 4px;">${escapeHtml(p.tag)}</span>
                         <div style="font-size: 12px; color: #64748b;">${escapeHtml(displayFloor)}</div>
                     </td>
-                    <td style="font-weight: 700; color: var(--primary-color);">${escapeHtml(p.title)}</td>
+                    <td style="font-weight: 700; color: var(--primary-color);">
+                        ${escapeHtml(p.title)}
+                        <div style="font-size: 11px; font-weight: normal; color: #64748b; margin-top: 5px; background: #f8fafc; border: 1px solid #e2e8f0; padding: 6px 10px; border-radius: 4px; line-height: 1.5; width: max-content; max-width: 320px;">
+                            <span style="color: #c5a059; font-weight: bold; display: block; margin-bottom: 2px;"><i class="fas fa-lock" style="margin-right: 4px;"></i>임대인 전용 비공개 정보</span>
+                            성함: ${escapeHtml(p.lessorName || '미지정')} / 연락처: ${escapeHtml(p.lessorPhone || '미지정')}<br>
+                            관리비: ${p.maintenance ? parseInt(p.maintenance).toLocaleString() + '원' : '0원'}<br>
+                            면적: 공급 ${escapeHtml(p.supplyArea || '-')} / 전용 ${escapeHtml(p.exclusiveArea || '-')}
+                        </div>
+                    </td>
                     <td style="font-size: 13px; color: #64748b;">${escapeHtml(p.desc)}</td>
                     <td style="font-weight: bold; color: var(--accent-color); font-size: 14px;">${escapeHtml(p.price)}</td>
                     <td style="text-align: center;">
@@ -498,15 +654,31 @@
             modalTitle.innerText = "새 매물 등록";
             inputId.value = '';
             propertyForm.reset();
+
+            // Reset tradeType to '매매' and clear price fields
+            document.querySelector('input[name="tradeType"][value="매매"]').checked = true;
+            inputPriceSale.value = '';
+            inputPriceDepositOnly.value = '';
+            inputPriceDeposit.value = '';
+            inputPriceMonthly.value = '';
+            updatePriceFields();
+
+            // Reset maintenance, areas, and lessor info
+            inputMaintenance.value = '';
+            inputSupplyArea.value = '';
+            inputExclusiveArea.value = '';
+            inputLessorName.value = '';
+            inputLessorPhone.value = '';
+
             inputImageUrl.value = '';
             previewContainer.style.display = 'none';
             formImagePreview.src = '';
-            propertyModal.style.display = 'flex';
+            propertyModal.classList.add('open');
         });
 
         // Close Modal Handlers
         function closeModal() {
-            propertyModal.style.display = 'none';
+            propertyModal.classList.remove('open');
         }
         btnModalClose.addEventListener('click', closeModal);
         btnModalCancel.addEventListener('click', closeModal);
@@ -525,7 +697,7 @@
             }
         });
 
-        // Save Property (Add or Edit)
+        // Save Property (Add or Edit) with Automatic Geocoding
         propertyForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const list = getProperties();
@@ -536,24 +708,95 @@
             const floor = inputFloor.value;
             const title = inputTitle.value;
             const desc = inputDesc.value;
-            const price = inputPrice.value;
-            const lat = parseFloat(inputLat.value);
-            const lng = parseFloat(inputLng.value);
+            const address = inputAddress.value.trim();
+
+            const maintenance = inputMaintenance.value ? parseInt(inputMaintenance.value) : 0;
+            const supplyArea = inputSupplyArea.value.trim();
+            const exclusiveArea = inputExclusiveArea.value.trim();
+            const lessorName = inputLessorName.value.trim();
+            const lessorPhone = inputLessorPhone.value.trim();
+
+            // 거래 유형에 따른 최종 가격 텍스트 빌드
+            let price = "";
+            let selectedType = "매매";
+            for (const radio of tradeTypeRadios) {
+                if (radio.checked) selectedType = radio.value;
+            }
+
+            if (selectedType === "매매") {
+                price = `매매 ${inputPriceSale.value.trim()}`;
+            } else if (selectedType === "전세") {
+                price = `전세 ${inputPriceDepositOnly.value.trim()}`;
+            } else if (selectedType === "월세") {
+                price = `보증금 ${inputPriceDeposit.value.trim()} / 월 ${inputPriceMonthly.value.trim()}`;
+            }
             
             // Set image fallback if none selected
             const imageUrl = inputImageUrl.value || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800';
 
+            // Priority 1: Use Kakao Maps SDK Geocoder
+            if (typeof kakao !== 'undefined' && kakao.maps && kakao.maps.services && !window.kakaoGeocoderFailed) {
+                const geocoder = new kakao.maps.services.Geocoder();
+                geocoder.addressSearch(address, function(result, status) {
+                    if (status === kakao.maps.services.Status.OK) {
+                        const lat = parseFloat(result[0].y);
+                        const lng = parseFloat(result[0].x);
+                        executePropertySave(list, id, tag, type, floor, title, desc, price, address, imageUrl, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone);
+                    } else {
+                        // Kakao search fails, try backup OSM Nominatim Geocoder
+                        fallbackGeocodeNominatim(address, (lat, lng) => {
+                            executePropertySave(list, id, tag, type, floor, title, desc, price, address, imageUrl, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone);
+                        });
+                    }
+                });
+            } else {
+                // Priority 2: Kakao SDK Blocked/Failed on localhost -> Call OSM Nominatim API directly
+                fallbackGeocodeNominatim(address, (lat, lng) => {
+                    executePropertySave(list, id, tag, type, floor, title, desc, price, address, imageUrl, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone);
+                });
+            }
+        });
+
+        // 100% Free Backup Geocoding API (OSM Nominatim)
+        function fallbackGeocodeNominatim(address, callback) {
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`;
+            
+            fetch(url, {
+                headers: {
+                    'Accept-Language': 'ko-KR,ko;q=0.9,en;q=0.8'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.length > 0) {
+                    const lat = parseFloat(data[0].lat);
+                    const lng = parseFloat(data[0].lon);
+                    console.log("OSM Nominatim Geocode Success:", lat, lng);
+                    callback(lat, lng);
+                } else {
+                    // Fail-safe fallback to standard Gangnam Station coordinates
+                    console.warn("OSM Nominatim failed to decode. Saving with default Gangnam coordinates.");
+                    callback(37.4979, 127.0276);
+                }
+            })
+            .catch(err => {
+                console.error("OSM Nominatim fetch error:", err);
+                callback(37.4979, 127.0276); // Fallback to Gangnam Station
+            });
+        }
+
+        function executePropertySave(list, id, tag, type, floor, title, desc, price, address, imageUrl, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone) {
             if (id) {
                 // Edit mode
                 const idx = list.findIndex(p => p.id === id);
                 if (idx !== -1) {
-                    list[idx] = { id, tag, type, floor, title, desc, price, imageUrl, lat, lng };
+                    list[idx] = { id, tag, type, floor, title, desc, price, address, imageUrl, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone };
                 }
             } else {
                 // Add mode
                 const newProp = {
                     id: "prop-" + Date.now(),
-                    tag, type, floor, title, desc, price, imageUrl, lat, lng
+                    tag, type, floor, title, desc, price, address, imageUrl, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone
                 };
                 list.unshift(newProp); // Put new items at the beginning
             }
@@ -561,8 +804,8 @@
             localStorage.setItem('nest_properties', JSON.stringify(list));
             closeModal();
             applyAdminFilters();
-            alert('매물 정보가 성공적으로 반영되었습니다.');
-        });
+            alert('매물 정보가 성공적으로 반영되었습니다. 상세 주소를 기반으로 지도가 갱신됩니다.');
+        }
 
         // Edit Property
         window.editProperty = function(id) {
@@ -577,15 +820,49 @@
             inputFloor.value = matched.floor;
             inputTitle.value = matched.title;
             inputDesc.value = matched.desc;
-            inputPrice.value = matched.price;
-            inputLat.value = matched.lat;
-            inputLng.value = matched.lng;
+            inputAddress.value = matched.address || '';
             inputImageUrl.value = matched.imageUrl;
+            
+            // 가격 역디코딩 및 입력창 분배 채우기
+            const priceText = matched.price || '';
+            
+            // 개별 가격 인풋 리셋
+            inputPriceSale.value = '';
+            inputPriceDepositOnly.value = '';
+            inputPriceDeposit.value = '';
+            inputPriceMonthly.value = '';
+
+            if (priceText.startsWith("매매")) {
+                document.querySelector('input[name="tradeType"][value="매매"]').checked = true;
+                inputPriceSale.value = priceText.replace("매매", "").trim();
+            } else if (priceText.startsWith("전세")) {
+                document.querySelector('input[name="tradeType"][value="전세"]').checked = true;
+                inputPriceDepositOnly.value = priceText.replace("전세", "").trim();
+            } else if (priceText.includes("보증금") && priceText.includes("월")) {
+                document.querySelector('input[name="tradeType"][value="월세"]').checked = true;
+                const parts = priceText.split("/");
+                const depPart = parts[0] ? parts[0].replace("보증금", "").trim() : "";
+                const rentPart = parts[1] ? parts[1].replace("월", "").trim() : "";
+                inputPriceDeposit.value = depPart;
+                inputPriceMonthly.value = rentPart;
+            } else {
+                // 일반 자유 텍스트 (예: 가격 협의 등)일 때 매매 기본값으로 얹어주기
+                document.querySelector('input[name="tradeType"][value="매매"]').checked = true;
+                inputPriceSale.value = priceText;
+            }
+            updatePriceFields(); // 필드 활성 가시성 동기화!
+
+            // Bind new fields (maintenance, areas, lessor info)
+            inputMaintenance.value = matched.maintenance || '';
+            inputSupplyArea.value = matched.supplyArea || '';
+            inputExclusiveArea.value = matched.exclusiveArea || '';
+            inputLessorName.value = matched.lessorName || '';
+            inputLessorPhone.value = matched.lessorPhone || '';
             
             formImagePreview.src = matched.imageUrl;
             previewContainer.style.display = 'block';
             
-            propertyModal.style.display = 'flex';
+            propertyModal.classList.add('open');
         };
 
         // Delete Property
@@ -742,12 +1019,12 @@
             guideModalTitle.innerText = "새 임대차 가이드 등록";
             inputGuideId.value = '';
             guideForm.reset();
-            guideModal.style.display = 'flex';
+            guideModal.classList.add('open');
         });
 
         // Close Guide Modal
         function closeGuideModal() {
-            guideModal.style.display = 'none';
+            guideModal.classList.remove('open');
         }
         btnGuideModalClose.addEventListener('click', closeGuideModal);
         btnGuideModalCancel.addEventListener('click', closeGuideModal);
@@ -808,7 +1085,7 @@
             inputGuideImageUrl.value = matched.imageUrl === 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=800' ? '' : matched.imageUrl;
             inputGuideContent.value = matched.content;
 
-            guideModal.style.display = 'flex';
+            guideModal.classList.add('open');
         }
 
         // Delete Guide
@@ -824,6 +1101,9 @@
         populateFloorOptions();
         checkSession();
     </script>
+    <!-- Load Kakao Map SDK and Daum Postcode Library -->
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=3e8097eb16c9e4942d0cbb215d2da6e6&libraries=services" onerror="window.kakaoGeocoderFailed = true;"></script>
 </body>
 
 </html>
