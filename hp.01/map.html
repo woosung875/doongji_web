@@ -72,7 +72,7 @@
         <div id="map" style="width: 100%; height: 100%;"></div>
     </section>
 
-    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=3e8097eb16c9e4942d0cbb215d2da6e6" onerror="window.kakaoMapFailed = true;"></script>
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=3e8097eb16c9e4942d0cbb215d2da6e6&libraries=services,clusterer" onerror="window.kakaoMapFailed = true;"></script>
     <script>
         // Mobile Menu Toggle
         const menuToggle = document.getElementById('mobile-menu');
@@ -170,9 +170,11 @@
 
         let map;
         let leafletMap;
+        let kakaoClusterer; // Kakao Map Clusterer
+        let leafletClusterGroup; // Leaflet Cluster Group
         let markers = {}; 
 
-        // Dynamic Leaflet Loader
+        // Dynamic Leaflet Loader (chains Leaflet + MarkerCluster)
         function loadLeaflet(callback) {
             // Leaflet CSS
             const css = document.createElement('link');
@@ -180,10 +182,26 @@
             css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
             document.head.appendChild(css);
 
+            // MarkerCluster CSS
+            const clusterCss = document.createElement('link');
+            clusterCss.rel = 'stylesheet';
+            clusterCss.href = 'https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css';
+            document.head.appendChild(clusterCss);
+
+            const clusterDefaultCss = document.createElement('link');
+            clusterDefaultCss.rel = 'stylesheet';
+            clusterDefaultCss.href = 'https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css';
+            document.head.appendChild(clusterDefaultCss);
+
             // Leaflet JS
             const js = document.createElement('script');
             js.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-            js.onload = callback;
+            js.onload = () => {
+                const clusterJs = document.createElement('script');
+                clusterJs.src = 'https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js';
+                clusterJs.onload = callback;
+                document.head.appendChild(clusterJs);
+            };
             document.head.appendChild(js);
         }
 
@@ -248,6 +266,26 @@
                 level: 5 // Default Kakao map zoom level
             });
 
+            // Initialize Kakao Marker Clusterer with custom red styling
+            kakaoClusterer = new kakao.maps.MarkerClusterer({
+                map: map,
+                averageCenter: true,
+                minLevel: 6, // Start clustering from zoom level 6 upwards
+                styles: [{
+                    width: '46px',
+                    height: '46px',
+                    background: 'rgba(37, 99, 235, 0.9)', // Royal Blue
+                    borderRadius: '50%',
+                    color: '#fff',
+                    textAlign: 'center',
+                    fontWeight: 'bold',
+                    lineHeight: '42px',
+                    fontSize: '15px',
+                    border: '2px solid #fff',
+                    boxShadow: '0 4px 10px rgba(0, 0, 0, 0.2)'
+                }]
+            });
+
             // Add standard zoom control UI for better usability
             const zoomControl = new kakao.maps.ZoomControl();
             map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
@@ -268,11 +306,70 @@
             }
         }
 
+        // 동적 캔버스 기반 숫자 배지 생성 유틸리티
+        function createBadgeMarkerImage(count) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 38;
+            canvas.height = 38;
+            const ctx = canvas.getContext('2d');
+
+            // 바깥 흰색 테두리와 빨간 버블 배경 드로잉
+            ctx.beginPath();
+            ctx.arc(19, 19, 16, 0, 2 * Math.PI);
+            ctx.fillStyle = 'rgba(37, 99, 235, 0.95)'; // Royal Blue
+            ctx.fill();
+            ctx.lineWidth = 2.5;
+            ctx.strokeStyle = '#ffffff';
+            ctx.stroke();
+
+            // 그림자 효과 드로잉
+            ctx.beginPath();
+            ctx.arc(19, 19, 18, 0, 2 * Math.PI);
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.15)';
+            ctx.stroke();
+
+            // 중앙 흰색 숫자
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 13px "Noto Sans KR", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(count, 19, 19);
+
+            const dataUrl = canvas.toDataURL();
+            const imageSize = new kakao.maps.Size(38, 38);
+            const imageOption = { offset: new kakao.maps.Point(19, 19) };
+            
+            return new kakao.maps.MarkerImage(dataUrl, imageSize, imageOption);
+        }
+
         function renderAllProperties(customProps) {
             const props = customProps || getProperties();
             
-            // Clear existing markers
+            const kakaoMarkersArray = [];
+
+            // 1. 위도 경도 좌표 기준으로 매물 그룹화 (동일 좌표 중첩 방지)
+            const coordsMap = {};
+            props.forEach(p => {
+                if (p.lat && p.lng) {
+                    // 소수점 6자리까지 고정하여 동일 좌표 묶기
+                    const key = `${parseFloat(p.lat).toFixed(6)}_${parseFloat(p.lng).toFixed(6)}`;
+                    if (!coordsMap[key]) {
+                        coordsMap[key] = {
+                            lat: parseFloat(p.lat),
+                            lng: parseFloat(p.lng),
+                            items: []
+                        };
+                    }
+                    coordsMap[key].items.push(p);
+                }
+            });
+
+            // 2. 기존 마커 및 클러스터러 비우기
             if (map) {
+                if (kakaoClusterer) {
+                    kakaoClusterer.clear();
+                }
                 for (let id in markers) {
                     if (markers[id] && markers[id].marker) {
                         markers[id].marker.setMap(null);
@@ -280,31 +377,75 @@
                 }
                 markers = {};
             } else if (leafletMap) {
-                for (let id in markers) {
-                    if (markers[id] && markers[id].marker) {
-                        leafletMap.removeLayer(markers[id].marker);
-                    }
+                if (leafletClusterGroup) {
+                    leafletMap.removeLayer(leafletClusterGroup);
                 }
+                // 리플렛 뭉텅이 클러스터도 커스텀 디자인
+                leafletClusterGroup = L.markerClusterGroup({
+                    iconCreateFunction: function(cluster) {
+                        const childCount = cluster.getChildCount();
+                        return new L.DivIcon({ 
+                            html: `<div style="background: rgba(37, 99, 235, 0.9); width: 44px; height: 44px; border-radius: 50%; color: #fff; text-align: center; line-height: 40px; font-weight: 700; font-size: 14px; border: 2px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">${childCount}</div>`, 
+                            className: 'custom-cluster-icon', 
+                            iconSize: L.point(44, 44) 
+                        });
+                    }
+                });
                 markers = {};
             }
 
-            props.forEach(p => {
-                // Add Marker to Kakao Map
-                if (map && p.lat && p.lng) {
-                    const latlng = new kakao.maps.LatLng(parseFloat(p.lat), parseFloat(p.lng));
+            // 3. 그룹별로 지도 핀(배지)을 단 1개씩 생성
+            Object.keys(coordsMap).forEach(key => {
+                const group = coordsMap[key];
+                const count = group.items.length;
+
+                // [카카오 지도용 핀]
+                if (map) {
+                    const latlng = new kakao.maps.LatLng(group.lat, group.lng);
+                    
+                    // 동적 Canvas 이미지 생성 적용! (1개면 1, 4개면 4 표시)
+                    const markerImg = createBadgeMarkerImage(count);
+                    
                     const marker = new kakao.maps.Marker({
                         position: latlng,
-                        map: map,
-                        title: p.title
+                        image: markerImg,
+                        title: `${count}개의 매물`
                     });
                     
-                    const popupContent = `
-                        <div class="map-popup-content" style="padding: 10px; min-width: 180px; font-family: 'Noto Sans KR', sans-serif; background: #fff;">
-                            <h4 style="margin: 0 0 5px 0; font-size: 13px; color: #0c1222; font-weight: 700; line-height: 1.3;">${escapeHtml(p.title)}</h4>
-                            <p style="margin: 0 0 6px 0; font-size: 11px; color: #666; line-height: 1.4;">${escapeHtml(p.desc)}</p>
-                            <strong style="font-size: 12px; color: #C5A059;">${escapeHtml(p.price)}</strong>
-                        </div>
-                    `;
+                    // 팝업 내용 조립
+                    let popupContent = "";
+                    if (count === 1) {
+                        const p = group.items[0];
+                        popupContent = `
+                            <div class="map-popup-content" style="padding: 10px; min-width: 180px; font-family: 'Noto Sans KR', sans-serif; background: #fff;">
+                                <h4 style="margin: 0 0 5px 0; font-size: 13px; color: #0c1222; font-weight: 700; line-height: 1.3;">${escapeHtml(p.title)}</h4>
+                                <p style="margin: 0 0 6px 0; font-size: 11px; color: #666; line-height: 1.4;">${escapeHtml(p.desc)}</p>
+                                <strong style="font-size: 12px; color: #C5A059;">${escapeHtml(p.price)}</strong>
+                            </div>
+                        `;
+                    } else {
+                        // 한 건물 다세대 오피스텔 스크롤형
+                        popupContent = `
+                            <div class="map-popup-content" style="padding: 10px; min-width: 220px; max-height: 180px; overflow-y: auto; font-family: 'Noto Sans KR', sans-serif; background: #fff;">
+                                <div style="border-bottom: 2px solid var(--accent-color); padding-bottom: 4px; margin-bottom: 8px;">
+                                    <h4 style="margin: 0; font-size: 11px; color: #64748b; font-weight: bold;">🏢 이 건물 매물 총 ${count}건</h4>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 8px;">
+                        `;
+                        group.items.forEach(p => {
+                            popupContent += `
+                                <div style="border-bottom: 1px solid #f1f5f9; padding-bottom: 6px; margin-bottom: 2px;">
+                                    <h5 style="margin: 0 0 2px 0; font-size: 11px; color: var(--primary-color); font-weight: 700;">${escapeHtml(p.title)}</h5>
+                                    <p style="margin: 0 0 2px 0; font-size: 9px; color: #64748b; line-height: 1.3;">${escapeHtml(p.desc)}</p>
+                                    <strong style="font-size: 10px; color: var(--accent-color);">${escapeHtml(p.price)}</strong>
+                                </div>
+                            `;
+                        });
+                        popupContent += `
+                                </div>
+                            </div>
+                        `;
+                    }
 
                     const infoWindow = new kakao.maps.InfoWindow({
                         content: popupContent,
@@ -316,22 +457,59 @@
                         infoWindow.open(map, marker);
                     });
 
-                    markers[p.id] = {
+                    // 그룹 구분을 위해 첫 매물 ID를 키로 사용
+                    const mainId = group.items[0].id;
+                    markers[mainId] = {
                         marker: marker,
                         infoWindow: infoWindow
                     };
-                } 
-                // Add Marker to Fallback Leaflet Map
-                else if (leafletMap && p.lat && p.lng) {
-                    const marker = L.marker([parseFloat(p.lat), parseFloat(p.lng)]).addTo(leafletMap);
                     
-                    const popupContent = `
-                        <div class="map-popup-content" style="padding: 5px; min-width: 160px; font-family: 'Noto Sans KR', sans-serif;">
-                            <h4 style="margin: 0 0 5px 0; font-size: 12px; color: #0c1222; font-weight: 700; line-height: 1.3;">${escapeHtml(p.title)}</h4>
-                            <p style="margin: 0 0 6px 0; font-size: 10px; color: #666; line-height: 1.4;">${escapeHtml(p.desc)}</p>
-                            <strong style="font-size: 11px; color: #C5A059;">${escapeHtml(p.price)}</strong>
-                        </div>
-                    `;
+                    kakaoMarkersArray.push(marker);
+                } 
+                // [대체 리플렛 지도용 핀]
+                else if (leafletMap) {
+                    // 리플렛용 1개짜리 핀도 파란색 숫자 배지로 표시하기 위해 DivIcon 사용!
+                    const leafletMarkerIcon = L.divIcon({
+                        html: `<div style="background: rgba(37, 99, 235, 0.95); width: 34px; height: 34px; border-radius: 50%; color: #fff; text-align: center; line-height: 30px; font-weight: 700; font-size: 12px; border: 2px solid #fff; box-shadow: 0 3px 8px rgba(0,0,0,0.2);">${count}</div>`,
+                        className: 'leaflet-custom-badge',
+                        iconSize: [34, 34],
+                        iconAnchor: [17, 17]
+                    });
+                    
+                    const marker = L.marker([group.lat, group.lng], { icon: leafletMarkerIcon });
+                    
+                    let popupContent = "";
+                    if (count === 1) {
+                        const p = group.items[0];
+                        popupContent = `
+                            <div class="map-popup-content" style="padding: 5px; min-width: 160px; font-family: 'Noto Sans KR', sans-serif;">
+                                <h4 style="margin: 0 0 5px 0; font-size: 12px; color: #0c1222; font-weight: 700; line-height: 1.3;">${escapeHtml(p.title)}</h4>
+                                <p style="margin: 0 0 6px 0; font-size: 10px; color: #666; line-height: 1.4;">${escapeHtml(p.desc)}</p>
+                                <strong style="font-size: 11px; color: #C5A059;">${escapeHtml(p.price)}</strong>
+                            </div>
+                        `;
+                    } else {
+                        popupContent = `
+                            <div class="map-popup-content" style="padding: 5px; min-width: 180px; max-height: 150px; overflow-y: auto; font-family: 'Noto Sans KR', sans-serif;">
+                                <div style="border-bottom: 2px solid #C5A059; padding-bottom: 3px; margin-bottom: 6px;">
+                                    <h4 style="margin: 0; font-size: 10px; color: #666; font-weight: bold;">🏢 이 건물 매물 총 ${count}건</h4>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 6px;">
+                        `;
+                        group.items.forEach(p => {
+                            popupContent += `
+                                <div style="border-bottom: 1px solid #eee; padding-bottom: 4px; margin-bottom: 2px;">
+                                    <h5 style="margin: 0 0 2px 0; font-size: 10px; color: #0c1222; font-weight: 700;">${escapeHtml(p.title)}</h5>
+                                    <strong style="font-size: 9px; color: #C5A059;">${escapeHtml(p.price)}</strong>
+                                </div>
+                            `;
+                        });
+                        popupContent += `
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
                     marker.bindPopup(popupContent);
                     
                     marker.on('click', () => {
@@ -339,12 +517,22 @@
                         marker.openPopup();
                     });
 
-                    markers[p.id] = {
+                    const mainId = group.items[0].id;
+                    markers[mainId] = {
                         marker: marker,
                         isLeaflet: true
                     };
+                    
+                    leafletClusterGroup.addLayer(marker);
                 }
             });
+
+            // Commit markers to clusterer engines after loop
+            if (map && kakaoClusterer) {
+                kakaoClusterer.addMarkers(kakaoMarkersArray);
+            } else if (leafletMap && leafletClusterGroup) {
+                leafletMap.addLayer(leafletClusterGroup);
+            }
         }
 
         // Filtering logic
