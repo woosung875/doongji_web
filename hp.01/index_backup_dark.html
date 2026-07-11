@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>둥지부동산중개법인 — 강남 비주거용(상업용) 오피스·사옥 전문</title>
+    <link rel="stylesheet" href="style.css?v=2">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Playfair+Display:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <header id="header">
+        <div class="container">
+            <div class="logo">(주)둥지부동산중개법인</div>
+            <div class="menu-toggle" id="mobile-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+            <nav>
+                <ul class="nav-list">
+                    <li><a href="#home">홈</a></li>
+                    <li><a href="about.html">법인소개</a></li>
+                    <li><a href="properties.html">매물정보</a></li>
+                    <li><a href="map.html">지도보기</a></li>
+                    <li><a href="#submit-property">매물내놓기</a></li>
+                    <li><a href="guide.html">임대차 가이드</a></li>
+                    <li><a href="corporate.html">기업서비스</a></li>
+                    <li><a href="recruit.html">인재모집</a></li>
+                    <li><a href="https://www.doongji.co.kr/" target="_blank">건물관리서비스</a></li>
+                    <li><a href="#contact" class="btn-consult">상담문의</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section id="home" class="hero">
+        <div class="hero-backgrounds">
+            <div class="hero-bg active"
+                style="background-image: url('https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1600')">
+            </div>
+            <div class="hero-bg"
+                style="background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1600')">
+            </div>
+            <div class="hero-bg"
+                style="background-image: url('https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80&w=1600')">
+            </div>
+        </div>
+        <div class="hero-overlay" style="background: linear-gradient(to bottom, rgba(8, 14, 26, 0.82), rgba(12, 18, 34, 0.72));"></div>
+        <div class="hero-content" style="width: 100%; max-width: 900px; padding: 45px 30px; margin: 0 auto; background: rgba(8, 14, 26, 0.45); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45); position: relative; z-index: 5;">
+            <div class="flex items-center justify-center gap-3 mb-4" style="display: inline-flex; align-items: center; gap: 10px; background: rgba(197, 160, 89, 0.18); padding: 8px 18px; border-radius: 50px; border: 1px solid rgba(197, 160, 89, 0.35); margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);">
+                <span style="width: 6px; height: 6px; border-radius: 50%; background: #C5A059; display: inline-block;"></span>
+                <span style="font-size: 11px; letter-spacing: 2px; color: #e3c07d; font-weight: 700; text-transform: uppercase; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">강남 상업용 부동산 전문 중개법인</span>
+            </div>
+            <h1 class="fade-in" style="font-family: 'Noto Sans KR', sans-serif; font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; line-height: 1.2; margin-bottom: 18px; text-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);">오피스·사옥 임대/매매<br><span style="color: #C5A059; text-shadow: 0 4px 20px rgba(197, 160, 89, 0.3);">조건에 맞는 공간을 빠르게</span></h1>
+            <p class="fade-in delay-1" style="font-size: 1.1rem; color: #f1f5f9; max-width: 680px; margin: 0 auto 35px auto; line-height: 1.7; font-weight: 300; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85); word-break: keep-all;">(주)둥지부동산중개법인은 강남 전 권역에서 누적 150+건의 기업 이전 성공사례를 다뤄왔습니다. 조건에 맞는 가장 현실적인 후보를 찾아드립니다.</p>
+            
+            <!-- Quick Search Form -->
+            <div class="quick-search-container fade-in delay-2" style="max-width: 650px; margin: 0 auto;">
+                <div class="quick-search-group">
+                    <select id="searchRegion">
+                        <option value="">전체지역</option>
+                        <option value="서울">서울</option>
+                        <option value="경기">경기</option>
+                    </select>
+                </div>
+                <div class="quick-search-divider"></div>
+                <div class="quick-search-group">
+                    <select id="searchType">
+                        <option value="">매물종류</option>
+                        <option value="사무실">사무실</option>
+                        <option value="상가">상가</option>
+                        <option value="빌딩">빌딩</option>
+                        <option value="토지">토지</option>
+                        <option value="주거용">주거용</option>
+                    </select>
+                </div>
+                <button type="button" class="btn-search-submit" onclick="executeQuickSearch()">
+                    <i class="fas fa-search"></i> 매물 검색
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section id="stats" class="stats-section">
+        <div class="container">
+            <div class="stat-item">
+                <span class="number" style="color: #C5A059;">5+</span>
+                <span class="label">년 이상의 기업이전 전문 노하우</span>
+            </div>
+            <div class="stat-item">
+                <span class="number" style="color: #C5A059;">150+</span>
+                <span class="label">성공적인 B2B 사옥·지사 이전 실적</span>
+            </div>
+            <div class="stat-item">
+                <span class="number" style="color: #C5A059;">100%</span>
+                <span class="label">검증된 실매물</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEW: Region Quick Access Badge Section -->
+    <section id="regions" class="section bg-light" style="padding: 40px 0; border-bottom: 1px solid var(--border-color);">
+        <div class="container">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
+                <i class="fas fa-map-marker-alt" style="color: var(--accent-color); font-size: 1.1rem;"></i>
+                <h2 style="font-size: 1.1rem; font-weight: 700; color: var(--primary-color); margin: 0; font-family: 'Noto Sans KR', sans-serif;">지역별 매물 바로가기</h2>
+            </div>
+            <div class="region-badge-list">
+                <a href="properties.html?region=서울" class="region-badge">서울</a>
+                <a href="properties.html?region=경기" class="region-badge">경기</a>
+            </div>
+        </div>
+    </section>
+
+
+
+    <section id="properties" class="section bg-light">
+        <div class="container">
+            <div class="section-header">
+                <h2 style="font-family: 'Playfair Display', serif; font-weight: 700;">POPULAR LISTINGS</h2>
+                <p>현재 가장 관심도가 높은 인기 상가·사무실 매물</p>
+            </div>
+            <div class="property-grid" id="propertiesGrid">
+                <!-- Dynamic Content Loaded from localStorage -->
+            </div>
+            <div class="more-btn-container">
+                <button id="btn-more-properties" class="btn-more">
+                    더보기 <i class="fas fa-chevron-down"></i>
+                </button>
+                <a href="properties.html" id="btn-all-properties" class="btn-more" style="background: var(--accent-color) !important; color: var(--white) !important; border-color: var(--accent-color) !important;">
+                    더 많은 매물 확인하기 <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+
+
+    <section id="reviews" class="section bg-light">
+        <div class="container">
+            <div class="section-header">
+                <h2>CLIENT REVIEWS</h2>
+                <p>둥지부동산을 통해 안착하신 사장님들의 실제 계약 후기</p>
+            </div>
+            <div class="review-grid">
+                <div class="review-card">
+                    <div class="quote-icon"><i class="fas fa-quote-left"></i></div>
+                    <p class="review-text">"강남 진입을 위한 사무실을 찾는데 막막했습니다. 하지만 둥지부동산을 통해 우리 회사의 아이덴티티에 딱 맞는 공간을 찾았고, 계약 조건도 너무 만족스럽게 조율해주셨습니다."</p>
+                    <div class="reviewer">
+                        <span class="name">IT 스타트업 김대표님</span>
+                        <span class="company">테헤란로 입주</span>
+                    </div>
+                </div>
+                <div class="review-card">
+                    <div class="quote-icon"><i class="fas fa-quote-left"></i></div>
+                    <p class="review-text">"여러 부동산을 다녀봤지만 이렇게 전문적이고 체계적인 브리핑은 처음이었습니다. 단순히 매물만 보여주는 게 아니라 향후 가치까지 분석해주셔서 믿고 계약했습니다."</p>
+                    <div class="reviewer">
+                        <span class="name">프랜차이즈 본사 이실장님</span>
+                        <span class="company">압구정동 입주</span>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- Close #reviews container -->
+    </section> <!-- Close #reviews section -->
+
+    <!-- 매물내놓기 전용 섹션 -->
+    <section id="submit-property" class="section bg-light" style="padding: 80px 20px; border-top: 1px solid var(--border-color);">
+        <div class="container" style="max-width: 800px;">
+            <div class="section-header" style="text-align: center; margin-bottom: 40px;">
+                <span style="font-size: 11px; letter-spacing: 3px; color: var(--accent-color); font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 10px;">Landlord Services</span>
+                <h2 style="font-size: 2.2rem; color: var(--primary-color);">매물내놓기</h2>
+                <p style="color: #64748b; margin-top: 10px;">소중한 자산의 빠르고 정확한 중개를 약속드립니다. 매물 정보를 간편하게 남겨주세요.</p>
+            </div>
+            
+            <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+                <form id="propertySubmitForm" onsubmit="handlePropertySubmit(event)">
+                    
+                    <!-- 거래 구분 -->
+                    <div class="form-group" style="margin-bottom: 25px;">
+                        <label style="font-weight: 700; color: var(--primary-color); display: block; margin-bottom: 10px;">거래 구분 <span style="color: red;">*</span></label>
+                        <div style="display: flex; gap: 20px; align-items: center;">
+                            <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer;">
+                                <input type="checkbox" name="tradeType" value="매매" style="width: 18px; height: 18px; accent-color: var(--accent-color);">
+                                매매
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer;">
+                                <input type="checkbox" name="tradeType" value="월세" style="width: 18px; height: 18px; accent-color: var(--accent-color);">
+                                월세
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 소재지 -->
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label style="font-weight: 700; color: var(--primary-color); display: block; margin-bottom: 8px;">소재지 <span style="color: red;">*</span></label>
+                        <input type="text" id="propAddress" placeholder="예: 서울시 강남구 역삼동 123-45 (상세주소 포함)" required 
+                               style="width: 100%; padding: 12px 15px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 14px; outline: none; transition: border-color 0.3s;"
+                               onfocus="this.style.borderColor='var(--accent-color)'" onblur="this.style.borderColor='#cbd5e1'">
+                    </div>
+
+                    <!-- 층수 -->
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label style="font-weight: 700; color: var(--primary-color); display: block; margin-bottom: 8px;">층수 <span style="color: red;">*</span></label>
+                        <input type="text" id="propFloor" placeholder="예: 지상 5층 (또는 지하 1층)" required 
+                               style="width: 100%; padding: 12px 15px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 14px; outline: none; transition: border-color 0.3s;"
+                               onfocus="this.style.borderColor='var(--accent-color)'" onblur="this.style.borderColor='#cbd5e1'">
+                    </div>
+
+                    <!-- 연락처 -->
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label style="font-weight: 700; color: var(--primary-color); display: block; margin-bottom: 8px;">연락처 <span style="color: red;">*</span></label>
+                        <input type="tel" id="propPhone" placeholder="숫자만 입력해주세요 (예: 01012345678)" required 
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '')" pattern="[0-9]*"
+                               style="width: 100%; padding: 12px 15px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 14px; outline: none; transition: border-color 0.3s;"
+                               onfocus="this.style.borderColor='var(--accent-color)'" onblur="this.style.borderColor='#cbd5e1'">
+                    </div>
+
+                    <!-- 특이사항 -->
+                    <div class="form-group" style="margin-bottom: 30px;">
+                        <label style="font-weight: 700; color: var(--primary-color); display: block; margin-bottom: 8px;">특이사항</label>
+                        <textarea id="propMemo" placeholder="희망 매매/임대가격, 입주 가능일 등 특이사항을 자유롭게 기재해 주세요." rows="3"
+                                  style="width: 100%; padding: 12px 15px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 14px; outline: none; transition: border-color 0.3s; resize: vertical;"
+                                  onfocus="this.style.borderColor='var(--accent-color)'" onblur="this.style.borderColor='#cbd5e1'"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-submit" style="width: 100%; padding: 15px; background: var(--primary-color); color: #fff; border: 1px solid var(--primary-color); border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s;"
+                            onmouseenter="this.style.background='var(--accent-color)'; this.style.borderColor='var(--accent-color)'; this.style.color='#0c1222';"
+                            onmouseleave="this.style.background='var(--primary-color)'; this.style.borderColor='var(--primary-color)'; this.style.color='#fff';">
+                        매물 접수하기
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="section dark-section" style="background: #080e1a;">
+        <div class="container contact-container">
+            <div class="contact-info">
+                <span style="font-size: 11px; letter-spacing: 3px; color: var(--accent-color); font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 10px;">Contact Us</span>
+                <h2>PREMIUM CONSULTING</h2>
+                <p>귀하의 성공적인 비즈니스를 위한 공간 제안 및 임대 대행을 도와드립니다.<br><strong>내 매물 내놓기(임대의뢰)</strong> 및 기업 임대차 서비스를 적극 신청해 보세요.</p>
+                <ul class="contact-details" style="margin-top: 30px;">
+                    <li><i class="fas fa-phone-alt" style="color: var(--accent-color);"></i> 02-553-9489</li>
+                    <li><i class="fas fa-envelope" style="color: var(--accent-color);"></i> am@doongji.co.kr</li>
+                    <li><i class="fas fa-map-marker-alt" style="color: var(--accent-color);"></i> 서울특별시 강남구 테헤란로 86길 14, 윤천빌딩 4F(대치동)</li>
+                </ul>
+                <div class="corp-info" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; margin-top: 30px;">
+                    <p>(주)둥지부동산중개법인 | 대표: 김우성</p>
+                    <p>등록번호: 11680-2024-00180</p>
+                </div>
+            </div>
+            <div class="contact-form-wrapper" style="border-radius: 20px;">
+                <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+                <form id="contactForm" class="contact-form"
+                    action="https://docs.google.com/forms/d/e/1FAIpQLScE-CijsQdzuaz05hw_Nl6kb6ZIDY0AJeR44gXL19a-9-J9rQ/formResponse"
+                    method="POST" target="hidden_iframe">
+                    <input type="hidden" name="fvv" value="1">
+                    <input type="hidden" name="pageHistory" value="0">
+                    <input type="hidden" name="fbzx" value="7308509131122374301">
+                    <input type="hidden" name="partialResponse" value='[null,null,"7308509131122374301"]'>
+
+                    <div class="form-group">
+                        <label>고객명/업체명</label>
+                        <input type="text" name="entry.2005620554" placeholder="성함 또는 업체명을 입력해주세요" required style="border-radius: 8px;">
+                    </div>
+
+                    <div class="form-group">
+                        <label>연락처</label>
+                        <input type="tel" name="entry.1065046570" placeholder="숫자만 입력해주세요 (예: 01012345678)" required
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')" pattern="[0-9]*" style="border-radius: 8px;">
+                    </div>
+
+                    <div class="form-group">
+                        <label>상담유형</label>
+                        <div style="display: flex; gap: 1rem; margin-top: 0.5rem; flex-wrap: wrap;">
+                            <label
+                                style="display: flex; align-items: center; gap: 0.5rem; color: #555; font-weight: normal; white-space: nowrap;">
+                                <input type="checkbox" name="entry.1166974658" value="내 매물 내놓기 (임대의뢰)">
+                                내 매물 내놓기 (임대의뢰)
+                            </label>
+                            <label
+                                style="display: flex; align-items: center; gap: 0.5rem; color: #555; font-weight: normal; white-space: nowrap;">
+                                <input type="checkbox" name="entry.1166974658" value="상가/사무실 임차">
+                                상가/사무실 임차
+                            </label>
+                            <label
+                                style="display: flex; align-items: center; gap: 0.5rem; color: #555; font-weight: normal; white-space: nowrap;">
+                                <input type="checkbox" name="entry.1166974658" value="빌딩/상가 매입매각">
+                                빌딩/상가 매입매각
+                            </label>
+                        </div>
+                        <input type="hidden" name="entry.1166974658_sentinel" value="">
+                    </div>
+
+                    <div class="form-group">
+                        <label>희망 조건 (기타)</label>
+                        <textarea name="entry.839337160" rows="4"
+                            placeholder="희망 지역, 예산, 면적, 업종 등을 적어주시면 상세히 검토하겠습니다." style="border-radius: 8px;"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-submit" id="submitBtn" style="border-radius: 10px;">문의 남기기</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 doongji Real Estate Corp. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Mobile Quick bar -->
+    <div class="mobile-quick-bar">
+        <a href="tel:02-553-9489" class="btn-quick-call">
+            <i class="fas fa-phone-alt"></i> 전화 상담
+        </a>
+        <a href="#contact" class="btn-quick-inquiry">
+            <i class="fas fa-envelope"></i> 문의 남기기
+        </a>
+    </div>
+
+    <script>
+        // Simple scroll visual effect
+        window.addEventListener('scroll', function () {
+            const header = document.getElementById('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // FORM SUBMISSION LOGIC
+        const form = document.querySelector('#contactForm');
+        const submitBtn = document.querySelector('#submitBtn');
+        const iframe = document.getElementById('hidden_iframe');
+        let submitted = false;
+
+        form.addEventListener('submit', () => {
+            submitted = true;
+            submitBtn.innerText = '전송 중...';
+            submitBtn.disabled = true;
+
+            // Fallback: Force success after 2 seconds to ensure popup appears
+            setTimeout(() => {
+                if (submitted) {
+                    showSuccess();
+                }
+            }, 2000);
+        });
+
+        // Try to capture iframe load
+        iframe.addEventListener('load', () => {
+            if (submitted) {
+                showSuccess();
+            }
+        });
+
+        function showSuccess() {
+            alert('담당자가 빠른 시간 내에 연락드리겠습니다.');
+            form.reset();
+            submitBtn.innerText = '문의 남기기';
+            submitBtn.disabled = false;
+            submitted = false;
+        }
+
+        function handlePropertySubmit(event) {
+            event.preventDefault();
+            const checkedBoxes = document.querySelectorAll('input[name="tradeType"]:checked');
+            if (checkedBoxes.length === 0) {
+                alert('거래 구분(매매/월세)을 하나 이상 선택해 주세요.');
+                return;
+            }
+            
+            const address = document.getElementById('propAddress').value;
+            const floor = document.getElementById('propFloor').value;
+            const phone = document.getElementById('propPhone').value;
+            const memo = document.getElementById('propMemo').value;
+            const tradeTypes = Array.from(checkedBoxes).map(cb => cb.value).join(', ');
+
+            console.log("매물접수 신청 내역:", { tradeTypes, address, floor, phone, memo });
+            
+            let successMsg = `소중한 매물 접수가 완료되었습니다!\n\n[접수 내역]\n- 구분: ${tradeTypes}\n- 주소: ${address}\n- 층수: ${floor}\n- 연락처: ${phone}`;
+            if (memo.trim() !== '') {
+                successMsg += `\n- 특이사항: ${memo}`;
+            }
+            successMsg += `\n\n담당 에이전트가 기재해 주신 연락처로 신속히 연락드리겠습니다.`;
+            
+            alert(successMsg);
+            
+            document.getElementById('propertySubmitForm').reset();
+        }
+
+        // Background Slideshow Logic
+        const bgs = document.querySelectorAll('.hero-bg');
+        let current = 0;
+
+        function nextSlide() {
+            if (bgs.length > 0) {
+                bgs[current].classList.remove('active');
+                current = (current + 1) % bgs.length;
+                bgs[current].classList.add('active');
+            }
+        }
+
+        setInterval(nextSlide, 5000); // Change every 5 seconds
+
+        // Mobile Menu Toggle
+        const menuToggle = document.getElementById('mobile-menu');
+        const navList = document.querySelector('.nav-list');
+
+        menuToggle.addEventListener('click', () => {
+            navList.classList.toggle('active');
+        });
+
+        // Quick Search Action
+        function executeQuickSearch() {
+            const region = document.getElementById('searchRegion').value;
+            const type = document.getElementById('searchType').value;
+            window.location.href = `properties.html?region=${encodeURIComponent(region)}&type=${encodeURIComponent(type)}`;
+        }
+
+        // Property Dynamic Rendering & Collapse Logic (Gangnam Datasets)
+        const defaultProperties = [
+            {
+                id: "prop-1",
+                tag: "서울",
+                type: "사무실",
+                floor: "지상",
+                title: "역삼역 초역세권 대형 프라임 오피스",
+                desc: "전용 150평 / 테헤란로 뷰 / 고층 오피스 빌딩 내 지상층",
+                price: "보증금 5억 / 월 4,500만",
+                imageUrl: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800",
+                lat: 37.5019,
+                lng: 127.0374
+            },
+            {
+                id: "prop-2",
+                tag: "서울",
+                type: "상가",
+                floor: "1층",
+                title: "청담동 명품거리 1층 로드샵 상가",
+                desc: "전용 80평 / 쇼룸 완비 / 1층 테라스 활용 가능",
+                price: "가격 협의",
+                imageUrl: "https://images.unsplash.com/photo-1554469384-e58fac16e23a?auto=format&fit=crop&q=80&w=800",
+                lat: 37.5251,
+                lng: 127.0435
+            },
+            {
+                id: "prop-3",
+                tag: "경기",
+                type: "토지",
+                floor: "지상",
+                title: "용인 기흥 상업용 개발 토지 매매",
+                desc: "토지면적 450평 / 대로변 코너 / 근생 및 물류 부지 추천",
+                price: "매매 45억",
+                imageUrl: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=800",
+                lat: 37.2804,
+                lng: 127.1179
+            },
+            {
+                id: "prop-4",
+                tag: "서울",
+                type: "상가",
+                floor: "지하",
+                title: "강남역 인근 지하 대형 F&B 상가",
+                desc: "전용 120평 / 단독 진입 계단 / 주방 설비 완비 및 층고 4m",
+                price: "보증금 2억 / 월 1,500만",
+                imageUrl: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&q=80&w=800",
+                lat: 37.4979,
+                lng: 127.0276
+            },
+            {
+                id: "prop-5",
+                tag: "경기",
+                type: "주거용",
+                floor: "지상",
+                title: "분당 정자동 오피스텔 주거용 풀옵션",
+                desc: "전용 24평 / 탄천 뷰 / 침실 2개 / 즉시 입주 가능",
+                price: "보증금 3,000만 / 월 180만",
+                imageUrl: "https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80&w=800",
+                lat: 37.3614,
+                lng: 127.1086
+            },
+            {
+                id: "prop-6",
+                tag: "서울",
+                type: "빌딩",
+                floor: "지상",
+                title: "테헤란로 삼성동 대로변 프라임 사옥 빌딩",
+                desc: "연면적 450평 / 지상 전체 통임대 / 자주식 주차 10대",
+                price: "보증금 8억 / 월 6,000만",
+                imageUrl: "https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&q=80&w=800",
+                lat: 37.5097,
+                lng: 127.0620
+            }
+        ];
+
+        function getProperties() {
+            let props = localStorage.getItem('nest_properties');
+            // Re-initialize if old Busan/outdated data is loaded or no data exists
+            if (!props || JSON.parse(props).length === 0 || (JSON.parse(props)[0].tag !== "서울" && JSON.parse(props)[0].tag !== "경기")) {
+                localStorage.setItem('nest_properties', JSON.stringify(defaultProperties));
+                return defaultProperties;
+            }
+            return JSON.parse(props);
+        }
+
+        const propertiesGrid = document.getElementById('propertiesGrid');
+        const moreBtn = document.getElementById('btn-more-properties');
+        const allPropsBtn = document.getElementById('btn-all-properties');
+        let isExpanded = false;
+
+        function renderProperties() {
+            const props = getProperties();
+            propertiesGrid.innerHTML = '';
+            
+            if (props.length === 0) {
+                propertiesGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px;">등록된 매물이 없습니다.</p>';
+                moreBtn.style.display = 'none';
+                allPropsBtn.style.display = 'none';
+                return;
+            }
+
+            props.forEach((p, idx) => {
+                const card = document.createElement('div');
+                if (idx >= 3) {
+                    card.className = 'property-card hidden-card';
+                } else {
+                    card.className = 'property-card';
+                }
+                
+                card.innerHTML = `
+                    <div class="card-image" style="background-image: url('${p.imageUrl}');">
+                        <span class="tag" style="background: var(--accent-color);">${escapeHtml(p.tag)}</span>
+                    </div>
+                    <div class="card-body">
+                        <h3>${escapeHtml(p.title)}</h3>
+                        <p class="desc">${escapeHtml(p.desc)}</p>
+                        <div class="card-footer">
+                            <span class="price">${escapeHtml(p.price)}</span>
+                            <button class="btn-text">자세히 보기 &rarr;</button>
+                        </div>
+                    </div>
+                `;
+                propertiesGrid.appendChild(card);
+            });
+
+            if (props.length > 3) {
+                moreBtn.style.display = 'flex';
+            } else {
+                moreBtn.style.display = 'none';
+            }
+        }
+
+        moreBtn.addEventListener('click', () => {
+            isExpanded = !isExpanded;
+            const hiddenCards = document.querySelectorAll('.property-card.hidden-card');
+            
+            if (isExpanded) {
+                hiddenCards.forEach(card => {
+                    card.classList.add('show');
+                });
+                moreBtn.innerHTML = '접기 <i class="fas fa-chevron-up"></i>';
+                moreBtn.classList.add('active');
+                allPropsBtn.style.display = 'flex';
+            } else {
+                hiddenCards.forEach(card => {
+                    card.classList.remove('show');
+                });
+                moreBtn.innerHTML = '더보기 <i class="fas fa-chevron-down"></i>';
+                moreBtn.classList.remove('active');
+                allPropsBtn.style.display = 'none';
+                
+                const propertiesSection = document.getElementById('properties');
+                propertiesSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+
+        function escapeHtml(string) {
+            return String(string).replace(/[&<>"']/g, function (s) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;'
+                }[s];
+            });
+        }
+
+        // Initialize Rendering
+        renderProperties();
+    </script>
+</body>
+
+</html>

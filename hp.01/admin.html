@@ -10,6 +10,18 @@
         href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Playfair+Display:wght@400;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* 홈페이지 고정 헤더 스타일이 관리자 헤더에 겹쳐서 메뉴 탭을 가리는 버그 격리 치료 */
+        .admin-dashboard .admin-header {
+            position: static !important;
+            width: auto !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        .admin-main {
+            padding: 30px 0 !important;
+        }
+    </style>
 </head>
 
 <body class="admin-login-body" id="adminBody">
@@ -56,6 +68,10 @@
                     <button class="tab-btn" id="tabBtnGuides" onclick="switchTab('guides')" 
                             style="padding: 10px 20px; background: #fff; color: #64748b; border: 1px solid #e2e8f0; border-radius: 6px; font-weight: 500; cursor: pointer; transition: all 0.3s; font-family: inherit; font-size: 14px;">
                         <i class="fas fa-book" style="margin-right: 6px;"></i> 임대차 가이드 관리
+                    </button>
+                    <button class="tab-btn" id="tabBtnReviews" onclick="switchTab('reviews')" 
+                            style="padding: 10px 20px; background: #fff; color: #64748b; border: 1px solid #e2e8f0; border-radius: 6px; font-weight: 500; cursor: pointer; transition: all 0.3s; font-family: inherit; font-size: 14px;">
+                        <i class="fas fa-comment-dots" style="margin-right: 6px;"></i> 고객 후기 관리
                     </button>
                 </div>
 
@@ -137,6 +153,37 @@
                                 </tr>
                             </thead>
                             <tbody id="guideTableBody">
+                                <!-- Dynamic Content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 3. CLIENT REVIEWS TAB SECTION -->
+                <div id="reviewsTabArea" style="display: none;">
+                    <div class="dashboard-title-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                        <h2>고객 후기 관리</h2>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn-admin-action" id="btnResetReviews" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; font-weight: bold; cursor: pointer;">
+                                <i class="fas fa-sync-alt"></i> 샘플 데이터 리셋
+                            </button>
+                            <button class="btn-admin-action" id="btnNewReview" style="background: var(--accent-color); border-color: var(--accent-color); color: var(--primary-color);">
+                                <i class="fas fa-plus"></i> 새 후기 등록
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 150px;">작성자</th>
+                                    <th style="width: 160px;">입주지역 / 회사</th>
+                                    <th>후기 내용</th>
+                                    <th style="width: 110px; text-align: center;">관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reviewTableBody">
                                 <!-- Dynamic Content -->
                             </tbody>
                         </table>
@@ -312,6 +359,37 @@
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" id="btnGuideModalCancel">취소</button>
                     <button type="submit" class="btn-submit" style="width: auto; padding: 12px 30px; background: var(--accent-color); border-color: var(--accent-color); color: var(--primary-color); font-weight: bold;" id="btnGuideModalSave">저장하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- REVIEW FORM MODAL (ADD / EDIT) -->
+    <div class="admin-modal" id="reviewModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 id="reviewModalTitle">새 고객 후기 등록</h3>
+                <button class="modal-close" id="btnReviewModalClose">&times;</button>
+            </div>
+            <form id="reviewForm">
+                <input type="hidden" id="reviewId">
+                <div class="form-group">
+                    <label>작성자 (예: IT 스타트업 김대표님)</label>
+                    <input type="text" id="reviewAuthor" placeholder="작성자 명칭을 입력하세요" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                </div>
+                <div class="form-group">
+                    <label>입주지역 / 회사 (예: 테헤란로 입주 또는 압구정동 입주)</label>
+                    <input type="text" id="reviewCompany" placeholder="입주 지역이나 회사명을 입력하세요" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                </div>
+                <div class="form-group">
+                    <label>후기 본문 내용</label>
+                    <textarea id="reviewText" rows="6" placeholder="둥지부동산을 통해 성공적으로 계약하신 고객님의 상세 후기를 입력하세요." required 
+                              style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit; font-size: 14px; resize: vertical; line-height: 1.6;"></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="btnReviewModalCancel">취소</button>
+                    <button type="submit" class="btn-submit" style="width: auto; padding: 12px 30px; background: var(--accent-color); border-color: var(--accent-color); color: var(--primary-color); font-weight: bold;" id="btnReviewModalSave">저장하기</button>
                 </div>
             </form>
         </div>
@@ -895,44 +973,261 @@
         function switchTab(tabName) {
             const propTabArea = document.getElementById('propertiesTabArea');
             const guideTabArea = document.getElementById('guidesTabArea');
+            const reviewsTabArea = document.getElementById('reviewsTabArea');
             const tabBtnProp = document.getElementById('tabBtnProperties');
             const tabBtnGuide = document.getElementById('tabBtnGuides');
+            const tabBtnReview = document.getElementById('tabBtnReviews');
+
+            // Reset tabs display and active button styles
+            const tabs = [
+                { area: propTabArea, btn: tabBtnProp },
+                { area: guideTabArea, btn: tabBtnGuide },
+                { area: reviewsTabArea, btn: tabBtnReview }
+            ];
+
+            tabs.forEach(t => {
+                if (t.area) t.area.style.display = 'none';
+                if (t.btn) {
+                    t.btn.style.background = '#fff';
+                    t.btn.style.color = '#64748b';
+                    t.btn.style.fontWeight = '500';
+                    t.btn.style.borderColor = '#e2e8f0';
+                }
+            });
 
             if (tabName === 'properties') {
                 propTabArea.style.display = 'block';
-                guideTabArea.style.display = 'none';
-                
-                // Active button style
                 tabBtnProp.style.background = 'var(--primary-color)';
                 tabBtnProp.style.color = '#fff';
                 tabBtnProp.style.fontWeight = '700';
                 tabBtnProp.style.borderColor = 'var(--primary-color)';
-
-                // Inactive button style
-                tabBtnGuide.style.background = '#fff';
-                tabBtnGuide.style.color = '#64748b';
-                tabBtnGuide.style.fontWeight = '500';
-                tabBtnGuide.style.borderColor = '#e2e8f0';
-                
                 applyAdminFilters();
-            } else {
-                propTabArea.style.display = 'none';
+            } else if (tabName === 'guides') {
                 guideTabArea.style.display = 'block';
-
-                // Active button style
                 tabBtnGuide.style.background = 'var(--primary-color)';
                 tabBtnGuide.style.color = '#fff';
                 tabBtnGuide.style.fontWeight = '700';
                 tabBtnGuide.style.borderColor = 'var(--primary-color)';
-
-                // Inactive button style
-                tabBtnProp.style.background = '#fff';
-                tabBtnProp.style.color = '#64748b';
-                tabBtnProp.style.fontWeight = '500';
-                tabBtnProp.style.borderColor = '#e2e8f0';
-
                 renderAdminGuides();
+            } else if (tabName === 'reviews') {
+                reviewsTabArea.style.display = 'block';
+                tabBtnReview.style.background = 'var(--primary-color)';
+                tabBtnReview.style.color = '#fff';
+                tabBtnReview.style.fontWeight = '700';
+                tabBtnReview.style.borderColor = 'var(--primary-color)';
+                renderAdminReviews();
             }
+        }
+
+        // ==============================================================
+        // ======================= REVIEWS CMS LOGIC ====================
+        // ==============================================================
+        
+        // 10 default reviews (seed data)
+        const initialReviews = [
+            {
+                id: "rev-1",
+                author: "IT 스타트업 김대표님",
+                company: "테헤란로 입주",
+                text: "강남 진입을 위한 사무실을 찾는데 막막했습니다. 하지만 둥지부동산을 통해 우리 회사의 아이덴티티에 딱 맞는 공간을 찾았고, 계약 조건도 너무 만족스럽게 조율해주셨습니다."
+            },
+            {
+                id: "rev-2",
+                author: "프랜차이즈 본사 이실장님",
+                company: "압구정동 입주",
+                text: "여러 부동산을 다녀봤지만 이렇게 전문적이고 체계적인 브리핑은 처음이었습니다. 단순히 매물만 보여주는 게 아니라 향후 가치까지 분석해주셔서 믿고 계약했습니다."
+            },
+            {
+                id: "rev-3",
+                author: "자산운용사 박대표님",
+                company: "삼성동 입주",
+                text: "삼성동 법인 사옥 이전을 전담해주셨는데, 복잡한 주차 조건과 보안 설비를 완벽하게 조율해주셔서 임직원 모두가 대만족하고 있습니다."
+            },
+            {
+                id: "rev-4",
+                author: "디자인 에이전트 최대표님",
+                company: "신사동 입주",
+                text: "트렌디한 단독 사옥을 원했는데, 가로수길 이면에 숨겨진 노출 콘크리트 감성 빌딩을 매칭해주셨습니다. 덕분에 크리에이티브한 업무 환경이 완성되었습니다."
+            },
+            {
+                id: "rev-5",
+                author: "뷰티 코스메틱 정대표님",
+                company: "청담동 입주",
+                text: "청담동 쇼룸 겸 사옥 이전이라 까다로운 조건이 많았습니다. 인허가 문제부터 테라스 여부까지 꼼꼼히 확인해 주셔서 큰 시행착오를 줄였습니다."
+            },
+            {
+                id: "rev-6",
+                author: "바이오 헬스케어 송대표님",
+                company: "역삼동 입주",
+                text: "연구소 장비 반입을 위한 층고와 전력 용량이 필수적이었는데, 조건에 완벽히 부합하는 인프라를 지닌 테헤란로 빌딩을 찾아주셔서 성공적으로 이전했습니다."
+            },
+            {
+                id: "rev-7",
+                author: "대형 법률사무소 조파트너 변호사님",
+                company: "서초동 입주",
+                text: "법조타운 인근에서 의뢰인 브리핑실과 파티션 공간이 잘 나뉘는 사무실을 구해주셨습니다. 신속한 피드백과 꼼꼼한 계약서 검토가 매우 인상 깊었습니다."
+            },
+            {
+                id: "rev-8",
+                author: "글로벌 엔터테인먼트 황대표님",
+                company: "논현동 입주",
+                text: "연습실 방음 시공이 가능한 대형 지하 공간과 기획사 사옥으로 적합한 논현동 빌딩 통임대를 매끄럽게 중개해주셔서 사업 확장에 집중할 수 있게 되었습니다."
+            },
+            {
+                id: "rev-9",
+                author: "모바일 커머스 한대표님",
+                company: "역삼동 입주",
+                text: "신축 첫 입주라 임대료 렌트프리 조율이 관건이었는데, 둥지부동산의 독보적인 네트워킹 덕분에 기대 이상으로 유리하게 계약을 체결했습니다."
+            },
+            {
+                id: "rev-10",
+                author: "친환경 식음료 브랜드 강대표님",
+                company: "도곡동 입주",
+                text: "임직원들의 접근성과 주변 녹지 공간을 동시에 충족하는 양재천 인근 매물을 선점해주셨습니다. 둥지만의 검증된 실매물 DB 덕에 시간 낭비가 전혀 없었습니다."
+            }
+        ];
+
+        function getReviews() {
+            let list = localStorage.getItem('nest_reviews');
+            let reviews = [];
+            try {
+                if (list) {
+                    reviews = JSON.parse(list);
+                }
+            } catch (e) {
+                console.error("Failed to parse nest_reviews:", e);
+                reviews = [];
+            }
+            
+            if (!reviews || reviews.length === 0) {
+                localStorage.setItem('nest_reviews', JSON.stringify(initialReviews));
+                return initialReviews;
+            }
+            return reviews;
+        }
+
+        const reviewTableBody = document.getElementById('reviewTableBody');
+        const btnNewReview = document.getElementById('btnNewReview');
+        const btnResetReviews = document.getElementById('btnResetReviews');
+        const reviewModal = document.getElementById('reviewModal');
+        const reviewForm = document.getElementById('reviewForm');
+        const reviewModalTitle = document.getElementById('reviewModalTitle');
+        const btnReviewModalClose = document.getElementById('btnReviewModalClose');
+        const btnReviewModalCancel = document.getElementById('btnReviewModalCancel');
+
+        const inputReviewId = document.getElementById('reviewId');
+        const inputReviewAuthor = document.getElementById('reviewAuthor');
+        const inputReviewCompany = document.getElementById('reviewCompany');
+        const inputReviewText = document.getElementById('reviewText');
+
+        function renderAdminReviews() {
+            const list = getReviews();
+            reviewTableBody.innerHTML = '';
+            
+            if (list.length === 0) {
+                reviewTableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #888; padding: 30px;">등록된 고객 후기가 없습니다.</td></tr>';
+                return;
+            }
+
+            list.forEach(r => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight: 700; color: var(--primary-color);">${escapeHtml(r.author)}</td>
+                    <td style="color: #64748b; font-size: 13px;">${escapeHtml(r.company)}</td>
+                    <td style="font-size: 13px; color: #64748b; max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(r.text)}</td>
+                    <td style="text-align: center;">
+                        <div style="display: flex; gap: 6px; justify-content: center;">
+                            <button onclick="editReview('${r.id}')" style="padding: 5px 10px; font-size: 11px; background: #e2e8f0; border: 1px solid #cbd5e1; border-radius: 4px; cursor: pointer;">수정</button>
+                            <button onclick="deleteReview('${r.id}')" style="padding: 5px 10px; font-size: 11px; background: #fee2e2; border: 1px solid #fca5a5; color: #b91c1c; border-radius: 4px; cursor: pointer;">삭제</button>
+                        </div>
+                    </td>
+                `;
+                reviewTableBody.appendChild(tr);
+            });
+        }
+
+        // Open Review Modal
+        btnNewReview.addEventListener('click', () => {
+            reviewModalTitle.innerText = "새 고객 후기 등록";
+            inputReviewId.value = '';
+            reviewForm.reset();
+            reviewModal.classList.add('open');
+        });
+
+        // Close Review Modal
+        function closeReviewModal() {
+            reviewModal.classList.remove('open');
+        }
+        btnReviewModalClose.addEventListener('click', closeReviewModal);
+        btnReviewModalCancel.addEventListener('click', closeReviewModal);
+
+        // Save Review
+        reviewForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const list = getReviews();
+            const id = inputReviewId.value;
+            const author = inputReviewAuthor.value;
+            const company = inputReviewCompany.value;
+            const text = inputReviewText.value;
+
+            if (id) {
+                // Edit
+                const idx = list.findIndex(r => r.id === id);
+                if (idx !== -1) {
+                    list[idx].author = author;
+                    list[idx].company = company;
+                    list[idx].text = text;
+                }
+            } else {
+                // Add
+                const newRev = {
+                    id: "rev-" + Date.now(),
+                    author,
+                    company,
+                    text
+                };
+                list.unshift(newRev);
+            }
+
+            localStorage.setItem('nest_reviews', JSON.stringify(list));
+            closeReviewModal();
+            renderAdminReviews();
+            alert("고객 후기가 안전하게 저장되었습니다.");
+        });
+
+        // Edit Review
+        window.editReview = function(id) {
+            const list = getReviews();
+            const matched = list.find(r => r.id === id);
+            if (!matched) return;
+
+            reviewModalTitle.innerText = "고객 후기 수정";
+            inputReviewId.value = matched.id;
+            inputReviewAuthor.value = matched.author;
+            inputReviewCompany.value = matched.company;
+            inputReviewText.value = matched.text;
+
+            reviewModal.classList.add('open');
+        }
+
+        // Delete Review
+        window.deleteReview = function(id) {
+            if (!confirm("정말 이 고객 후기를 영구 삭제하시겠습니까?")) return;
+            let list = getReviews();
+            list = list.filter(r => r.id !== id);
+            localStorage.setItem('nest_reviews', JSON.stringify(list));
+            renderAdminReviews();
+        };
+
+        // Reset Reviews Data
+        if (btnResetReviews) {
+            btnResetReviews.addEventListener('click', () => {
+                if (confirm("등록하신 수동 후기가 모두 지워지고 기본 10대 후기 목록으로 복원됩니다. 리셋하시겠습니까?")) {
+                    localStorage.removeItem('nest_reviews');
+                    alert("후기 목록이 안전하게 초기화되었습니다.");
+                    renderAdminReviews();
+                }
+            });
         }
 
         // Default guides data (seed)

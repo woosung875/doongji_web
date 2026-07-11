@@ -1495,4 +1495,193 @@ footer {
     body {
         padding-bottom: 70px; /* offset for mobile quick bar */
     }
+}
+
+/* ==========================================================================
+   HIGH-END B2B DESIGN TASTE ADDITIONS (Anti-Slop Tweaks)
+   ========================================================================== */
+
+/* 1. Tactile Interactive Physics for Buttons & Badges */
+.btn-consult,
+.btn-submit,
+.btn-more,
+.btn-search-submit,
+.btn-admin-action,
+.region-badge,
+.mobile-quick-bar a {
+    transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), 
+                background-color 0.25s ease, 
+                box-shadow 0.25s ease, 
+                border-color 0.25s ease !important;
+}
+
+.btn-consult:active,
+.btn-submit:active,
+.btn-more:active,
+.btn-search-submit:active,
+.btn-admin-action:active,
+.region-badge:active,
+.mobile-quick-bar a:active {
+    transform: scale(0.97) !important;
+}
+
+/* 2. Soft Tinted Shadows & Borders for Property Cards */
+.property-card {
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                border-color 0.3s ease !important;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    box-shadow: 0 4px 15px rgba(12, 18, 34, 0.02);
+}
+
+.property-card:hover {
+    transform: translateY(-4px) !important;
+    border-color: rgba(197, 160, 89, 0.32) !important;
+    box-shadow: 0 16px 36px rgba(12, 18, 34, 0.07) !important;
+}
+
+/* 3. Smooth Scale Focus Ring for Form Elements */
+input[type="text"],
+input[type="tel"],
+input[type="password"],
+select,
+textarea {
+    transition: border-color 0.25s ease, box-shadow 0.25s ease !important;
+}
+
+input[type="text"]:focus,
+input[type="tel"]:focus,
+input[type="password"]:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--accent-color) !important;
+    box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.18) !important;
+    outline: none !important;
+}
+
+/* 4. Region Badges Editorial Look */
+.region-badge {
+    text-decoration: none;
+    font-weight: 600;
+    border: 1px solid var(--border-color);
+    background: var(--white);
+    color: var(--text-color);
+    box-shadow: 0 2px 6px rgba(12, 18, 34, 0.02);
+}
+
+.region-badge:hover {
+    border-color: var(--accent-color);
+    color: var(--primary-color);
+    background: rgba(197, 160, 89, 0.04);
+    box-shadow: 0 6px 15px rgba(197, 160, 89, 0.1);
+}
+
+/* ==========================================================================
+   INFINITE LOOP MARQUEE CAROUSEL (Reviews Left-to-Right Scrolling)
+   ========================================================================== */
+
+.review-marquee-wrapper {
+    overflow: hidden;
+    width: 100%;
+    position: relative;
+    padding: 30px 0;
+}
+
+/* Linear edge shadows for clean entry/exit */
+.review-marquee-wrapper::before,
+.review-marquee-wrapper::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    width: 150px;
+    height: 100%;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.review-marquee-wrapper::before {
+    left: 0;
+    background: linear-gradient(to right, rgba(248, 250, 252, 1) 0%, rgba(248, 250, 252, 0) 100%);
+}
+
+.review-marquee-wrapper::after {
+    right: 0;
+    background: linear-gradient(to left, rgba(248, 250, 252, 1) 0%, rgba(248, 250, 252, 0) 100%);
+}
+
+.review-marquee-track {
+    display: flex;
+    gap: 25px;
+    width: max-content;
+    animation: scrollRightMarquee 50s linear infinite;
+}
+
+.review-marquee-track:hover {
+    animation-play-state: paused !important; /* Freeze loop on hover */
+}
+
+/* Infinite Left to Right scroll logic */
+@keyframes scrollRightMarquee {
+    0% {
+        transform: translateX(-50%); /* Start halfway from the duplicate block */
+    }
+    100% {
+        transform: translateX(0); /* Scroll smoothly back to origin */
+    }
+}
+
+.review-marquee-track .review-card {
+    width: 390px;
+    flex-shrink: 0;
+    background: #ffffff;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 18px;
+    padding: 35px 30px;
+    box-shadow: 0 4px 15px rgba(12, 18, 34, 0.015);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
+                box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
+                border-color 0.25s ease !important;
+}
+
+.review-marquee-track .review-card:hover {
+    transform: translateY(-4px) !important;
+    border-color: rgba(197, 160, 89, 0.4) !important;
+    box-shadow: 0 12px 30px rgba(12, 18, 34, 0.05) !important;
+}
+
+.review-marquee-track .quote-icon {
+    font-size: 1.5rem;
+    color: rgba(197, 160, 89, 0.22);
+    margin-bottom: 15px;
+}
+
+.review-marquee-track .review-text {
+    font-size: 0.95rem;
+    color: var(--text-color);
+    line-height: 1.65;
+    margin-bottom: 22px;
+    word-break: keep-all;
+    flex-grow: 1;
+}
+
+.review-marquee-track .reviewer {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid rgba(226, 232, 240, 0.6);
+    padding-top: 15px;
+}
+
+.review-marquee-track .reviewer .name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.review-marquee-track .reviewer .company {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-top: 2px;
 }
