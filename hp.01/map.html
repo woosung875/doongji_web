@@ -14,12 +14,11 @@
 </head>
 
 <body style="overflow: hidden;"> <!-- Lock scroll for full screen map feel -->
-    <header id="header" class="scrolled"> <!-- Force header background color on static page -->
+    <header id="header" class="scrolled">
         <div class="container">
+            <!-- 로고 (인라인 절대배치 제거, CSS Flexbox에서 제어) -->
             <a href="index.html" class="logo" style="text-decoration: none;">(주)둥지부동산중개법인</a>
-            <div class="menu-toggle" id="mobile-menu">
-                <i class="fas fa-bars"></i>
-            </div>
+            
             <nav>
                 <ul class="nav-list">
                     <li><a href="index.html#home">홈</a></li>
@@ -32,8 +31,26 @@
                     <li><a href="recruit.html">인재모집</a></li>
                     <li><a href="https://www.doongji.co.kr/" target="_blank">건물관리서비스</a></li>
                     <li><a href="index.html#contact" class="btn-consult">상담문의</a></li>
+                    
+                    <!-- 모바일용 메뉴 내부 정렬 관리자 로그인 -->
+                    <li class="mobile-only" style="margin-top: 15px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 15px;">
+                        <a href="admin.html" style="font-size: 14px; color: rgba(255, 255, 255, 0.6); display: inline-flex; align-items: center; gap: 6px; text-decoration: none; justify-content: center; width: 100%;">
+                            <i class="fas fa-lock" style="font-size: 11px; color: var(--accent-color);"></i> 관리자 로그인
+                        </a>
+                    </li>
                 </ul>
             </nav>
+            
+            <!-- 데스크톱용 맨 오른쪽 정렬 관리자 로그인 -->
+            <a href="admin.html" class="btn-admin-nav desktop-only" style="border: 1px solid rgba(255, 255, 255, 0.15); padding: 8px 16px; border-radius: 4px; font-size: 12.5px; color: rgba(255, 255, 255, 0.45); text-decoration: none; transition: all 0.3s; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; background: transparent; white-space: nowrap;"
+               onmouseenter="this.style.borderColor='var(--accent-color)'; this.style.color='var(--accent-color)'; this.querySelector('i').style.opacity='1';" 
+               onmouseleave="this.style.borderColor='rgba(255, 255, 255, 0.15)'; this.style.color='rgba(255, 255, 255, 0.45)'; this.querySelector('i').style.opacity='0.5';">
+                <i class="fas fa-lock" style="font-size: 10.5px; color: var(--accent-color); opacity: 0.5; transition: opacity 0.3s;"></i> 관리자 로그인
+            </a>
+
+            <div class="menu-toggle" id="mobile-menu">
+                <i class="fas fa-bars"></i>
+            </div>
         </div>
     </header>
 
@@ -67,8 +84,50 @@
     </div>
 
     <!-- Main Full Screen Map -->
-    <section style="margin-top: 122px; height: calc(100vh - 122px); width: 100%; position: relative;">
+    <section style="margin-top: 122px; height: calc(100vh - 122px); width: 100%; position: relative; overflow: hidden;">
         <div id="map" style="width: 100%; height: 100%;"></div>
+        
+        <!-- Side Detail Panel -->
+        <div id="propertyDetailPanel" class="side-detail-panel">
+            <button class="panel-close-btn" onclick="closePropertyDetail()">&times;</button>
+            <div class="panel-content">
+                <img id="panelImg" src="" alt="매물 이미지" class="panel-img">
+                <div class="panel-body">
+                    <span id="panelTag" class="panel-tag">서울</span>
+                    <h2 id="panelTitle" class="panel-title">매물명</h2>
+                    <p id="panelPrice" class="panel-price">가격 정보</p>
+                    
+                    <div class="panel-spec-box">
+                        <div class="spec-item">
+                            <span class="label"><i class="fas fa-layer-group"></i> 종류/층수</span>
+                            <span id="panelTypeFloor" class="val">사무실 / 5층</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="label"><i class="fas fa-ruler-combined"></i> 면적</span>
+                            <span id="panelArea" class="val">공급 150평 / 전용 100평</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="label"><i class="fas fa-coins"></i> 관리비</span>
+                            <span id="panelMaintenance" class="val">300,000원</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="label"><i class="fas fa-map-marker-alt"></i> 주소</span>
+                            <span id="panelAddress" class="val">서울시 강남구</span>
+                        </div>
+                    </div>
+
+                    <div class="panel-desc-container">
+                        <h4>매물 요약 설명</h4>
+                        <p id="panelDesc" class="panel-desc">상세 설명 내용</p>
+                    </div>
+
+                    <div style="margin-top: 25px; display: flex; gap: 10px;">
+                        <a href="index.html#contact" class="panel-btn-consult"><i class="fas fa-phone-alt"></i> 전화 상담 문의</a>
+                        <a id="panelPropertiesLink" href="properties.html" class="panel-btn-more"><i class="fas fa-list"></i> 상세 스펙 더보기</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 
     <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=3e8097eb16c9e4942d0cbb215d2da6e6&libraries=services,clusterer" onerror="window.kakaoMapFailed = true;"></script>
@@ -231,6 +290,11 @@
                         attribution: '&copy; OpenStreetMap contributors'
                     }).addTo(leafletMap);
 
+                    // Close side details panel on map click
+                    leafletMap.on('click', () => {
+                        closePropertyDetail();
+                    });
+
                     // Add a tiny gold indicator badge on top of map container
                     const badge = document.createElement('div');
                     badge.style.position = 'absolute';
@@ -288,6 +352,11 @@
             // Add standard zoom control UI for better usability
             const zoomControl = new kakao.maps.ZoomControl();
             map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
+
+            // Close side details panel on map click
+            kakao.maps.event.addListener(map, 'click', () => {
+                closePropertyDetail();
+            });
 
             // If we have URL parameters, apply them after map is initialized
             parseUrlParameters();
@@ -411,56 +480,15 @@
                         title: `${count}개의 매물`
                     });
                     
-                    // 팝업 내용 조립
-                    let popupContent = "";
-                    if (count === 1) {
-                        const p = group.items[0];
-                        popupContent = `
-                            <div class="map-popup-content" style="padding: 10px; min-width: 180px; font-family: 'Noto Sans KR', sans-serif; background: #fff;">
-                                <h4 style="margin: 0 0 5px 0; font-size: 13px; color: #0c1222; font-weight: 700; line-height: 1.3;">${escapeHtml(p.title)}</h4>
-                                <p style="margin: 0 0 6px 0; font-size: 11px; color: #666; line-height: 1.4;">${escapeHtml(p.desc)}</p>
-                                <strong style="font-size: 12px; color: #C5A059;">${escapeHtml(p.price)}</strong>
-                            </div>
-                        `;
-                    } else {
-                        // 한 건물 다세대 오피스텔 스크롤형
-                        popupContent = `
-                            <div class="map-popup-content" style="padding: 10px; min-width: 220px; max-height: 180px; overflow-y: auto; font-family: 'Noto Sans KR', sans-serif; background: #fff;">
-                                <div style="border-bottom: 2px solid var(--accent-color); padding-bottom: 4px; margin-bottom: 8px;">
-                                    <h4 style="margin: 0; font-size: 11px; color: #64748b; font-weight: bold;">🏢 이 건물 매물 총 ${count}건</h4>
-                                </div>
-                                <div style="display: flex; flex-direction: column; gap: 8px;">
-                        `;
-                        group.items.forEach(p => {
-                            popupContent += `
-                                <div style="border-bottom: 1px solid #f1f5f9; padding-bottom: 6px; margin-bottom: 2px;">
-                                    <h5 style="margin: 0 0 2px 0; font-size: 11px; color: var(--primary-color); font-weight: 700;">${escapeHtml(p.title)}</h5>
-                                    <p style="margin: 0 0 2px 0; font-size: 9px; color: #64748b; line-height: 1.3;">${escapeHtml(p.desc)}</p>
-                                    <strong style="font-size: 10px; color: var(--accent-color);">${escapeHtml(p.price)}</strong>
-                                </div>
-                            `;
-                        });
-                        popupContent += `
-                                </div>
-                            </div>
-                        `;
-                    }
-
-                    const infoWindow = new kakao.maps.InfoWindow({
-                        content: popupContent,
-                        removable: true
-                    });
-                    
                     kakao.maps.event.addListener(marker, 'click', () => {
-                        closeAllInfoWindows();
-                        infoWindow.open(map, marker);
+                        // Open sliding details panel instead of InfoWindow
+                        openPropertyDetail(group.items, 0);
                     });
 
                     // 그룹 구분을 위해 첫 매물 ID를 키로 사용
                     const mainId = group.items[0].id;
                     markers[mainId] = {
-                        marker: marker,
-                        infoWindow: infoWindow
+                        marker: marker
                     };
                     
                     kakaoMarkersArray.push(marker);
@@ -477,43 +505,9 @@
                     
                     const marker = L.marker([group.lat, group.lng], { icon: leafletMarkerIcon });
                     
-                    let popupContent = "";
-                    if (count === 1) {
-                        const p = group.items[0];
-                        popupContent = `
-                            <div class="map-popup-content" style="padding: 5px; min-width: 160px; font-family: 'Noto Sans KR', sans-serif;">
-                                <h4 style="margin: 0 0 5px 0; font-size: 12px; color: #0c1222; font-weight: 700; line-height: 1.3;">${escapeHtml(p.title)}</h4>
-                                <p style="margin: 0 0 6px 0; font-size: 10px; color: #666; line-height: 1.4;">${escapeHtml(p.desc)}</p>
-                                <strong style="font-size: 11px; color: #C5A059;">${escapeHtml(p.price)}</strong>
-                            </div>
-                        `;
-                    } else {
-                        popupContent = `
-                            <div class="map-popup-content" style="padding: 5px; min-width: 180px; max-height: 150px; overflow-y: auto; font-family: 'Noto Sans KR', sans-serif;">
-                                <div style="border-bottom: 2px solid #C5A059; padding-bottom: 3px; margin-bottom: 6px;">
-                                    <h4 style="margin: 0; font-size: 10px; color: #666; font-weight: bold;">🏢 이 건물 매물 총 ${count}건</h4>
-                                </div>
-                                <div style="display: flex; flex-direction: column; gap: 6px;">
-                        `;
-                        group.items.forEach(p => {
-                            popupContent += `
-                                <div style="border-bottom: 1px solid #eee; padding-bottom: 4px; margin-bottom: 2px;">
-                                    <h5 style="margin: 0 0 2px 0; font-size: 10px; color: #0c1222; font-weight: 700;">${escapeHtml(p.title)}</h5>
-                                    <strong style="font-size: 9px; color: #C5A059;">${escapeHtml(p.price)}</strong>
-                                </div>
-                            `;
-                        });
-                        popupContent += `
-                                </div>
-                            </div>
-                        `;
-                    }
-                    
-                    marker.bindPopup(popupContent);
-                    
                     marker.on('click', () => {
-                        closeAllInfoWindows();
-                        marker.openPopup();
+                        // Open sliding details panel instead of popup
+                        openPropertyDetail(group.items, 0);
                     });
 
                     const mainId = group.items[0].id;
@@ -625,6 +619,104 @@
                 opt.innerText = `${i}층`;
                 select.appendChild(opt);
             }
+        }
+
+        // ==========================================================================
+        // ================= MAP SLIDE-OUT DETAIL PANEL CONTROLLER ==================
+        // ==========================================================================
+        function openPropertyDetail(items, activeIndex = 0) {
+            const panel = document.getElementById('propertyDetailPanel');
+            if (!panel) return;
+            
+            const list = Array.isArray(items) ? items : [items];
+            const p = list[activeIndex];
+            if (!p) return;
+            
+            const panelImg = document.getElementById('panelImg');
+            const panelTag = document.getElementById('panelTag');
+            const panelTitle = document.getElementById('panelTitle');
+            const panelPrice = document.getElementById('panelPrice');
+            const panelTypeFloor = document.getElementById('panelTypeFloor');
+            const panelArea = document.getElementById('panelArea');
+            const panelMaintenance = document.getElementById('panelMaintenance');
+            const panelAddress = document.getElementById('panelAddress');
+            const panelDesc = document.getElementById('panelDesc');
+            const panelPropertiesLink = document.getElementById('panelPropertiesLink');
+            
+            // Populate basic details
+            panelImg.src = p.imageUrl || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800';
+            panelTag.innerText = p.tag || '서울';
+            panelTitle.innerText = p.title;
+            panelPrice.innerText = p.price;
+            
+            const displayFloor = p.floor && p.floor.startsWith('-') ? '지하 ' + p.floor.substring(1) : (p.floor || '지상층');
+            panelTypeFloor.innerText = `${p.type || '사무실'} / ${displayFloor}`;
+            
+            const supply = p.supplyArea ? `공급 ${p.supplyArea}` : '공급 -';
+            const exclusive = p.exclusiveArea ? `전용 ${p.exclusiveArea}` : `전용 ${p.desc.split('/')[0] || '-'}`;
+            panelArea.innerText = `${supply} / ${exclusive}`;
+            
+            const maint = p.maintenance ? parseInt(p.maintenance).toLocaleString() + '원' : '가격 협의';
+            panelMaintenance.innerText = maint;
+            
+            panelAddress.innerText = p.address || '서울특별시 강남구 인근';
+            panelDesc.innerText = p.desc;
+            
+            // Connect navigation query search link
+            panelPropertiesLink.href = `properties.html?search=${encodeURIComponent(p.title)}`;
+
+            // Remove existing duplicates selectors inside panel if present
+            const existingSelector = document.getElementById('panelMultiSelector');
+            if (existingSelector) {
+                existingSelector.remove();
+            }
+            
+            // Handle multiple overlapped properties on same coordinate
+            if (list.length > 1) {
+                const selectorDiv = document.createElement('div');
+                selectorDiv.id = 'panelMultiSelector';
+                selectorDiv.style.marginTop = '20px';
+                selectorDiv.style.borderTop = '1px dashed #cbd5e1';
+                selectorDiv.style.paddingTop = '15px';
+                
+                let titleHtml = `<h4 style="font-size: 13px; color: var(--primary-color); margin-bottom: 10px; font-weight: 700;"><i class="fas fa-city" style="color: var(--accent-color); margin-right: 5px;"></i> 이 건물의 다른 매물 (${list.length}개)</h4>`;
+                let itemsHtml = `<div style="display: flex; flex-direction: column; gap: 8px; max-height: 150px; overflow-y: auto; padding-right: 5px;">`;
+                
+                list.forEach((item, idx) => {
+                    const isActive = idx === activeIndex;
+                    const activeStyle = isActive 
+                        ? 'border-color: var(--accent-color); background: rgba(197, 160, 89, 0.05); font-weight: bold; box-shadow: 0 2px 6px rgba(197, 160, 89, 0.15);' 
+                        : 'border-color: #cbd5e1; background: #fff;';
+                    itemsHtml += `
+                        <div onclick="openPropertyDetail(JSON.parse('${escapeQuotes(JSON.stringify(list))}'), ${idx})" 
+                             style="border: 1px solid; border-radius: 6px; padding: 10px; cursor: pointer; transition: all 0.2s; ${activeStyle}">
+                            <div style="font-size: 11.5px; color: var(--primary-color); display: flex; justify-content: space-between; align-items: center;">
+                                <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 170px;">${escapeHtml(item.title)}</span>
+                                <span style="color: var(--accent-color); font-weight: bold; white-space: nowrap;">${escapeHtml(item.price)}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                itemsHtml += `</div>`;
+                selectorDiv.innerHTML = titleHtml + itemsHtml;
+                
+                const descContainer = document.querySelector('.panel-desc-container');
+                descContainer.parentNode.insertBefore(selectorDiv, descContainer);
+            }
+            
+            panel.classList.add('open');
+        }
+
+        function closePropertyDetail() {
+            const panel = document.getElementById('propertyDetailPanel');
+            if (panel) {
+                panel.classList.remove('open');
+            }
+        }
+        
+        function escapeQuotes(str) {
+            return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
         }
 
         // Run

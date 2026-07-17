@@ -41,6 +41,11 @@
                 <input type="password" id="password" placeholder="비밀번호를 입력하세요" required>
             </div>
             <button type="submit" class="btn-submit">로그인</button>
+            <a href="index.html" class="btn-back-home" style="display: block; text-align: center; margin-top: 15px; font-size: 13.5px; color: #64748b; text-decoration: none; font-weight: 500; transition: all 0.3s; padding: 12px; border-radius: 6px; border: 1px dashed #cbd5e1; background: #f8fafc;"
+               onmouseenter="this.style.color='var(--accent-color)'; this.style.borderColor='var(--accent-color)'; this.style.background='#fff';"
+               onmouseleave="this.style.color='#64748b'; this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc';">
+                <i class="fas fa-home" style="margin-right: 5px;"></i> 메인 홈페이지로 돌아가기
+            </a>
         </form>
     </div>
 
@@ -49,8 +54,9 @@
         <header class="admin-header">
             <div class="container">
                 <h1>(주)둥지부동산중개법인 <span>관리자 모드</span></h1>
-                <div class="admin-nav">
-                    <a href="index.html" class="btn-logout" style="text-decoration: none;"><i class="fas fa-home"></i> 홈 바로가기</a>
+                <div class="admin-nav" style="display: flex; align-items: center;">
+                    <span id="currentUserLabel" style="font-size: 13.5px; color: rgba(255, 255, 255, 0.75); margin-right: 20px; font-weight: 500;"></span>
+                    <a href="index.html" class="btn-logout" style="text-decoration: none; margin-right: 10px;"><i class="fas fa-home"></i> 홈 바로가기</a>
                     <button class="btn-logout" id="btnLogout"><i class="fas fa-sign-out-alt"></i> 로그아웃</button>
                 </div>
             </div>
@@ -60,7 +66,7 @@
             <div class="container">
                 
                 <!-- Tab switching buttons -->
-                <div class="admin-tabs" style="display: flex; gap: 12px; margin-bottom: 25px; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px;">
+                <div class="admin-tabs" style="display: flex; gap: 12px; margin-bottom: 25px; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; flex-wrap: wrap;">
                     <button class="tab-btn active" id="tabBtnProperties" onclick="switchTab('properties')" 
                             style="padding: 10px 20px; background: var(--primary-color); color: #fff; border: 1px solid var(--primary-color); border-radius: 6px; font-weight: 700; cursor: pointer; transition: all 0.3s; font-family: inherit; font-size: 14px;">
                         <i class="fas fa-building" style="margin-right: 6px;"></i> 매물 목록 관리
@@ -73,6 +79,14 @@
                             style="padding: 10px 20px; background: #fff; color: #64748b; border: 1px solid #e2e8f0; border-radius: 6px; font-weight: 500; cursor: pointer; transition: all 0.3s; font-family: inherit; font-size: 14px;">
                         <i class="fas fa-comment-dots" style="margin-right: 6px;"></i> 고객 후기 관리
                     </button>
+                    <button class="tab-btn" id="tabBtnBrokerage" onclick="switchTab('brokerage')" 
+                            style="padding: 10px 20px; background: #fff; color: #64748b; border: 1px solid #e2e8f0; border-radius: 6px; font-weight: 500; cursor: pointer; transition: all 0.3s; font-family: inherit; font-size: 14px;">
+                        <i class="fas fa-handshake" style="margin-right: 6px;"></i> 중개 현황 관리
+                    </button>
+                    <button class="tab-btn" id="tabBtnUsers" onclick="switchTab('users')" 
+                            style="padding: 10px 20px; background: #fff; color: #64748b; border: 1px solid #e2e8f0; border-radius: 6px; font-weight: 500; cursor: pointer; transition: all 0.3s; font-family: inherit; font-size: 14px; display: none;">
+                        <i class="fas fa-users-cog" style="margin-right: 6px;"></i> 직원 계정 관리 (마스터)
+                    </button>
                 </div>
 
                 <!-- 1. PROPERTIES TAB SECTION -->
@@ -80,9 +94,6 @@
                     <div class="dashboard-title-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
                         <h2>매물 목록 관리</h2>
                         <div style="display: flex; gap: 10px;">
-                            <button class="btn-admin-action" id="btnResetProperties" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; font-weight: bold; cursor: pointer;">
-                                <i class="fas fa-sync-alt"></i> 샘플 데이터 리셋
-                            </button>
                             <button class="btn-admin-action" id="btnNewProperty">
                                 <i class="fas fa-plus"></i> 새 매물 등록
                             </button>
@@ -122,6 +133,7 @@
                                     <th>매물명</th>
                                     <th>설명</th>
                                     <th style="width: 220px;">가격</th>
+                                    <th style="width: 120px; text-align: center;">등록자</th>
                                     <th style="width: 110px; text-align: center;">관리</th>
                                 </tr>
                             </thead>
@@ -164,9 +176,6 @@
                     <div class="dashboard-title-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
                         <h2>고객 후기 관리</h2>
                         <div style="display: flex; gap: 10px;">
-                            <button class="btn-admin-action" id="btnResetReviews" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; font-weight: bold; cursor: pointer;">
-                                <i class="fas fa-sync-alt"></i> 샘플 데이터 리셋
-                            </button>
                             <button class="btn-admin-action" id="btnNewReview" style="background: var(--accent-color); border-color: var(--accent-color); color: var(--primary-color);">
                                 <i class="fas fa-plus"></i> 새 후기 등록
                             </button>
@@ -190,6 +199,82 @@
                     </div>
                 </div>
 
+                <!-- 4. BROKERAGE MANAGEMENT TAB SECTION -->
+                <div id="brokerageTabArea" style="display: none;">
+                    
+                    <!-- B2B Brokerage Stats Cards Panel -->
+                    <div style="display: flex; gap: 20px; margin-bottom: 25px; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 200px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-left: 4px solid var(--accent-color);">
+                            <div style="font-size: 12px; color: #64748b; font-weight: bold; margin-bottom: 5px;">진행 중인 계약 의뢰</div>
+                            <div id="brokerActiveCount" style="font-size: 24px; font-weight: bold; color: var(--primary-color);">0건</div>
+                        </div>
+                        <div style="flex: 1; min-width: 200px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-left: 4px solid #3b82f6;">
+                            <div style="font-size: 12px; color: #64748b; font-weight: bold; margin-bottom: 5px;">계약서 검토 / 잔금대기</div>
+                            <div id="brokerReviewCount" style="font-size: 24px; font-weight: bold; color: var(--primary-color);">0건</div>
+                        </div>
+                        <div style="flex: 1; min-width: 200px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-left: 4px solid #10b981;">
+                            <div style="font-size: 12px; color: #64748b; font-weight: bold; margin-bottom: 5px;">당월 계약 성사 예상 수수료</div>
+                            <div id="brokerCommissionTotal" style="font-size: 24px; font-weight: bold; color: var(--primary-color);">0.0억원</div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-title-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                        <h2>중개 현황 관리</h2>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn-admin-action" id="btnNewBrokerage" style="background: var(--accent-color); border-color: var(--accent-color); color: var(--primary-color);">
+                                <i class="fas fa-plus"></i> 새 중개 의뢰 등록
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 170px;">의뢰사 (고객명)</th>
+                                    <th style="width: 140px;">연락처</th>
+                                    <th style="width: 120px;">담당 중개사</th>
+                                    <th>희망 요구조건 및 상담 일지</th>
+                                    <th style="width: 110px; text-align: center;">진행단계</th>
+                                    <th style="width: 110px; text-align: center;">관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="brokerageTableBody">
+                                <!-- Dynamic Content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 5. STAFF USERS MANAGEMENT TAB SECTION (MASTER ONLY) -->
+                <div id="usersTabArea" style="display: none;">
+                    <div class="dashboard-title-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                        <h2>임직원 계정 권한 관리</h2>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn-admin-action" id="btnNewUser" style="background: var(--accent-color); border-color: var(--accent-color); color: var(--primary-color);">
+                                <i class="fas fa-user-plus"></i> 새 임직원 등록
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 150px;">로그인 ID</th>
+                                    <th style="width: 150px;">임직원명</th>
+                                    <th>부여된 시스템 관리 권한</th>
+                                    <th style="width: 110px; text-align: center;">계정역할</th>
+                                    <th style="width: 120px; text-align: center;">관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTableBody">
+                                <!-- Dynamic Content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
         </main>
     </div>
@@ -203,6 +288,12 @@
             </div>
             <form id="propertyForm">
                 <input type="hidden" id="propertyId">
+                <div class="form-group">
+                    <label>등록자 (담당자) <span style="color: red;">*</span></label>
+                    <select id="propWriter" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; font-family: inherit; transition: border-color 0.3s; background-color: white;">
+                        <!-- Dynamic options -->
+                    </select>
+                </div>
                 <div class="form-group">
                     <label>지역 (선택)</label>
                     <select id="propTag" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; font-family: inherit; transition: border-color 0.3s; background-color: white;">
@@ -281,6 +372,10 @@
                     <div style="display: flex; gap: 8px;">
                         <input type="text" id="propAddress" placeholder="[주소 찾기] 버튼을 눌러 검색하세요" readonly required style="flex: 1; width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit; background-color: #f8fafc; cursor: pointer;">
                         <button type="button" id="btnSearchAddress" style="padding: 12px 20px; background: var(--primary-color); border: 1px solid var(--primary-color); color: white; border-radius: 4px; font-weight: 700; cursor: pointer; transition: all 0.3s; white-space: nowrap;">주소 찾기</button>
+                    </div>
+                    <!-- 팝업 차단 필터를 우회하기 위한 100% 임베드형 주소 레이어 -->
+                    <div id="postcodeLayer" style="display:none;border:1px solid #cbd5e1;width:100%;height:380px;margin-top:10px;position:relative;border-radius:6px;overflow:hidden;">
+                        <img src="//t1.daumcdn.net/postcode/resource/images/close.png" id="btnClosePostcodeLayer" style="cursor:pointer;position:absolute;right:0px;top:0px;z-index:99;width:20px;height:20px;background:#f1f5f9;padding:5px;border-bottom-left-radius:6px;border-left:1px solid #cbd5e1;border-bottom:1px solid #cbd5e1;" alt="닫기 버튼">
                     </div>
                 </div>
                 <!-- 관리비 및 면적 입력 필드 -->
@@ -395,6 +490,109 @@
         </div>
     </div>
 
+    <!-- BROKERAGE FORM MODAL (ADD / EDIT) -->
+    <div class="admin-modal" id="brokerageModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 id="brokerageModalTitle">새 중개 의뢰 등록</h3>
+                <button class="modal-close" id="btnBrokerageModalClose">&times;</button>
+            </div>
+            <form id="brokerageForm">
+                <input type="hidden" id="brokerageId">
+                <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>의뢰사명 / 고객명 <span style="color: red;">*</span></label>
+                        <input type="text" id="brokerageClient" placeholder="예: (주)스타트업" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>연락처 <span style="color: red;">*</span></label>
+                        <input type="text" id="brokeragePhone" placeholder="예: 010-1234-5678" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                    </div>
+                </div>
+                <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>담당 중개사 <span style="color: red;">*</span></label>
+                        <select id="brokerageAgent" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; font-family: inherit; transition: border-color 0.3s; background-color: white; border-radius: 4px;">
+                            <!-- Dynamic options -->
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>진행 단계 <span style="color: red;">*</span></label>
+                        <select id="brokerageStatus" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; font-family: inherit; transition: border-color 0.3s; background-color: white; border-radius: 4px;">
+                            <option value="접수완료">접수완료</option>
+                            <option value="매물 매칭중">매물 매칭중</option>
+                            <option value="실사/미팅중">실사/미팅중</option>
+                            <option value="계약서 검토">계약서 검토</option>
+                            <option value="잔금 대기">잔금 대기</option>
+                            <option value="계약완료">계약완료</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>고객 요구조건 (희망 지역, 면적, 예산 등) <span style="color: red;">*</span></label>
+                    <input type="text" id="brokerageReqs" placeholder="예: 역삼역 인근 실 80평 이하, 보증금 2억 / 월 1500만 선" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                </div>
+                <div class="form-group">
+                    <label>최신 상담 및 진행 일지 (비고)</label>
+                    <textarea id="brokerageNotes" rows="4" placeholder="실사 방문 이력이나 조율 현황을 상세히 기록해 두세요." style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit; font-size: 14px; resize: vertical; line-height: 1.6;"></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="btnBrokerageModalCancel">취소</button>
+                    <button type="submit" class="btn-submit" style="width: auto; padding: 12px 30px; background: var(--accent-color); border-color: var(--accent-color); color: var(--primary-color); font-weight: bold;" id="btnBrokerageModalSave">저장하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- USER FORM MODAL (ADD / EDIT) -->
+    <div class="admin-modal" id="userModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 id="userModalTitle">새 임직원 등록</h3>
+                <button class="modal-close" id="btnUserModalClose">&times;</button>
+            </div>
+            <form id="userForm">
+                <input type="hidden" id="userId">
+                <div class="form-group">
+                    <label>로그인 아이디 (ID) <span style="color: red;">*</span></label>
+                    <input type="text" id="userLoginId" placeholder="아이디를 입력하세요" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                </div>
+                <div class="form-group">
+                    <label>비밀번호 (Password) <span style="color: red;">*</span></label>
+                    <input type="password" id="userPassword" placeholder="비밀번호를 입력하세요" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                </div>
+                <div class="form-group">
+                    <label>임직원 실명 <span style="color: red;">*</span></label>
+                    <input type="text" id="userName" placeholder="예: 홍길동" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                </div>
+
+                <div class="form-group">
+                    <label>관리자 권한 선택 <span style="color: red;">*</span></label>
+                    <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px; background: #f8fafc; padding: 15px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                        <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer;">
+                            <input type="checkbox" class="user-perm-check" value="properties" checked style="width: 16px; height: 16px;"> 매물 목록 관리 권한
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer;">
+                            <input type="checkbox" class="user-perm-check" value="guides" checked style="width: 16px; height: 16px;"> 임대차 가이드 관리 권한
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer;">
+                            <input type="checkbox" class="user-perm-check" value="reviews" checked style="width: 16px; height: 16px;"> 고객 후기 관리 권한
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer;">
+                            <input type="checkbox" class="user-perm-check" value="brokerage" checked style="width: 16px; height: 16px;"> 중개 현황 관리 권한 (본인 담당만 필터링)
+                        </label>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="btnUserModalCancel">취소</button>
+                    <button type="submit" class="btn-submit" style="width: auto; padding: 12px 30px; background: var(--accent-color); border-color: var(--accent-color); color: var(--primary-color); font-weight: bold;" id="btnUserModalSave">저장하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- DATABASE LOGIC & ROUTING SCRIPT -->
     <script>
         // Mock Properties Data Array (fallback for initialization)
@@ -410,7 +608,8 @@
                 imageUrl: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800",
                 address: "서울특별시 강남구 테헤란로 152",
                 lat: 37.5019,
-                lng: 127.0374
+                lng: 127.0374,
+                writer: "김철수 부장"
             },
             {
                 id: "prop-2",
@@ -423,7 +622,8 @@
                 imageUrl: "https://images.unsplash.com/photo-1554469384-e58fac16e23a?auto=format&fit=crop&q=80&w=800",
                 address: "서울특별시 강남구 압구정로 407",
                 lat: 37.5251,
-                lng: 127.0435
+                lng: 127.0435,
+                writer: "이영희 팀장"
             },
             {
                 id: "prop-3",
@@ -436,7 +636,8 @@
                 imageUrl: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=800",
                 address: "경기도 용인시 기흥구 흥덕중앙로 120",
                 lat: 37.2804,
-                lng: 127.1179
+                lng: 127.1179,
+                writer: "박민수 과장"
             },
             {
                 id: "prop-4",
@@ -449,7 +650,8 @@
                 imageUrl: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&q=80&w=800",
                 address: "서울특별시 강남구 강남대로 396",
                 lat: 37.4979,
-                lng: 127.0276
+                lng: 127.0276,
+                writer: "마스터 관리자"
             },
             {
                 id: "prop-5",
@@ -462,7 +664,8 @@
                 imageUrl: "https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80&w=800",
                 address: "경기도 성남시 분당구 정자일로 132",
                 lat: 37.3614,
-                lng: 127.1086
+                lng: 127.1086,
+                writer: "김철수 부장"
             },
             {
                 id: "prop-6",
@@ -475,7 +678,8 @@
                 imageUrl: "https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&q=80&w=800",
                 address: "서울특별시 강남구 영동대로 513",
                 lat: 37.5097,
-                lng: 127.0620
+                lng: 127.0620,
+                writer: "마스터 관리자"
             }
         ];
 
@@ -499,6 +703,7 @@
         const btnModalCancel = document.getElementById('btnModalCancel');
 
         const inputId = document.getElementById('propertyId');
+        const selectPropWriter = document.getElementById('propWriter');
         const inputTag = document.getElementById('propTag');
         const inputType = document.getElementById('propType');
         const inputFloor = document.getElementById('propFloor');
@@ -514,6 +719,35 @@
         const inputPriceDepositOnly = document.getElementById('priceDepositOnly');
         const inputPriceDeposit = document.getElementById('priceDeposit');
         const inputPriceMonthly = document.getElementById('priceMonthly');
+
+        // 동적으로 담당 중개사 목록 채우기 및 권한 제어
+        function populatePropWriter(selectedWriter) {
+            const user = JSON.parse(sessionStorage.getItem('nest_currentUser')) || { role: 'master' };
+            const users = getUsers(); // 등록된 임직원 목록
+            
+            selectPropWriter.innerHTML = '';
+            
+            // 모든 임직원 및 마스터 이름을 드롭다운 옵션으로 이식
+            users.forEach(u => {
+                const opt = document.createElement('option');
+                opt.value = u.name;
+                opt.textContent = u.name;
+                selectPropWriter.appendChild(opt);
+            });
+            
+            if (user.role === 'master') {
+                selectPropWriter.disabled = false;
+                if (selectedWriter) {
+                    selectPropWriter.value = selectedWriter;
+                } else {
+                    selectPropWriter.value = user.name; // 기본값 마스터 본인
+                }
+            } else {
+                // 일반 직원은 본인 실명 강제 지정 및 변경 불가
+                selectPropWriter.value = user.name;
+                selectPropWriter.disabled = true;
+            }
+        }
 
         function updatePriceFields() {
             let selectedType = "매매";
@@ -566,31 +800,41 @@
         const inputLessorPhone = document.getElementById('propLessorPhone');
         const btnSearchAddress = document.getElementById('btnSearchAddress');
 
+        const postcodeLayer = document.getElementById('postcodeLayer');
+        const btnClosePostcodeLayer = document.getElementById('btnClosePostcodeLayer');
+
+        if (btnClosePostcodeLayer) {
+            btnClosePostcodeLayer.addEventListener('click', () => {
+                postcodeLayer.style.display = 'none';
+            });
+        }
+
         function execDaumPostcode() {
             new daum.Postcode({
                 oncomplete: function(data) {
-                    inputAddress.value = data.address;
-                }
-            }).open();
+                    let addr = '';
+                    if (data.userSelectedType === 'R') {
+                        addr = data.roadAddress;
+                    } else {
+                        addr = data.jibunAddress;
+                    }
+                    inputAddress.value = addr;
+                    postcodeLayer.style.display = 'none'; // 레이어 감춤
+                },
+                width: '100%',
+                height: '100%'
+            }).embed(postcodeLayer);
+
+            postcodeLayer.style.display = 'block';
         }
         btnSearchAddress.addEventListener('click', execDaumPostcode);
         inputAddress.addEventListener('click', execDaumPostcode);
 
-        // Reset Properties Dummy Data
-        const btnResetProperties = document.getElementById('btnResetProperties');
-        if (btnResetProperties) {
-            btnResetProperties.addEventListener('click', () => {
-                if (confirm("과거 수동 입력하셨던 낡은 매물이 전부 삭제되며, 100% 카카오 표준 주소와 좌표가 이식된 기본 6대 오피스 매물로 초기화됩니다. 리셋하시겠습니까?")) {
-                    localStorage.removeItem('nest_properties');
-                    alert("매물 데이터가 성공적으로 리셋되었습니다! 화면이 새로고침됩니다.");
-                    location.reload();
-                }
-            });
-        }
+
 
         // Check Login Session
         function checkSession() {
-            if (sessionStorage.getItem('admin_logged') === 'true') {
+            if (sessionStorage.getItem('nest_currentUser')) {
                 showDashboard();
             } else {
                 showLoginForm();
@@ -601,7 +845,64 @@
             adminBody.classList.remove('admin-login-body');
             loginCard.style.display = 'none';
             dashboardContainer.style.display = 'block';
-            switchTab('properties'); // Default to properties tab
+            
+            const user = JSON.parse(sessionStorage.getItem('nest_currentUser'));
+            if (!user) {
+                showLoginForm();
+                return;
+            }
+
+            // 상단 환영 라벨 업데이트
+            const label = document.getElementById('currentUserLabel');
+            if (label) {
+                const roleBadge = user.role === 'master' ? '[마스터]' : '[임직원]';
+                label.innerHTML = `<i class="fas fa-user-shield" style="color: var(--accent-color); margin-right: 5px;"></i> <strong>${escapeHtml(user.name)}</strong> ${roleBadge}님`;
+            }
+
+            // 권한 기반 탭 버튼 노출/감춤 제어
+            const tabBtnProp = document.getElementById('tabBtnProperties');
+            const tabBtnGuide = document.getElementById('tabBtnGuides');
+            const tabBtnReview = document.getElementById('tabBtnReviews');
+            const tabBtnBrokerage = document.getElementById('tabBtnBrokerage');
+            const tabBtnUsers = document.getElementById('tabBtnUsers');
+
+            const hasProp = user.role === 'master' || user.permissions.includes('properties');
+            const hasGuide = user.role === 'master' || user.permissions.includes('guides');
+            const hasReview = user.role === 'master' || user.permissions.includes('reviews');
+            const hasBroker = user.role === 'master' || user.permissions.includes('brokerage');
+            const hasUsers = user.role === 'master';
+
+            tabBtnProp.style.display = hasProp ? 'inline-block' : 'none';
+            tabBtnGuide.style.display = hasGuide ? 'inline-block' : 'none';
+            tabBtnReview.style.display = hasReview ? 'inline-block' : 'none';
+            tabBtnBrokerage.style.display = hasBroker ? 'inline-block' : 'none';
+            tabBtnUsers.style.display = hasUsers ? 'inline-block' : 'none';
+
+            // 세션에 저장된 활성 탭 복구 시도 (새로고침 대응)
+            const savedTab = sessionStorage.getItem('nest_admin_active_tab');
+            let tabToSelect = '';
+
+            if (savedTab) {
+                // 저장된 탭이 존재하고 해당 유저에게 권한이 있는지 검증
+                if (savedTab === 'properties' && hasProp) tabToSelect = 'properties';
+                else if (savedTab === 'guides' && hasGuide) tabToSelect = 'guides';
+                else if (savedTab === 'reviews' && hasReview) tabToSelect = 'reviews';
+                else if (savedTab === 'brokerage' && hasBroker) tabToSelect = 'brokerage';
+                else if (savedTab === 'users' && hasUsers) tabToSelect = 'users';
+            }
+
+            // 복구할 탭 권한이 없거나 첫 로그인 시 권한이 있는 첫 번째 사용 가능 탭으로 자동 포커싱
+            if (!tabToSelect) {
+                if (hasProp) tabToSelect = 'properties';
+                else if (hasGuide) tabToSelect = 'guides';
+                else if (hasReview) tabToSelect = 'reviews';
+                else if (hasBroker) tabToSelect = 'brokerage';
+                else if (hasUsers) tabToSelect = 'users';
+            }
+
+            if (tabToSelect) {
+                switchTab(tabToSelect);
+            }
         }
 
         function showLoginForm() {
@@ -610,14 +911,17 @@
             dashboardContainer.style.display = 'none';
         }
 
-        // Login Handler
+        // Login Handler (아이디별 로컬스토리지 대조)
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const id = document.getElementById('username').value;
-            const pw = document.getElementById('password').value;
+            const id = document.getElementById('username').value.trim();
+            const pw = document.getElementById('password').value.trim();
 
-            if (id === ADMIN_ID && pw === ADMIN_PW) {
-                sessionStorage.setItem('admin_logged', 'true');
+            const users = getUsers();
+            const matched = users.find(u => u.loginId === id && u.password === pw);
+
+            if (matched) {
+                sessionStorage.setItem('nest_currentUser', JSON.stringify(matched));
                 showDashboard();
             } else {
                 alert('아이디 또는 비밀번호가 올바르지 않습니다.');
@@ -626,7 +930,8 @@
 
         // Logout Handler
         btnLogout.addEventListener('click', () => {
-            sessionStorage.removeItem('admin_logged');
+            sessionStorage.removeItem('nest_currentUser');
+            sessionStorage.removeItem('nest_admin_active_tab'); // 로그아웃 시 탭 세션 기록도 영구 소거
             showLoginForm();
         });
 
@@ -666,8 +971,12 @@
             const type = document.getElementById('adminFilterType').value;
             const floorType = document.getElementById('adminFilterFloor').value;
             const allProps = getProperties();
+            const user = JSON.parse(sessionStorage.getItem('nest_currentUser')) || { role: 'master' };
 
             const filtered = allProps.filter(p => {
+                // 로그인 계정 작성자 격리 필터
+                const writerMatch = user.role === 'master' || p.writer === user.name;
+                
                 const regionMatch = !region || p.tag === region;
                 const typeMatch = !type || p.type === type;
                 
@@ -680,7 +989,7 @@
                     floorMatch = p.floor && !p.floor.startsWith('-') && p.floor !== '1층';
                 }
                 
-                return regionMatch && typeMatch && floorMatch;
+                return writerMatch && regionMatch && typeMatch && floorMatch;
             });
 
             document.getElementById('adminFilterCount').innerText = `검색된 매물: ${filtered.length}개`;
@@ -692,7 +1001,7 @@
             propertyTableBody.innerHTML = '';
             
             if (list.length === 0) {
-                propertyTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #888; padding: 30px;">검색 조건에 맞는 매물이 없습니다.</td></tr>';
+                propertyTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #888; padding: 30px;">검색 조건에 맞는 매물이 없습니다.</td></tr>';
                 return;
             }
 
@@ -716,6 +1025,9 @@
                     </td>
                     <td style="font-size: 13px; color: #64748b;">${escapeHtml(p.desc)}</td>
                     <td style="font-weight: bold; color: var(--accent-color); font-size: 14px;">${escapeHtml(p.price)}</td>
+                    <td style="text-align: center; font-weight: 500; font-size: 13px; color: #475569;">
+                        ${escapeHtml(p.writer || '마스터 관리자')}
+                    </td>
                     <td style="text-align: center;">
                         <div style="display: flex; gap: 6px; justify-content: center;">
                             <button onclick="editProperty('${p.id}')" style="padding: 5px 10px; font-size: 11px; background: #e2e8f0; border: 1px solid #cbd5e1; border-radius: 4px; cursor: pointer;">수정</button>
@@ -751,6 +1063,7 @@
             inputImageUrl.value = '';
             previewContainer.style.display = 'none';
             formImagePreview.src = '';
+            populatePropWriter(null); // 새 매물 등록 모드에 맞게 작성자 셋업
             propertyModal.classList.add('open');
         });
 
@@ -819,18 +1132,18 @@
                     if (status === kakao.maps.services.Status.OK) {
                         const lat = parseFloat(result[0].y);
                         const lng = parseFloat(result[0].x);
-                        executePropertySave(list, id, tag, type, floor, title, desc, price, address, imageUrl, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone);
+                        executePropertySave(list, id, tag, type, floor, title, desc, price, address, imageUrl, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone, selectPropWriter.value);
                     } else {
                         // Kakao search fails, try backup OSM Nominatim Geocoder
                         fallbackGeocodeNominatim(address, (lat, lng) => {
-                            executePropertySave(list, id, tag, type, floor, title, desc, price, address, imageUrl, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone);
+                            executePropertySave(list, id, tag, type, floor, title, desc, price, address, imageUrl, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone, selectPropWriter.value);
                         });
                     }
                 });
             } else {
                 // Priority 2: Kakao SDK Blocked/Failed on localhost -> Call OSM Nominatim API directly
                 fallbackGeocodeNominatim(address, (lat, lng) => {
-                    executePropertySave(list, id, tag, type, floor, title, desc, price, address, imageUrl, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone);
+                    executePropertySave(list, id, tag, type, floor, title, desc, price, address, imageUrl, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone, selectPropWriter.value);
                 });
             }
         });
@@ -863,18 +1176,19 @@
             });
         }
 
-        function executePropertySave(list, id, tag, type, floor, title, desc, price, address, imageUrl, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone) {
+        function executePropertySave(list, id, tag, type, floor, title, desc, price, address, imageUrl, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone, writer) {
             if (id) {
                 // Edit mode
                 const idx = list.findIndex(p => p.id === id);
                 if (idx !== -1) {
-                    list[idx] = { id, tag, type, floor, title, desc, price, address, imageUrl, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone };
+                    list[idx] = { id, tag, type, floor, title, desc, price, address, imageUrl, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone, writer };
                 }
             } else {
                 // Add mode
                 const newProp = {
                     id: "prop-" + Date.now(),
-                    tag, type, floor, title, desc, price, address, imageUrl, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone
+                    tag, type, floor, title, desc, price, address, imageUrl, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone,
+                    writer
                 };
                 list.unshift(newProp); // Put new items at the beginning
             }
@@ -890,6 +1204,13 @@
             const list = getProperties();
             const matched = list.find(p => p.id === id);
             if (!matched) return;
+
+            // 계정 보안: 마스터가 아니고 작성자가 본인이 아닐 경우 편집 금지
+            const user = JSON.parse(sessionStorage.getItem('nest_currentUser')) || { role: 'master' };
+            if (user.role !== 'master' && matched.writer !== user.name) {
+                alert('본인이 등록한 매물만 수정할 수 있습니다.');
+                return;
+            }
 
             modalTitle.innerText = "매물 정보 수정";
             inputId.value = matched.id;
@@ -939,16 +1260,26 @@
             
             formImagePreview.src = matched.imageUrl;
             previewContainer.style.display = 'block';
-            
+            populatePropWriter(matched.writer); // 매물 편집 시 기존 작성자(등록자) 선택 로드
             propertyModal.classList.add('open');
         };
 
         // Delete Property
         window.deleteProperty = function(id) {
+            const list = getProperties();
+            const matched = list.find(p => p.id === id);
+            if (!matched) return;
+
+            // 계정 보안: 마스터가 아니고 작성자가 본인이 아닐 경우 삭제 금지
+            const user = JSON.parse(sessionStorage.getItem('nest_currentUser')) || { role: 'master' };
+            if (user.role !== 'master' && matched.writer !== user.name) {
+                alert('본인이 등록한 매물만 삭제할 수 있습니다.');
+                return;
+            }
+
             if (!confirm('정말 이 매물 정보를 영구 삭제하시겠습니까?')) return;
-            let list = getProperties();
-            list = list.filter(p => p.id !== id);
-            localStorage.setItem('nest_properties', JSON.stringify(list));
+            let filteredList = list.filter(p => p.id !== id);
+            localStorage.setItem('nest_properties', JSON.stringify(filteredList));
             applyAdminFilters();
         };
 
@@ -971,18 +1302,28 @@
         
         // Tab switching logic
         function switchTab(tabName) {
+            // 현재 활성화된 탭명을 세션스토리지에 저장하여 새로고침 시 복원하도록 지원
+            sessionStorage.setItem('nest_admin_active_tab', tabName);
+
             const propTabArea = document.getElementById('propertiesTabArea');
             const guideTabArea = document.getElementById('guidesTabArea');
             const reviewsTabArea = document.getElementById('reviewsTabArea');
+            const brokerageTabArea = document.getElementById('brokerageTabArea');
+            const usersTabArea = document.getElementById('usersTabArea');
+            
             const tabBtnProp = document.getElementById('tabBtnProperties');
             const tabBtnGuide = document.getElementById('tabBtnGuides');
             const tabBtnReview = document.getElementById('tabBtnReviews');
+            const tabBtnBrokerage = document.getElementById('tabBtnBrokerage');
+            const tabBtnUsers = document.getElementById('tabBtnUsers');
 
             // Reset tabs display and active button styles
             const tabs = [
                 { area: propTabArea, btn: tabBtnProp },
                 { area: guideTabArea, btn: tabBtnGuide },
-                { area: reviewsTabArea, btn: tabBtnReview }
+                { area: reviewsTabArea, btn: tabBtnReview },
+                { area: brokerageTabArea, btn: tabBtnBrokerage },
+                { area: usersTabArea, btn: tabBtnUsers }
             ];
 
             tabs.forEach(t => {
@@ -1016,6 +1357,20 @@
                 tabBtnReview.style.fontWeight = '700';
                 tabBtnReview.style.borderColor = 'var(--primary-color)';
                 renderAdminReviews();
+            } else if (tabName === 'brokerage') {
+                brokerageTabArea.style.display = 'block';
+                tabBtnBrokerage.style.background = 'var(--primary-color)';
+                tabBtnBrokerage.style.color = '#fff';
+                tabBtnBrokerage.style.fontWeight = '700';
+                tabBtnBrokerage.style.borderColor = 'var(--primary-color)';
+                renderAdminBrokerage();
+            } else if (tabName === 'users') {
+                usersTabArea.style.display = 'block';
+                tabBtnUsers.style.background = 'var(--primary-color)';
+                tabBtnUsers.style.color = '#fff';
+                tabBtnUsers.style.fontWeight = '700';
+                tabBtnUsers.style.borderColor = 'var(--primary-color)';
+                renderAdminUsers();
             }
         }
 
@@ -1108,7 +1463,6 @@
 
         const reviewTableBody = document.getElementById('reviewTableBody');
         const btnNewReview = document.getElementById('btnNewReview');
-        const btnResetReviews = document.getElementById('btnResetReviews');
         const reviewModal = document.getElementById('reviewModal');
         const reviewForm = document.getElementById('reviewForm');
         const reviewModalTitle = document.getElementById('reviewModalTitle');
@@ -1219,16 +1573,298 @@
             renderAdminReviews();
         };
 
-        // Reset Reviews Data
-        if (btnResetReviews) {
-            btnResetReviews.addEventListener('click', () => {
-                if (confirm("등록하신 수동 후기가 모두 지워지고 기본 10대 후기 목록으로 복원됩니다. 리셋하시겠습니까?")) {
-                    localStorage.removeItem('nest_reviews');
-                    alert("후기 목록이 안전하게 초기화되었습니다.");
-                    renderAdminReviews();
+
+
+        // ==========================================================================
+        // ======================= BROKERAGE CMS LOGIC ==============================
+        // ==========================================================================
+        
+        // 4 default brokerages (seed data)
+        const initialBrokerages = [
+            {
+                id: "broker-1",
+                client: "(주)넥스트유니콘 스타트업",
+                phone: "010-9876-5432",
+                agent: "이영희 팀장",
+                status: "매물 매칭중",
+                reqs: "강남역 도보 5분 이내, 전용 100평선, 예산 월 1,800만 원 이하, 즉시 입주",
+                notes: "1차 실사 후보지 3곳(에이프로빌딩, 삼우빌딩 등) 브리핑 완료. 다음 주 화요일 오후 3시 대표님 동반 투어 예정."
+            },
+            {
+                id: "broker-2",
+                client: "태양자산운용(주) 법인사옥",
+                phone: "02-511-1234",
+                agent: "김철수 부장",
+                status: "계약서 검토",
+                reqs: "삼성동 대로변 통임대 빌딩, 연면적 300평 이상, 자주식 주차 8대 이상 선호",
+                notes: "영동대로 신축 빌딩 임대 조건 협의 마무리 단계. 렌트프리 4개월 합의 완료. 법무팀 계약서 최종 조항 검토 중."
+            },
+            {
+                id: "broker-3",
+                client: "청담 코스메틱 플래그십 쇼룸",
+                phone: "010-2222-8888",
+                agent: "최지우 대리",
+                status: "실사/미팅중",
+                reqs: "청담동 메인 노드 1층 상가, 실 50평 이상, 전면 윈도우 및 테라스 활용 공간 필수",
+                notes: "청담 명품거리 이면 1층 신축 상가 투어 완료. 임대인 측 렌트프리 조율 의지 있음. 평당 관리비 최종 절충 중."
+            },
+            {
+                id: "broker-4",
+                client: "에이원 바이오 연구소 분원",
+                phone: "010-4433-2211",
+                agent: "박민수 과장",
+                status: "접수완료",
+                reqs: "테헤란로 인근, 층고 3.5m 이상(장비용), 전력 용량 100kW 이상 확보된 사무실",
+                notes: "전력 용량 및 하중 조건 적합 여부 빌딩 관리단에 공문 확인 요청 상태. 적격 판정 시 다음 주 미팅 약속 잡을 것."
+            }
+        ];
+
+        function getBrokerages() {
+            let list = localStorage.getItem('nest_brokerage');
+            let brokerages = [];
+            try {
+                if (list) {
+                    brokerages = JSON.parse(list);
                 }
+            } catch (e) {
+                console.error("Failed to parse nest_brokerage:", e);
+                brokerages = [];
+            }
+            
+            if (!brokerages || brokerages.length === 0) {
+                localStorage.setItem('nest_brokerage', JSON.stringify(initialBrokerages));
+                return initialBrokerages;
+            }
+            return brokerages;
+        }
+
+        const brokerageTableBody = document.getElementById('brokerageTableBody');
+        const btnNewBrokerage = document.getElementById('btnNewBrokerage');
+        const brokerageModal = document.getElementById('brokerageModal');
+        const brokerageForm = document.getElementById('brokerageForm');
+        const brokerageModalTitle = document.getElementById('brokerageModalTitle');
+        const btnBrokerageModalClose = document.getElementById('btnBrokerageModalClose');
+        const btnBrokerageModalCancel = document.getElementById('btnBrokerageModalCancel');
+
+        const inputBrokerageId = document.getElementById('brokerageId');
+        const inputBrokerageClient = document.getElementById('brokerageClient');
+        const inputBrokeragePhone = document.getElementById('brokeragePhone');
+        const inputBrokerageAgent = document.getElementById('brokerageAgent');
+        const inputBrokerageStatus = document.getElementById('brokerageStatus');
+        const inputBrokerageReqs = document.getElementById('brokerageReqs');
+        const inputBrokerageNotes = document.getElementById('brokerageNotes');
+
+        function renderAdminBrokerage() {
+            const list = getBrokerages();
+            const user = JSON.parse(sessionStorage.getItem('nest_currentUser')) || { role: 'master' };
+            
+            // 일반 직원은 본인이 담당자인 건만 필터링 노출!
+            let displayList = list;
+            if (user.role !== 'master') {
+                displayList = list.filter(b => b.agent === user.name);
+            }
+
+            brokerageTableBody.innerHTML = '';
+            
+            // 통계 카드는 필터링된 담당자 데이터 및 마스터 여부에 맞춰 정밀 정산
+            updateBrokerageStats(displayList, user.role === 'master');
+
+            if (displayList.length === 0) {
+                brokerageTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #888; padding: 30px;">등록된 중개 관리 현황이 없습니다.</td></tr>';
+                return;
+            }
+
+            displayList.forEach(b => {
+                let statusBadgeColor = "#475569"; // 기본 회색 (접수완료)
+                let statusBadgeBg = "#f1f5f9";
+                if (b.status === "매물 매칭중") {
+                    statusBadgeColor = "#1d4ed8"; statusBadgeBg = "#dbeafe";
+                } else if (b.status === "실사/미팅중") {
+                    statusBadgeColor = "#854d0e"; statusBadgeBg = "#fef9c3";
+                } else if (b.status === "계약서 검토") {
+                    statusBadgeColor = "#c2410c"; statusBadgeBg = "#ffedd5";
+                } else if (b.status === "잔금 대기") {
+                    statusBadgeColor = "#a16207"; statusBadgeBg = "#fef3c7";
+                } else if (b.status === "계약완료") {
+                    statusBadgeColor = "#15803d"; statusBadgeBg = "#dcfce7";
+                }
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight: 700; color: var(--primary-color);">${escapeHtml(b.client)}</td>
+                    <td style="color: #64748b; font-size: 13px;">${escapeHtml(b.phone)}</td>
+                    <td style="font-weight: bold; color: #475569; font-size: 13px;">${escapeHtml(b.agent)}</td>
+                    <td style="font-size: 13px; color: #334155; line-height: 1.4;">
+                        <strong>요구조건:</strong> ${escapeHtml(b.reqs)}
+                        <div style="font-size: 11.5px; color: #64748b; margin-top: 5px; background: #f8fafc; border: 1px solid #e2e8f0; padding: 6px 10px; border-radius: 4px; line-height: 1.5;">
+                            ${escapeHtml(b.notes || '기록된 일지 없음')}
+                        </div>
+                    </td>
+                    <td style="text-align: center;">
+                        <span style="background: ${statusBadgeBg}; color: ${statusBadgeColor}; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; display: inline-block;">${escapeHtml(b.status)}</span>
+                    </td>
+                    <td style="text-align: center;">
+                        <div style="display: flex; gap: 6px; justify-content: center;">
+                            <button onclick="editBrokerage('${b.id}')" style="padding: 5px 10px; font-size: 11px; background: #e2e8f0; border: 1px solid #cbd5e1; border-radius: 4px; cursor: pointer;">수정</button>
+                            <button onclick="deleteBrokerage('${b.id}')" style="padding: 5px 10px; font-size: 11px; background: #fee2e2; border: 1px solid #fca5a5; color: #b91c1c; border-radius: 4px; cursor: pointer;">삭제</button>
+                        </div>
+                    </td>
+                `;
+                brokerageTableBody.appendChild(tr);
             });
         }
+
+        function updateBrokerageStats(list, isMaster) {
+            const countActive = list.filter(b => b.status !== '계약완료').length;
+            const countReview = list.filter(b => b.status === '계약서 검토' || b.status === '잔금 대기').length;
+            
+            // 수수료 정산
+            const baseCommission = isMaster ? 125000000 : 0; // 마스터는 기본 1.25억부터 누적, 직원은 0원부터
+            const completedCount = list.filter(b => b.status === '계약완료').length;
+            const totalCommission = baseCommission + (completedCount * 35000000);
+
+            const activeStatEl = document.getElementById('brokerActiveCount');
+            const reviewStatEl = document.getElementById('brokerReviewCount');
+            const commStatEl = document.getElementById('brokerCommissionTotal');
+
+            if (activeStatEl) activeStatEl.innerText = countActive + "건";
+            if (reviewStatEl) reviewStatEl.innerText = countReview + "건";
+            if (commStatEl) {
+                if (isMaster) {
+                    commStatEl.innerText = (totalCommission / 100000000).toFixed(2) + "억원";
+                } else {
+                    commStatEl.innerText = (totalCommission / 10000).toLocaleString() + "만원";
+                }
+            }
+        }
+
+        // 동적으로 담당 중개사 목록 채우기 및 권한 제어 (중개 현황용)
+        function populateBrokerageAgent(selectedAgent) {
+            const user = JSON.parse(sessionStorage.getItem('nest_currentUser')) || { role: 'master' };
+            const users = getUsers(); // 등록된 임직원 목록
+            
+            inputBrokerageAgent.innerHTML = '';
+            
+            // 1. 미배정 옵션 추가 (마스터 배정 관리용)
+            const optUnassigned = document.createElement('option');
+            optUnassigned.value = '미배정 (신규인입)';
+            optUnassigned.textContent = '미배정 (신규인입)';
+            inputBrokerageAgent.appendChild(optUnassigned);
+            
+            // 2. 모든 임직원 명단을 드롭다운 옵션으로 이식
+            users.forEach(u => {
+                const opt = document.createElement('option');
+                opt.value = u.name;
+                opt.textContent = u.name;
+                inputBrokerageAgent.appendChild(opt);
+            });
+            
+            if (user.role === 'master') {
+                inputBrokerageAgent.disabled = false;
+                if (selectedAgent) {
+                    inputBrokerageAgent.value = selectedAgent;
+                } else {
+                    inputBrokerageAgent.value = '미배정 (신규인입)'; // 기본값
+                }
+            } else {
+                // 일반 직원은 본인 실명 강제 지정 및 변경 불가
+                inputBrokerageAgent.value = user.name;
+                inputBrokerageAgent.disabled = true;
+            }
+        }
+
+        // Open Brokerage Modal
+        if (btnNewBrokerage) {
+            btnNewBrokerage.addEventListener('click', () => {
+                brokerageModalTitle.innerText = "새 중개 의뢰 등록";
+                inputBrokerageId.value = '';
+                brokerageForm.reset();
+                populateBrokerageAgent(null); // 에이전트 목록 로드 및 세션 권한 제어
+                brokerageModal.classList.add('open');
+            });
+        }
+
+        // Close Brokerage Modal
+        function closeBrokerageModal() {
+            brokerageModal.classList.remove('open');
+        }
+        if (btnBrokerageModalClose) btnBrokerageModalClose.addEventListener('click', closeBrokerageModal);
+        if (btnBrokerageModalCancel) btnBrokerageModalCancel.addEventListener('click', closeBrokerageModal);
+
+        // Save Brokerage
+        if (brokerageForm) {
+            brokerageForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const list = getBrokerages();
+                const id = inputBrokerageId.value;
+                const client = inputBrokerageClient.value;
+                const phone = inputBrokeragePhone.value;
+                const agent = inputBrokerageAgent.value;
+                const status = inputBrokerageStatus.value;
+                const reqs = inputBrokerageReqs.value;
+                const notes = inputBrokerageNotes.value;
+
+                if (id) {
+                    // Edit
+                    const idx = list.findIndex(b => b.id === id);
+                    if (idx !== -1) {
+                        list[idx].client = client;
+                        list[idx].phone = phone;
+                        list[idx].agent = agent;
+                        list[idx].status = status;
+                        list[idx].reqs = reqs;
+                        list[idx].notes = notes;
+                    }
+                } else {
+                    // Add
+                    const newBrokerage = {
+                        id: "broker-" + Date.now(),
+                        client,
+                        phone,
+                        agent,
+                        status,
+                        reqs,
+                        notes
+                    };
+                    list.unshift(newBrokerage);
+                }
+
+                localStorage.setItem('nest_brokerage', JSON.stringify(list));
+                closeBrokerageModal();
+                renderAdminBrokerage();
+                alert("중개 현황이 성공적으로 반영되었습니다.");
+            });
+        }
+
+        // Edit Brokerage
+        window.editBrokerage = function(id) {
+            const list = getBrokerages();
+            const matched = list.find(b => b.id === id);
+            if (!matched) return;
+
+            brokerageModalTitle.innerText = "중개 의뢰 수정";
+            inputBrokerageId.value = matched.id;
+            inputBrokerageClient.value = matched.client;
+            inputBrokeragePhone.value = matched.phone;
+            inputBrokerageStatus.value = matched.status;
+            inputBrokerageReqs.value = matched.reqs;
+            inputBrokerageNotes.value = matched.notes || '';
+
+            populateBrokerageAgent(matched.agent); // 기존 담당 에이전트 선택 로드
+
+            brokerageModal.classList.add('open');
+        }
+
+        // Delete Brokerage
+        window.deleteBrokerage = function(id) {
+            if (!confirm("정말 이 중개 현황을 영구 삭제하시겠습니까?")) return;
+            let list = getBrokerages();
+            list = list.filter(b => b.id !== id);
+            localStorage.setItem('nest_brokerage', JSON.stringify(list));
+            renderAdminBrokerage();
+        };
+
+
 
         // Default guides data (seed)
         const initialGuides = [
@@ -1391,6 +2027,247 @@
             localStorage.setItem('nest_guides', JSON.stringify(list));
             renderAdminGuides();
         };
+
+        // ==============================================================
+        // ================== STAFF USERS MANAGEMENT CMS =================
+        // ==============================================================
+
+        // 1. Initial Default Seed Users
+        const defaultUsers = [
+            {
+                id: "user-1",
+                loginId: "admin",
+                password: "admin",
+                name: "마스터 관리자",
+                agentLink: "마스터 관리자",
+                role: "master",
+                permissions: ["properties", "guides", "reviews", "brokerage"]
+            },
+            {
+                id: "user-2",
+                loginId: "kim",
+                password: "kim",
+                name: "김철수 부장",
+                agentLink: "김철수 부장",
+                role: "staff",
+                permissions: ["properties", "brokerage"]
+            },
+            {
+                id: "user-3",
+                loginId: "lee",
+                password: "lee",
+                name: "이영희 팀장",
+                agentLink: "이영희 팀장",
+                role: "staff",
+                permissions: ["brokerage"]
+            },
+            {
+                id: "user-4",
+                loginId: "park",
+                password: "park",
+                name: "박민수 과장",
+                agentLink: "박민수 과장",
+                role: "staff",
+                permissions: ["guides", "brokerage"]
+            }
+        ];
+
+        // 2. LocalStorage Getters/Setters
+        function getUsers() {
+            let users = localStorage.getItem('nest_users');
+            if (!users || JSON.parse(users).length === 0) {
+                localStorage.setItem('nest_users', JSON.stringify(defaultUsers));
+                return defaultUsers;
+            }
+            return JSON.parse(users);
+        }
+
+        // 3. Elements mapping
+        const userTableBody = document.getElementById('userTableBody');
+        const userModal = document.getElementById('userModal');
+        const userForm = document.getElementById('userForm');
+        const userModalTitle = document.getElementById('userModalTitle');
+        const btnNewUser = document.getElementById('btnNewUser');
+        const btnUserModalClose = document.getElementById('btnUserModalClose');
+        const btnUserModalCancel = document.getElementById('btnUserModalCancel');
+
+        const inputUserId = document.getElementById('userId');
+        const inputUserLoginId = document.getElementById('userLoginId');
+        const inputUserPassword = document.getElementById('userPassword');
+        const inputUserName = document.getElementById('userName');
+
+        // 4. Render Staff Table list
+        function renderAdminUsers() {
+            const list = getUsers();
+            userTableBody.innerHTML = '';
+
+            list.forEach(u => {
+                const permLabels = [];
+                if (u.permissions.includes('properties')) permLabels.push('<span style="background: #e2e8f0; color: #475569; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-right: 4px;">매물관리</span>');
+                if (u.permissions.includes('guides')) permLabels.push('<span style="background: #e2e8f0; color: #475569; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-right: 4px;">가이드관리</span>');
+                if (u.permissions.includes('reviews')) permLabels.push('<span style="background: #e2e8f0; color: #475569; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-right: 4px;">후기관리</span>');
+                if (u.permissions.includes('brokerage')) permLabels.push('<span style="background: #e2e8f0; color: #475569; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-right: 4px;">중개관리(본인)</span>');
+                
+                const permsHtml = permLabels.length > 0 ? permLabels.join('') : '<span style="color: #cbd5e1; font-size: 11px;">권한 없음</span>';
+                
+                let roleColor = u.role === 'master' ? '#b91c1c' : '#2563eb';
+                let roleBg = u.role === 'master' ? '#fee2e2' : '#dbeafe';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight: bold; color: var(--primary-color);">${escapeHtml(u.loginId)}</td>
+                    <td style="font-weight: 500;">${escapeHtml(u.name)}</td>
+                    <td>${permsHtml}</td>
+                    <td style="text-align: center;">
+                        <span style="background: ${roleBg}; color: ${roleColor}; padding: 3px 8px; border-radius: 20px; font-size: 10.5px; font-weight: bold;">${u.role.toUpperCase()}</span>
+                    </td>
+                    <td style="text-align: center;">
+                        <div style="display: flex; gap: 6px; justify-content: center;">
+                            <button onclick="editUser('${u.id}')" style="padding: 5px 10px; font-size: 11px; background: #e2e8f0; border: 1px solid #cbd5e1; border-radius: 4px; cursor: pointer;">수정</button>
+                            <button onclick="deleteUser('${u.id}')" ${u.role === 'master' ? 'disabled style="opacity: 0.5; padding: 5px 10px; font-size: 11px; border-radius: 4px;"' : 'style="padding: 5px 10px; font-size: 11px; background: #fee2e2; border: 1px solid #fca5a5; color: #b91c1c; border-radius: 4px; cursor: pointer;"'}>삭제</button>
+                        </div>
+                    </td>
+                `;
+                userTableBody.appendChild(tr);
+            });
+        }
+
+        // 5. Open User Modal (Add)
+        if (btnNewUser) {
+            btnNewUser.addEventListener('click', () => {
+                userModalTitle.innerText = "새 임직원 계정 등록";
+                inputUserId.value = '';
+                userForm.reset();
+                inputUserLoginId.disabled = false;
+                userModal.classList.add('open');
+            });
+        }
+
+        // 6. Close User Modal
+        function closeUserModal() {
+            userModal.classList.remove('open');
+        }
+        if (btnUserModalClose) btnUserModalClose.addEventListener('click', closeUserModal);
+        if (btnUserModalCancel) btnUserModalCancel.addEventListener('click', closeUserModal);
+
+        // 7. Save User (Add / Edit)
+        if (userForm) {
+            userForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const list = getUsers();
+                const id = inputUserId.value;
+                const loginId = inputUserLoginId.value.trim().toLowerCase();
+                const password = inputUserPassword.value.trim();
+                const name = inputUserName.value.trim();
+
+                // 권한 체크박스 추출
+                const permChecks = document.querySelectorAll('.user-perm-check');
+                const permissions = [];
+                permChecks.forEach(cb => {
+                    if (cb.checked) permissions.push(cb.value);
+                });
+
+                if (id) {
+                    // Edit
+                    const idx = list.findIndex(u => u.id === id);
+                    if (idx !== -1) {
+                        // 로그인 ID 중복 검사 (변경된 ID가 다른 사람의 ID와 겹치는 경우 차단)
+                        const originalLoginId = list[idx].loginId;
+                        if (loginId !== originalLoginId && list.some(u => u.loginId === loginId)) {
+                            alert("이미 존재하는 로그인 ID입니다. 다른 아이디를 입력해 주세요.");
+                            return;
+                        }
+                        list[idx].loginId = loginId; // 수정된 로그인 ID 적용
+                        list[idx].password = password;
+                        list[idx].name = name;
+                        list[idx].agentLink = name; // 하위 호환성 및 실명 동기화
+                        list[idx].permissions = permissions;
+                    }
+                } else {
+                    // Add (ID 중복 체크)
+                    if (list.some(u => u.loginId === loginId)) {
+                        alert("이미 존재하는 로그인 ID입니다. 다른 아이디를 입력해 주세요.");
+                        return;
+                    }
+                    const newUser = {
+                        id: "user-" + Date.now(),
+                        loginId,
+                        password,
+                        name,
+                        agentLink: name, // 실명 대조 동기화
+                        role: "staff",
+                        permissions: permissions
+                    };
+                    list.push(newUser);
+                }
+
+                localStorage.setItem('nest_users', JSON.stringify(list));
+                closeUserModal();
+                renderAdminUsers();
+                
+                // 만약 본인 계정 정보가 수정된 경우 세션에 실시간 갱신 반영
+                const currentUser = JSON.parse(sessionStorage.getItem('nest_currentUser'));
+                if (currentUser && currentUser.id === id) {
+                    const updated = list.find(u => u.id === id);
+                    sessionStorage.setItem('nest_currentUser', JSON.stringify(updated));
+                    showDashboard(); // 탭 렌더링 동기화 갱신
+                }
+                
+                alert("임직원 계정 정보가 정상적으로 저장되었습니다.");
+            });
+        }
+
+        // 8. Edit User
+        window.editUser = function(id) {
+            const list = getUsers();
+            const matched = list.find(u => u.id === id);
+            if (!matched) return;
+
+            userModalTitle.innerText = "임직원 정보 & 권한 수정";
+            inputUserId.value = matched.id;
+            inputUserLoginId.value = matched.loginId;
+            
+            // 마스터 관리자 계정인 경우에만 ID 수정 가능하도록 제한적으로 해제
+            const currentUser = JSON.parse(sessionStorage.getItem('nest_currentUser')) || { role: 'master' };
+            if (currentUser.role === 'master') {
+                inputUserLoginId.disabled = false;
+            } else {
+                inputUserLoginId.disabled = true;
+            }
+            
+            inputUserPassword.value = matched.password;
+            inputUserName.value = matched.name;
+
+            // 권한 체크박스 바인딩
+            const permChecks = document.querySelectorAll('.user-perm-check');
+            permChecks.forEach(cb => {
+                cb.checked = matched.permissions.includes(cb.value) || matched.role === 'master';
+                cb.disabled = matched.role === 'master';
+            });
+
+            userModal.classList.add('open');
+        }
+
+        // 9. Delete User
+        window.deleteUser = function(id) {
+            const list = getUsers();
+            const matched = list.find(u => u.id === id);
+            if (!matched) return;
+
+            if (matched.role === 'master') {
+                alert("마스터 관리자 계정은 삭제할 수 없습니다.");
+                return;
+            }
+
+            if (!confirm(`정말 ${matched.name}님의 계정을 영구 삭제하시겠습니까? 로그인할 수 없게 됩니다.`)) return;
+
+            const filtered = list.filter(u => u.id !== id);
+            localStorage.setItem('nest_users', JSON.stringify(filtered));
+            renderAdminUsers();
+            alert("임직원 계정이 영구 삭제되었습니다.");
+        };
+
+
 
         // Initialize setup
         populateFloorOptions();

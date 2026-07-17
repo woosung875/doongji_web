@@ -122,12 +122,11 @@
 </head>
 
 <body>
-    <header id="header" class="scrolled"> <!-- Force header background color on static page -->
+    <header id="header" class="scrolled">
         <div class="container">
+            <!-- 로고 (인라인 절대배치 제거, CSS Flexbox에서 제어) -->
             <a href="index.html" class="logo" style="text-decoration: none;">(주)둥지부동산중개법인</a>
-            <div class="menu-toggle" id="mobile-menu">
-                <i class="fas fa-bars"></i>
-            </div>
+            
             <nav>
                 <ul class="nav-list">
                     <li><a href="index.html#home">홈</a></li>
@@ -140,8 +139,26 @@
                     <li><a href="recruit.html">인재모집</a></li>
                     <li><a href="https://www.doongji.co.kr/" target="_blank">건물관리서비스</a></li>
                     <li><a href="index.html#contact" class="btn-consult">상담문의</a></li>
+                    
+                    <!-- 모바일용 메뉴 내부 정렬 관리자 로그인 -->
+                    <li class="mobile-only" style="margin-top: 15px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 15px;">
+                        <a href="admin.html" style="font-size: 14px; color: rgba(255, 255, 255, 0.6); display: inline-flex; align-items: center; gap: 6px; text-decoration: none; justify-content: center; width: 100%;">
+                            <i class="fas fa-lock" style="font-size: 11px; color: var(--accent-color);"></i> 관리자 로그인
+                        </a>
+                    </li>
                 </ul>
             </nav>
+            
+            <!-- 데스크톱용 맨 오른쪽 정렬 관리자 로그인 -->
+            <a href="admin.html" class="btn-admin-nav desktop-only" style="border: 1px solid rgba(255, 255, 255, 0.15); padding: 8px 16px; border-radius: 4px; font-size: 12.5px; color: rgba(255, 255, 255, 0.45); text-decoration: none; transition: all 0.3s; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; background: transparent; white-space: nowrap;"
+               onmouseenter="this.style.borderColor='var(--accent-color)'; this.style.color='var(--accent-color)'; this.querySelector('i').style.opacity='1';" 
+               onmouseleave="this.style.borderColor='rgba(255, 255, 255, 0.15)'; this.style.color='rgba(255, 255, 255, 0.45)'; this.querySelector('i').style.opacity='0.5';">
+                <i class="fas fa-lock" style="font-size: 10.5px; color: var(--accent-color); opacity: 0.5; transition: opacity 0.3s;"></i> 관리자 로그인
+            </a>
+
+            <div class="menu-toggle" id="mobile-menu">
+                <i class="fas fa-bars"></i>
+            </div>
         </div>
     </header>
 

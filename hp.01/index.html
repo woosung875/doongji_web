@@ -10,15 +10,23 @@
         href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Playfair+Display:wght@400;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Desktop vs Mobile display toggling for Admin Login button */
+        @media (min-width: 769px) {
+            .mobile-only { display: none !important; }
+        }
+        @media (max-width: 768px) {
+            .desktop-only { display: none !important; }
+        }
+    </style>
 </head>
 
 <body>
     <header id="header">
         <div class="container">
-            <div class="logo">(주)둥지부동산중개법인</div>
-            <div class="menu-toggle" id="mobile-menu">
-                <i class="fas fa-bars"></i>
-            </div>
+            <!-- 로고 (인라인 절대배치 제거, CSS Flexbox에서 제어) -->
+            <a href="index.html" class="logo" style="text-decoration: none;">(주)둥지부동산중개법인</a>
+            
             <nav>
                 <ul class="nav-list">
                     <li><a href="#home">홈</a></li>
@@ -31,8 +39,26 @@
                     <li><a href="recruit.html">인재모집</a></li>
                     <li><a href="https://www.doongji.co.kr/" target="_blank">건물관리서비스</a></li>
                     <li><a href="#contact" class="btn-consult">상담문의</a></li>
+                    
+                    <!-- 모바일용 메뉴 내부 정렬 관리자 로그인 -->
+                    <li class="mobile-only" style="margin-top: 15px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 15px;">
+                        <a href="admin.html" style="font-size: 14px; color: rgba(255, 255, 255, 0.6); display: inline-flex; align-items: center; gap: 6px; text-decoration: none; justify-content: center; width: 100%;">
+                            <i class="fas fa-lock" style="font-size: 11px; color: var(--accent-color);"></i> 관리자 로그인
+                        </a>
+                    </li>
                 </ul>
             </nav>
+            
+            <!-- 데스크톱용 맨 오른쪽 정렬 관리자 로그인 (인라인 절대배치 제거, CSS Flexbox에서 제어) -->
+            <a href="admin.html" class="btn-admin-nav desktop-only" style="border: 1px solid rgba(255, 255, 255, 0.15); padding: 8px 16px; border-radius: 4px; font-size: 12.5px; color: rgba(255, 255, 255, 0.45); text-decoration: none; transition: all 0.3s; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; background: transparent; white-space: nowrap;"
+               onmouseenter="this.style.borderColor='var(--accent-color)'; this.style.color='var(--accent-color)'; this.querySelector('i').style.opacity='1';" 
+               onmouseleave="this.style.borderColor='rgba(255, 255, 255, 0.15)'; this.style.color='rgba(255, 255, 255, 0.45)'; this.querySelector('i').style.opacity='0.5';">
+                <i class="fas fa-lock" style="font-size: 10.5px; color: var(--accent-color); opacity: 0.5; transition: opacity 0.3s;"></i> 관리자 로그인
+            </a>
+
+            <div class="menu-toggle" id="mobile-menu">
+                <i class="fas fa-bars"></i>
+            </div>
         </div>
     </header>
 
@@ -311,6 +337,31 @@
             }
         });
 
+        // ==============================================================
+        // 🔔 텔레그램 상담문의 실시간 푸시 알림 설정 가이드 (옵션 A)
+        // ==============================================================
+        // 1. 텔레그램에서 @BotFather를 검색해 대화를 시작하고 /newbot 을 입력해 봇을 만듭니다.
+        // 2. 생성된 봇의 API 토큰(HTTP API Token)을 아래 'botToken' 항목에 넣어줍니다.
+        // 3. 텔레그램에서 @userinfobot 을 검색해 대화를 시작하여 본인의 Chat ID(숫자)를 확인해 아래 'chatId'에 입력합니다.
+        // 4. 토큰과 ID를 적고 'enabled' 값을 true로 변경하면 실시간 알림이 폰으로 평생 무료 전송됩니다!
+        const TELEGRAM_CONFIG = {
+            botToken: "7198273618:AAH_FakeTokenForSetupNestGold_Example", // 텔레그램 봇 토큰 입력
+            chatId: "123456789", // 텔레그램 Chat ID 입력
+            enabled: false // 알림 서비스 활성화 여부 (활성화 시 true로 변경)
+        };
+
+        // ==============================================================
+        // 💬 카카오톡 상담문의 실시간 푸시 알림 설정 가이드 (옵션 B)
+        // ==============================================================
+        // 1. 카카오 개발자 센터 (https://developers.kakao.com/) 로그인 후 [내 애플리케이션] 등록
+        // 2. [제품 설정] -> [카카오 로그인] ON 활성화 ➡️ [동의항목]에서 '카카오톡 메시지 전송(talk_message)' 권한 필수 체크
+        // 3. 발급받은 REST API 엑세스 토큰(Access Token)을 아래 'accessToken'에 기재합니다.
+        // 4. 완료 후 'enabled'를 true로 설정하면 본인 폰의 카카오톡(나에게 보내기)으로 접수 알림이 즉시 실시간 전송됩니다!
+        const KAKAOTALK_CONFIG = {
+            accessToken: "YOUR_KAKAO_ACCESS_TOKEN_HERE", // 카카오 로그인 엑세스 토큰 입력
+            enabled: false // 카카오톡 알림 서비스 활성화 여부 (활성화 시 true로 변경)
+        };
+
         // FORM SUBMISSION LOGIC
         const form = document.querySelector('#contactForm');
         const submitBtn = document.querySelector('#submitBtn');
@@ -321,6 +372,84 @@
             submitted = true;
             submitBtn.innerText = '전송 중...';
             submitBtn.disabled = true;
+
+            // 입력 폼 데이터 추출
+            const inputClient = form.querySelector('[name="entry.2005620554"]');
+            const inputPhone = form.querySelector('[name="entry.1065046570"]');
+            const inputMemo = form.querySelector('[name="entry.839337160"]');
+            const checkedTypes = Array.from(form.querySelectorAll('[name="entry.1166974658"]:checked')).map(cb => cb.value);
+
+            const clientVal = inputClient ? inputClient.value : '미정';
+            const phoneVal = inputPhone ? inputPhone.value : '미정';
+            const memoVal = inputMemo ? inputMemo.value : '기타 조건 없음';
+            const typeStr = checkedTypes.length > 0 ? `[${checkedTypes.join(', ')}] ` : '';
+
+            // 1. 홈페이지 관리자 모드 중개현황관리에 신규 인입 자동 기록 (접수완료/미배정 상태)
+            try {
+                const brokerageList = JSON.parse(localStorage.getItem('nest_brokerage') || '[]');
+                const newRecord = {
+                    id: "broker-tele-" + Date.now(),
+                    client: clientVal,
+                    phone: phoneVal,
+                    agent: "미배정 (신규인입)", // 관리자가 확인 후 담당 직원에 재분기 배정
+                    status: "접수완료",
+                    reqs: typeStr + memoVal,
+                    notes: "홈페이지 온라인 상담문의 폼을 통해 접수된 실시간 인입 건입니다."
+                };
+                brokerageList.unshift(newRecord);
+                localStorage.setItem('nest_brokerage', JSON.stringify(brokerageList));
+            } catch (e) {
+                console.error("Inquiry LocalStorage saving error:", e);
+            }
+
+            const typeLabel = checkedTypes.length > 0 ? checkedTypes.join(', ') : '일반 문의';
+
+            // 2. 텔레그램 봇 API 알림 전송 (활성화 시 가동)
+            if (TELEGRAM_CONFIG.enabled && TELEGRAM_CONFIG.botToken && TELEGRAM_CONFIG.chatId) {
+                const messageText = `🔔 [둥지부동산 상담문의 접수]\n\n` +
+                                    `• 고객명: ${clientVal}\n` +
+                                    `• 연락처: ${phoneVal}\n` +
+                                    `• 상담유형: ${typeLabel}\n` +
+                                    `• 희망조건: ${memoVal}\n\n` +
+                                    `👉 관리자 페이지에서 담당 중개사를 배정해 주세요.`;
+
+                const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_CONFIG.botToken}/sendMessage?chat_id=${TELEGRAM_CONFIG.chatId}&text=${encodeURIComponent(messageText)}`;
+                
+                fetch(telegramUrl)
+                    .then(res => {
+                        if (!res.ok) console.error("Telegram API status failed");
+                    })
+                    .catch(err => console.error("Telegram API fetch error:", err));
+            }
+
+            // 3. 카카오톡 API 알림 전송 (나에게 보내기 - 활성화 시 가동)
+            if (KAKAOTALK_CONFIG.enabled && KAKAOTALK_CONFIG.accessToken) {
+                const templateObject = {
+                    object_type: "text",
+                    text: `🔔 [둥지부동산 상담문의 접수]\n\n• 고객명: ${clientVal}\n• 연락처: ${phoneVal}\n• 상담유형: ${typeLabel}\n• 희망조건: ${memoVal}\n\n👉 관리자 모드에서 상세 내역 확인 후 담당자를 지정해 주세요.`,
+                    link: {
+                        web_url: "http://localhost:8000/admin.html",
+                        mobile_web_url: "http://localhost:8000/admin.html"
+                    },
+                    button_title: "관리자 모드 열기"
+                };
+
+                fetch("https://kapi.kakao.com/v2/api/talk/memo/default/send", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        "Authorization": `Bearer ${KAKAOTALK_CONFIG.accessToken}`
+                    },
+                    body: `template_object=${encodeURIComponent(JSON.stringify(templateObject))}`
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.result_code !== 0) {
+                        console.error("KakaoTalk API failed, result code:", data);
+                    }
+                })
+                .catch(err => console.error("KakaoTalk fetch error:", err));
+            }
 
             // Fallback: Force success after 2 seconds to ensure popup appears
             setTimeout(() => {

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>둥지부동산 로컬 테스트 링크</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+            padding: 40px;
+            background: #fafafa;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #0c1222;
+            border-bottom: 3px solid #C5A059;
+            padding-bottom: 10px;
+            font-size: 24px;
+            margin-bottom: 25px;
+        }
+        p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            margin-bottom: 15px;
+            padding: 15px 20px;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: all 0.2s;
+        }
+        li:hover {
+            border-color: #C5A059;
+        }
+        a {
+            font-weight: bold;
+            color: #C5A059;
+            text-decoration: none;
+            font-size: 16px;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        span {
+            color: #64748b;
+            font-size: 13px;
+            display: block;
+            margin-top: 5px;
+        }
+        .admin-hint {
+            background: #f1f5f9;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 12px;
+            margin-top: 10px;
+            color: #475569;
+            border-left: 3px solid #64748b;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>둥지부동산 로컬 테스트 보드</h1>
+    <p>Vercel에 올리지 않고, 내 컴퓨터 로컬 서버 주소에서 즉시 클릭하여 테스트해 볼 수 있는 단축 페이지입니다.</p>
+    
+    <ul>
+        <li>
+            <a href="index.html">1. 메인 홈페이지 바로가기</a>
+            <span>메인화면 및 '매물내놓기' 전용 접수 폼 확인</span>
+        </li>
+        <li>
+            <a href="properties.html">2. 매물정보 (지도 없는 목록) 바로가기</a>
+            <span>화면에 꽉 차는 바둑판식 매물 카드 및 검색 필터 테스트</span>
+        </li>
+        <li>
+            <a href="map.html">3. 지도보기 (인터랙티브 맵) 바로가기</a>
+            <span>카카오 지도(또는 대체 지도)와 카드 연동 검색 테스트</span>
+        </li>
+        <li>
+            <a href="admin.html">4. 관리자 페이지 바로가기</a>
+            <span>관리자 대시보드 접속 및 새 매물 등록 테스트</span>
+            <div class="admin-hint">
+                계정 힌트 - ID: admin / PW: admin
+            </div>
+        </li>
+        <li>
+            <a href="recruit.html">5. 인재모집 (채용 가이드) 바로가기</a>
+            <span>채용부문(상업용 에이전트/리서치), 복리후생 및 지원 방식 안내 페이지 확인</span>
+        </li>
+        <li>
+            <a href="guide.html">6. 임대차 가이드 (블로그 목록) 바로가기</a>
+            <span>실무 꿀팁 가이드 카드 리스트 및 CMS 연동 동작 확인</span>
+        </li>
+        <li>
+            <a href="guide-detail.html?id=guide-1">7. 가이드 상세 뷰어 바로가기</a>
+            <span>가이드 카드 [더보기] 클릭 시 줄바꿈이 보존되어 렌더링되는 상세 포스트 확인</span>
+        </li>
+        <li>
+            <a href="corporate.html">8. B2B 기업서비스 (컨설팅 가이드) 바로가기</a>
+            <span>사옥이전/다점포 확장/6단계 프로세스 등 B2B 전략 제안 가이드 페이지 확인</span>
+        </li>
+    </ul>
+</body>
+
+</html>
