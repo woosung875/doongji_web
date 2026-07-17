@@ -212,11 +212,16 @@
                 }
             ];
 
-            if (!props || JSON.parse(props).length === 0 || JSON.parse(props)[0].tag === "부산진구" || (JSON.parse(props)[0].tag !== "서울" && JSON.parse(props)[0].tag !== "경기")) {
+            if (props === null) {
                 localStorage.setItem('nest_properties', JSON.stringify(defaultProperties));
                 return defaultProperties;
             }
-            return JSON.parse(props);
+            try {
+                return JSON.parse(props) || [];
+            } catch (e) {
+                console.error("Failed to parse nest_properties in map:", e);
+                return [];
+            }
         }
 
         let map;

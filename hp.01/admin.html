@@ -1766,7 +1766,7 @@
                     const userList = JSON.parse(localStorage.getItem('nest_users')) || [];
                     const agents = [...new Set(userList.map(u => u.name))].filter(Boolean);
                     
-                    let html = '<option value="all">전체 담당사 보기</option>';
+                    let html = '<option value="all">담당자 보기</option>';
                     agents.forEach(agentName => {
                         html += `<option value="${agentName}">${agentName}</option>`;
                     });

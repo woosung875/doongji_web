@@ -601,12 +601,16 @@
 
         function getProperties() {
             let props = localStorage.getItem('nest_properties');
-            // Re-initialize if old Busan/outdated data is loaded or no data exists
-            if (!props || JSON.parse(props).length === 0 || (JSON.parse(props)[0].tag !== "서울" && JSON.parse(props)[0].tag !== "경기")) {
+            if (props === null) { // 최초 로딩 시에만 디폴트 주입
                 localStorage.setItem('nest_properties', JSON.stringify(defaultProperties));
                 return defaultProperties;
             }
-            return JSON.parse(props);
+            try {
+                return JSON.parse(props) || [];
+            } catch (e) {
+                console.error("Failed to parse nest_properties in index:", e);
+                return [];
+            }
         }
 
         const propertiesGrid = document.getElementById('propertiesGrid');
