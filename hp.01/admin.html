@@ -997,14 +997,20 @@
             showLoginForm();
         });
 
-        // Get Properties Data
+
+        // Get Properties Data (더 이상 데이터 삭제 시 씨드 복원하지 않음)
         function getProperties() {
             let props = localStorage.getItem('nest_properties');
-            if (!props || JSON.parse(props).length === 0) {
+            if (props === null) { // 로컬스토리지에 키가 최초에 아예 없을 때만 디폴트 매물 주입!
                 localStorage.setItem('nest_properties', JSON.stringify(defaultProperties));
                 return defaultProperties;
             }
-            return JSON.parse(props);
+            try {
+                return JSON.parse(props) || [];
+            } catch (e) {
+                console.error("Failed to parse nest_properties:", e);
+                return [];
+            }
         }
 
         // Populate Floor Option Dropdown (-6F to 30F)
@@ -1683,21 +1689,16 @@
 
         function getBrokerages() {
             let list = localStorage.getItem('nest_brokerage');
-            let brokerages = [];
-            try {
-                if (list) {
-                    brokerages = JSON.parse(list);
-                }
-            } catch (e) {
-                console.error("Failed to parse nest_brokerage:", e);
-                brokerages = [];
-            }
-            
-            if (!brokerages || brokerages.length === 0) {
+            if (list === null) { // 로컬스토리지 키가 최초에 없을 때만 씨드 데이터 주입!
                 localStorage.setItem('nest_brokerage', JSON.stringify(initialBrokerages));
                 return initialBrokerages;
             }
-            return brokerages;
+            try {
+                return JSON.parse(list) || [];
+            } catch (e) {
+                console.error("Failed to parse nest_brokerage:", e);
+                return [];
+            }
         }
         window.getBrokerages = getBrokerages;
 
