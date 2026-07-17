@@ -1760,8 +1760,27 @@
         function initMiniMap() {
             const latitude = p.lat || 37.4979;
             const longitude = p.lng || 127.0276;
+            const mapBox = document.getElementById('propertyDetailMiniMap');
             
             try {
+                if (window.kakao && kakao.maps && mapBox) {
+                    const center = new kakao.maps.LatLng(latitude, longitude);
+                    window.__kakaoDetailMap = new kakao.maps.Map(mapBox, {
+                        center: center,
+                        level: 3
+                    });
+                    window.__kakaoDetailMarker = new kakao.maps.Marker({
+                        position: center,
+                        map: window.__kakaoDetailMap
+                    });
+                    const info = new kakao.maps.InfoWindow({
+                        content: '<div style="padding:8px 12px;font-size:13px;white-space:nowrap;"><b>' + (p.title || '등록 예정지') + '</b><br>' + (p.price || '') + '</div>'
+                    });
+                    info.open(window.__kakaoDetailMap, window.__kakaoDetailMarker);
+                    return;
+                }
+
+                if (!window.L) return;
                 miniMap = L.map('propertyDetailMiniMap', {
                     center: [latitude, longitude],
                     zoom: 15,
@@ -3459,9 +3478,39 @@
 
             function drawMap(lat, lng, item) {
                 try {
-                    if (typeof L === 'undefined') return;
                     lat = parseFloat(lat);
                     lng = parseFloat(lng);
+                    if (window.kakao && kakao.maps) {
+                        const box = document.getElementById('propertyDetailMiniMap');
+                        const center = new kakao.maps.LatLng(lat, lng);
+                        if (!window.__kakaoDetailMap && box) {
+                            box.innerHTML = '';
+                            window.__kakaoDetailMap = new kakao.maps.Map(box, {
+                                center: center,
+                                level: 3
+                            });
+                        }
+                        if (window.__kakaoDetailMap) {
+                            window.__kakaoDetailMap.setCenter(center);
+                            if (window.__kakaoDetailMarker) {
+                                window.__kakaoDetailMarker.setMap(null);
+                            }
+                            window.__kakaoDetailMarker = new kakao.maps.Marker({
+                                position: center,
+                                map: window.__kakaoDetailMap
+                            });
+                            const info = new kakao.maps.InfoWindow({
+                                content: '<div style="padding:8px 12px;font-size:13px;white-space:nowrap;"><b>' + ((item && item.title) || '등록 예정지') + '</b><br>' + ((item && item.price) || '') + '</div>'
+                            });
+                            info.open(window.__kakaoDetailMap, window.__kakaoDetailMarker);
+                            setTimeout(function() {
+                                try { window.__kakaoDetailMap.relayout(); window.__kakaoDetailMap.setCenter(center); } catch (error) {}
+                            }, 100);
+                            return;
+                        }
+                    }
+
+                    if (typeof L === 'undefined') return;
                     const box = document.getElementById('propertyDetailMiniMap');
                     let targetMap = null;
                     try {
@@ -3683,6 +3732,16 @@
                 setTimeout(function() { renderPhotos(images); }, 400);
 
                 if (item.subways || item.buses) renderTraffic(item.subways, item.buses);
+                if (item.address) {
+                    const fixedTraffic = fallbackTraffic(item.address);
+                    if (fixedTraffic.buses && fixedTraffic.buses.length && (!item.buses || item.buses.length === 0)) {
+                        item.buses = fixedTraffic.buses;
+                        try {
+                            if (typeof p !== 'undefined' && p) p.buses = fixedTraffic.buses;
+                        } catch (error) {}
+                        renderTraffic(item.subways || fixedTraffic.subways || [], item.buses);
+                    }
+                }
                 if (item.lat && item.lng) drawMap(item.lat, item.lng, item);
 
                 if (!item.address) return;
