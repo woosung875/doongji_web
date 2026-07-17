@@ -1,0 +1,2893 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>매물 및 가이드 관리 시스템 | (주)둥지부동산중개법인</title>
+    <link rel="stylesheet" href="style.css?v=2">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Playfair+Display:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* 홈페이지 고정 헤더 스타일이 관리자 헤더에 겹쳐서 메뉴 탭을 가리는 버그 격리 치료 */
+        .admin-dashboard .admin-header {
+            position: static !important;
+            width: auto !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        .admin-main {
+            padding: 30px 0 !important;
+        }
+    </style>
+</head>
+
+<body class="admin-login-body" id="adminBody">
+
+    <!-- LOGIN CARD (VISIBLE BY DEFAULT) -->
+    <div class="login-card" id="loginCard">
+        <h2>둥지부동산 관리자</h2>
+        <p>서비스 관리를 위해 아이디와 비밀번호를 입력하세요.</p>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label>아이디</label>
+                <input type="text" id="username" placeholder="아이디를 입력하세요" required>
+            </div>
+            <div class="form-group" style="margin-bottom: 25px;">
+                <label>비밀번호</label>
+                <input type="password" id="password" placeholder="비밀번호를 입력하세요" required>
+            </div>
+            <button type="submit" class="btn-submit">로그인</button>
+            <a href="index.html" class="btn-back-home" style="display: block; text-align: center; margin-top: 15px; font-size: 13.5px; color: #64748b; text-decoration: none; font-weight: 500; transition: all 0.3s; padding: 12px; border-radius: 6px; border: 1px dashed #cbd5e1; background: #f8fafc;"
+               onmouseenter="this.style.color='var(--accent-color)'; this.style.borderColor='var(--accent-color)'; this.style.background='#fff';"
+               onmouseleave="this.style.color='#64748b'; this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc';">
+                <i class="fas fa-home" style="margin-right: 5px;"></i> 메인 홈페이지로 돌아가기
+            </a>
+        </form>
+    </div>
+
+    <!-- DASHBOARD CONTAINER (HIDDEN BY DEFAULT) -->
+    <div class="admin-dashboard" id="dashboardContainer" style="display: none; width: 100%;">
+        <header class="admin-header">
+            <div class="container">
+                <h1>(주)둥지부동산중개법인 <span>관리자 모드</span></h1>
+                <div class="admin-nav" style="display: flex; align-items: center;">
+                    <span id="currentUserLabel" style="font-size: 13.5px; color: rgba(255, 255, 255, 0.75); margin-right: 20px; font-weight: 500;"></span>
+                    <a href="index.html" class="btn-logout" style="text-decoration: none; margin-right: 10px;"><i class="fas fa-home"></i> 홈 바로가기</a>
+                    <button class="btn-logout" id="btnLogout"><i class="fas fa-sign-out-alt"></i> 로그아웃</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="admin-main">
+            <div class="container">
+                
+                <!-- Tab switching buttons -->
+                <div class="admin-tabs" style="display: flex; gap: 12px; margin-bottom: 25px; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; flex-wrap: wrap;">
+                    <button class="tab-btn active" id="tabBtnProperties" onclick="switchTab('properties')" 
+                            style="padding: 10px 20px; background: var(--primary-color); color: #fff; border: 1px solid var(--primary-color); border-radius: 6px; font-weight: 700; cursor: pointer; transition: all 0.3s; font-family: inherit; font-size: 14px;">
+                        <i class="fas fa-building" style="margin-right: 6px;"></i> 매물 목록 관리
+                    </button>
+                    <button class="tab-btn" id="tabBtnGuides" onclick="switchTab('guides')" 
+                            style="padding: 10px 20px; background: #fff; color: #64748b; border: 1px solid #e2e8f0; border-radius: 6px; font-weight: 500; cursor: pointer; transition: all 0.3s; font-family: inherit; font-size: 14px;">
+                        <i class="fas fa-book" style="margin-right: 6px;"></i> 임대차 가이드 관리
+                    </button>
+                    <button class="tab-btn" id="tabBtnReviews" onclick="switchTab('reviews')" 
+                            style="padding: 10px 20px; background: #fff; color: #64748b; border: 1px solid #e2e8f0; border-radius: 6px; font-weight: 500; cursor: pointer; transition: all 0.3s; font-family: inherit; font-size: 14px;">
+                        <i class="fas fa-comment-dots" style="margin-right: 6px;"></i> 고객 후기 관리
+                    </button>
+                    <button class="tab-btn" id="tabBtnBrokerage" onclick="switchTab('brokerage')" 
+                            style="padding: 10px 20px; background: #fff; color: #64748b; border: 1px solid #e2e8f0; border-radius: 6px; font-weight: 500; cursor: pointer; transition: all 0.3s; font-family: inherit; font-size: 14px;">
+                        <i class="fas fa-handshake" style="margin-right: 6px;"></i> 중개 현황 관리
+                    </button>
+                    <button class="tab-btn" id="tabBtnUsers" onclick="switchTab('users')" 
+                            style="padding: 10px 20px; background: #fff; color: #64748b; border: 1px solid #e2e8f0; border-radius: 6px; font-weight: 500; cursor: pointer; transition: all 0.3s; font-family: inherit; font-size: 14px; display: none;">
+                        <i class="fas fa-users-cog" style="margin-right: 6px;"></i> 직원 계정 관리 (마스터)
+                    </button>
+                </div>
+
+                <!-- 1. PROPERTIES TAB SECTION -->
+                <div id="propertiesTabArea">
+                    <div class="dashboard-title-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                        <h2>매물 목록 관리</h2>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn-admin-action" id="btnNewProperty">
+                                <i class="fas fa-plus"></i> 새 매물 등록
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Admin Properties Filter Header -->
+                    <div class="admin-filter-bar" style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                        <select id="adminFilterRegion" onchange="applyAdminFilters()" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; outline: none; background: white; font-family: inherit;">
+                            <option value="">전체지역</option>
+                            <option value="서울">서울</option>
+                            <option value="경기">경기</option>
+                        </select>
+                        <select id="adminFilterType" onchange="applyAdminFilters()" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; outline: none; background: white; font-family: inherit;">
+                            <option value="">매물종류</option>
+                            <option value="사무실">사무실</option>
+                            <option value="상가">상가</option>
+                            <option value="빌딩">빌딩</option>
+                            <option value="토지">토지</option>
+                            <option value="주거용">주거용</option>
+                        </select>
+                        <select id="adminFilterFloor" onchange="applyAdminFilters()" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; outline: none; background: white; font-family: inherit;">
+                            <option value="">층수</option>
+                            <option value="지하">지하</option>
+                            <option value="1층">1층</option>
+                            <option value="지상">지상</option>
+                        </select>
+                        <span style="font-size: 13px; color: #64748b; font-weight: 500; margin-left: auto;" id="adminFilterCount">검색된 매물: 0개</span>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 120px;">이미지</th>
+                                    <th style="width: 140px;">지역 / 층수</th>
+                                    <th>매물명</th>
+                                    <th>설명</th>
+                                    <th style="width: 220px;">가격</th>
+                                    <th style="width: 120px; text-align: center;">등록자</th>
+                                    <th style="width: 110px; text-align: center;">관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="propertyTableBody">
+                                <!-- Dynamic Content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 2. RENTAL GUIDES TAB SECTION -->
+                <div id="guidesTabArea" style="display: none;">
+                    <div class="dashboard-title-bar">
+                        <h2>임대차 가이드 게시글 관리</h2>
+                        <button class="btn-admin-action" id="btnNewGuide" style="background: var(--accent-color); border-color: var(--accent-color); color: var(--primary-color);">
+                            <i class="fas fa-plus"></i> 새 가이드 등록
+                        </button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 120px;">대표 이미지</th>
+                                    <th style="width: 140px;">작성일</th>
+                                    <th>제목</th>
+                                    <th>요약 설명</th>
+                                    <th style="width: 110px; text-align: center;">관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="guideTableBody">
+                                <!-- Dynamic Content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 3. CLIENT REVIEWS TAB SECTION -->
+                <div id="reviewsTabArea" style="display: none;">
+                    <div class="dashboard-title-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                        <h2>고객 후기 관리</h2>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn-admin-action" id="btnNewReview" style="background: var(--accent-color); border-color: var(--accent-color); color: var(--primary-color);">
+                                <i class="fas fa-plus"></i> 새 후기 등록
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 150px;">작성자</th>
+                                    <th style="width: 160px;">입주지역 / 회사</th>
+                                    <th>후기 내용</th>
+                                    <th style="width: 110px; text-align: center;">관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reviewTableBody">
+                                <!-- Dynamic Content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 4. BROKERAGE MANAGEMENT TAB SECTION -->
+                <div id="brokerageTabArea" style="display: none;">
+                    
+                    <!-- B2B Brokerage Stats Cards Panel -->
+                    <div style="display: flex; gap: 20px; margin-bottom: 25px; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 200px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-left: 4px solid var(--accent-color);">
+                            <div style="font-size: 12px; color: #64748b; font-weight: bold; margin-bottom: 5px;">진행 중인 계약 의뢰</div>
+                            <div id="brokerActiveCount" style="font-size: 24px; font-weight: bold; color: var(--primary-color);">0건</div>
+                        </div>
+                        <div style="flex: 1; min-width: 200px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-left: 4px solid #3b82f6;">
+                            <div style="font-size: 12px; color: #64748b; font-weight: bold; margin-bottom: 5px;">계약완료 / 잔금대기</div>
+                            <div id="brokerReviewCount" style="font-size: 24px; font-weight: bold; color: var(--primary-color);">0건</div>
+                        </div>
+                        <div style="flex: 1; min-width: 200px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-left: 4px solid #10b981;">
+                            <div style="font-size: 12px; color: #64748b; font-weight: bold; margin-bottom: 5px;">당월 계약 성사 예상 수수료</div>
+                            <div id="brokerCommissionTotal" style="font-size: 24px; font-weight: bold; color: var(--primary-color);">0.0억원</div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-title-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                        <h2>중개 현황 관리</h2>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn-admin-action" id="btnNewBrokerage" style="background: var(--accent-color); border-color: var(--accent-color); color: var(--primary-color);">
+                                <i class="fas fa-plus"></i> 새 중개 의뢰 등록
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 170px;">의뢰사 (고객명)</th>
+                                    <th style="width: 140px;">연락처</th>
+                                    <th style="width: 120px;">담당 중개사</th>
+                                    <th>희망 요구조건 및 상담 일지</th>
+                                    <th style="width: 110px; text-align: center;">진행단계</th>
+                                    <th style="width: 110px; text-align: center;">관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="brokerageTableBody">
+                                <!-- Dynamic Content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 5. STAFF USERS MANAGEMENT TAB SECTION (MASTER ONLY) -->
+                <div id="usersTabArea" style="display: none;">
+                    <div class="dashboard-title-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                        <h2>임직원 계정 권한 관리</h2>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn-admin-action" id="btnNewUser" style="background: var(--accent-color); border-color: var(--accent-color); color: var(--primary-color);">
+                                <i class="fas fa-user-plus"></i> 새 임직원 등록
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 150px;">로그인 ID</th>
+                                    <th style="width: 150px;">임직원명</th>
+                                    <th>부여된 시스템 관리 권한</th>
+                                    <th style="width: 110px; text-align: center;">계정역할</th>
+                                    <th style="width: 120px; text-align: center;">관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTableBody">
+                                <!-- Dynamic Content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- PROPERTY FORM MODAL (ADD / EDIT) -->
+    <div class="admin-modal" id="propertyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">새 매물 등록</h3>
+                <button class="modal-close" id="btnModalClose">&times;</button>
+            </div>
+            <form id="propertyForm">
+                <input type="hidden" id="propertyId">
+                <div class="form-group">
+                    <label>등록자 (담당자) <span style="color: red;">*</span></label>
+                    <select id="propWriter" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; font-family: inherit; transition: border-color 0.3s; background-color: white;">
+                        <!-- Dynamic options -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>지역 (선택)</label>
+                    <select id="propTag" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; font-family: inherit; transition: border-color 0.3s; background-color: white;">
+                        <option value="">지역을 선택하세요</option>
+                        <option value="서울">서울</option>
+                        <option value="경기">경기</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>매물종류</label>
+                    <select id="propType" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; font-family: inherit; transition: border-color 0.3s; background-color: white;">
+                        <option value="">매물종류를 선택하세요</option>
+                        <option value="사무실">사무실</option>
+                        <option value="상가">상가</option>
+                        <option value="빌딩">빌딩</option>
+                        <option value="토지">토지</option>
+                        <option value="주거용">주거용</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>층수</label>
+                    <select id="propFloor" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; font-family: inherit; transition: border-color 0.3s; background-color: white;">
+                        <option value="">층수를 선택하세요</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>매물명 (제목)</label>
+                    <input type="text" id="propTitle" placeholder="매물 서비스명을 입력하세요" required>
+                </div>
+                <div class="form-group">
+                    <label>설명 (예: 전용 150평 / 고층 뷰 / 최고급 인테리어)</label>
+                    <input type="text" id="propDesc" placeholder="매물의 요약 설명을 입력하세요" required>
+                </div>
+                <!-- 거래 유형 선택 -->
+                <div class="form-group">
+                    <label>거래 유형 <span style="color: red;">*</span></label>
+                    <div style="display: flex; gap: 15px; margin-top: 5px;">
+                        <label style="display: inline-flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer; color: var(--primary-color);">
+                            <input type="radio" name="tradeType" value="매매" checked style="accent-color: var(--accent-color); transform: scale(1.15);"> 매매
+                        </label>
+                        <label style="display: inline-flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer; color: var(--primary-color);">
+                            <input type="radio" name="tradeType" value="전세" style="accent-color: var(--accent-color); transform: scale(1.15);"> 전세
+                        </label>
+                        <label style="display: inline-flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer; color: var(--primary-color);">
+                            <input type="radio" name="tradeType" value="월세" style="accent-color: var(--accent-color); transform: scale(1.15);"> 월세
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 거래 유형별 동적 가격 영역 -->
+                <div class="form-group" id="priceInputArea" style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
+                    <!-- 매매 가격군 -->
+                    <div id="priceGroupSale">
+                        <label style="display: block; margin-bottom: 6px; font-weight: 500;">매매가 <span style="color: red;">*</span></label>
+                        <input type="text" id="priceSale" placeholder="예: 45억" style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit; background: #fff;">
+                    </div>
+                    <!-- 전세 가격군 -->
+                    <div id="priceGroupDepositOnly" style="display: none;">
+                        <label style="display: block; margin-bottom: 6px; font-weight: 500;">전세 보증금 <span style="color: red;">*</span></label>
+                        <input type="text" id="priceDepositOnly" placeholder="예: 5억" style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit; background: #fff;">
+                    </div>
+                    <!-- 월세 가격군 -->
+                    <div id="priceGroupRent" style="display: none; gap: 15px;">
+                        <div style="flex: 1;">
+                            <label style="display: block; margin-bottom: 6px; font-weight: 500;">월세 보증금 <span style="color: red;">*</span></label>
+                            <input type="text" id="priceDeposit" placeholder="예: 5,000만" style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit; background: #fff;">
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="display: block; margin-bottom: 6px; font-weight: 500;">월세 <span style="color: red;">*</span></label>
+                            <input type="text" id="priceMonthly" placeholder="예: 300만" style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit; background: #fff;">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>상세 주소 (소재지) <span style="color: red;">*</span></label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="propAddress" placeholder="[주소 찾기] 버튼을 눌러 검색하세요" readonly required style="flex: 1; width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit; background-color: #f8fafc; cursor: pointer;">
+                        <button type="button" id="btnSearchAddress" style="padding: 12px 20px; background: var(--primary-color); border: 1px solid var(--primary-color); color: white; border-radius: 4px; font-weight: 700; cursor: pointer; transition: all 0.3s; white-space: nowrap;">주소 찾기</button>
+                    </div>
+                    <!-- 팝업 차단 필터를 우회하기 위한 100% 임베드형 주소 레이어 -->
+                    <div id="postcodeLayer" style="display:none;border:1px solid #cbd5e1;width:100%;height:380px;margin-top:10px;position:relative;border-radius:6px;overflow:hidden;">
+                        <img src="//t1.daumcdn.net/postcode/resource/images/close.png" id="btnClosePostcodeLayer" style="cursor:pointer;position:absolute;right:0px;top:0px;z-index:99;width:20px;height:20px;background:#f1f5f9;padding:5px;border-bottom-left-radius:6px;border-left:1px solid #cbd5e1;border-bottom:1px solid #cbd5e1;" alt="닫기 버튼">
+                    </div>
+                </div>
+                <!-- 관리비 및 면적 입력 필드 -->
+                <div style="display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div class="form-group" style="flex: 1; min-width: 150px;">
+                        <label>관리비 (원 단위)</label>
+                        <input type="number" id="propMaintenance" placeholder="예: 300000" style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                    </div>
+                    <div class="form-group" style="flex: 1; min-width: 150px;">
+                        <label>공급면적</label>
+                        <input type="text" id="propSupplyArea" placeholder="예: 150평 (또는 495㎡)" style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                    </div>
+                    <div class="form-group" style="flex: 1; min-width: 150px;">
+                        <label>전용면적 <span style="color: red;">*</span></label>
+                        <input type="text" id="propExclusiveArea" placeholder="예: 100평" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                    </div>
+                </div>
+
+                <!-- 임대인 정보 (비공개) -->
+                <div style="display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div class="form-group" style="flex: 1; min-width: 200px;">
+                        <label>임대인 성함 (비공개)</label>
+                        <input type="text" id="propLessorName" placeholder="예: 김둥지" style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                    </div>
+                    <div class="form-group" style="flex: 1; min-width: 200px;">
+                        <label>임대인 연락처 (비공개)</label>
+                        <input type="text" id="propLessorPhone" placeholder="예: 010-1234-5678" style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>이미지 첨부 (직접 업로드)</label>
+                    <input type="file" id="propFile" accept="image/*" style="border: none; padding: 5px 0;">
+                    <input type="hidden" id="propImageUrl">
+                    <div id="imagePreviewContainer" style="margin-top: 10px; display: none;">
+                        <p style="font-size: 0.85rem; color: #777; margin-bottom: 5px;">이미지 미리보기:</p>
+                        <img id="formImagePreview" src="" alt="미리보기" style="max-width: 100%; height: 120px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="btnModalCancel">취소</button>
+                    <button type="submit" class="btn-submit" style="width: auto; padding: 12px 30px;" id="btnModalSave">저장하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- GUIDE FORM MODAL (ADD / EDIT) -->
+    <div class="admin-modal" id="guideModal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 id="guideModalTitle">새 임대차 가이드 등록</h3>
+                <button class="modal-close" id="btnGuideModalClose">&times;</button>
+            </div>
+            <form id="guideForm">
+                <input type="hidden" id="guideId">
+                <div class="form-group">
+                    <label>가이드 제목</label>
+                    <input type="text" id="guideTitle" placeholder="가이드 제목을 입력하세요" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                </div>
+                <div class="form-group">
+                    <label>요약 설명 (목록 카드 노출용)</label>
+                    <input type="text" id="guideSummary" placeholder="가이드 요약 문구를 간단히 입력하세요" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                </div>
+                <div class="form-group">
+                    <label>대표 이미지 URL</label>
+                    <input type="text" id="guideImageUrl" placeholder="https://images.unsplash.com/... 또는 비워두면 기본 이미지 적용" style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                </div>
+                <div class="form-group">
+                    <label>상세 본문 내용</label>
+                    <textarea id="guideContent" rows="12" placeholder="가이드의 상세 본문 내용을 자유롭게 입력하세요. 줄바꿈이 그대로 보존됩니다." required 
+                              style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit; font-size: 14px; resize: vertical; line-height: 1.6;"></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="btnGuideModalCancel">취소</button>
+                    <button type="submit" class="btn-submit" style="width: auto; padding: 12px 30px; background: var(--accent-color); border-color: var(--accent-color); color: var(--primary-color); font-weight: bold;" id="btnGuideModalSave">저장하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- REVIEW FORM MODAL (ADD / EDIT) -->
+    <div class="admin-modal" id="reviewModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 id="reviewModalTitle">새 고객 후기 등록</h3>
+                <button class="modal-close" id="btnReviewModalClose">&times;</button>
+            </div>
+            <form id="reviewForm">
+                <input type="hidden" id="reviewId">
+                <div class="form-group">
+                    <label>작성자 (예: IT 스타트업 김대표님)</label>
+                    <input type="text" id="reviewAuthor" placeholder="작성자 명칭을 입력하세요" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                </div>
+                <div class="form-group">
+                    <label>입주지역 / 회사 (예: 테헤란로 입주 또는 압구정동 입주)</label>
+                    <input type="text" id="reviewCompany" placeholder="입주 지역이나 회사명을 입력하세요" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                </div>
+                <div class="form-group">
+                    <label>후기 본문 내용</label>
+                    <textarea id="reviewText" rows="6" placeholder="둥지부동산을 통해 성공적으로 계약하신 고객님의 상세 후기를 입력하세요." required 
+                              style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit; font-size: 14px; resize: vertical; line-height: 1.6;"></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="btnReviewModalCancel">취소</button>
+                    <button type="submit" class="btn-submit" style="width: auto; padding: 12px 30px; background: var(--accent-color); border-color: var(--accent-color); color: var(--primary-color); font-weight: bold;" id="btnReviewModalSave">저장하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- BROKERAGE FORM MODAL (ADD / EDIT) -->
+    <div class="admin-modal" id="brokerageModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 id="brokerageModalTitle">새 중개 의뢰 등록</h3>
+                <button class="modal-close" id="btnBrokerageModalClose">&times;</button>
+            </div>
+            <form id="brokerageForm">
+                <input type="hidden" id="brokerageId">
+                <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>의뢰사명 / 고객명 <span style="color: red;">*</span></label>
+                        <input type="text" id="brokerageClient" placeholder="예: (주)스타트업" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>연락처 <span style="color: red;">*</span></label>
+                        <input type="text" id="brokeragePhone" placeholder="예: 010-1234-5678" oninput="formatPhoneNumberWithHyphens(this)" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                    </div>
+                </div>
+                
+                <!-- 세분화된 상세 고객 요구조건 영역 (선택 입력) -->
+                <div style="border: 1px solid #e2e8f0; padding: 15px; border-radius: 6px; background-color: #f8fafc; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; text-align: left;">
+                    <strong style="color: var(--primary-color); font-size: 13px;"><i class="fas fa-tasks" style="color: var(--accent-color); margin-right: 4px;"></i> 상세 고객 요구조건 (선택 입력)</strong>
+                    
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <!-- 희망 유형 -->
+                        <div style="flex: 1; min-width: 120px;">
+                            <label style="display:block; font-size: 11px; color: #475569; margin-bottom: 4px; font-weight: 600;">희망 유형</label>
+                            <select id="brokerageReqType" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: inherit; font-size: 12px; outline: none; background-color:#fff; cursor: pointer;">
+                                <option value="월세" selected>월세</option>
+                                <option value="전세">전세</option>
+                                <option value="매매">매매</option>
+                            </select>
+                        </div>
+                        
+                        <!-- 입주날짜 (연월 형태) -->
+                        <div style="flex: 1; min-width: 120px;">
+                            <label style="display:block; font-size: 11px; color: #475569; margin-bottom: 4px; font-weight: 600;">입주 희망일</label>
+                            <input type="month" id="brokerageReqMoveInDate" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: inherit; font-size: 12px; outline: none; box-sizing: border-box; background-color: #fff;">
+                        </div>
+                        
+                        <!-- 업종 -->
+                        <div style="flex: 1; min-width: 120px;">
+                            <label style="display:block; font-size: 11px; color: #475569; margin-bottom: 4px; font-weight: 600;">희망 업종</label>
+                            <input type="text" id="brokerageReqBizType" placeholder="예: IT 사무실" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: inherit; font-size: 12px; outline: none; box-sizing: border-box;">
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <!-- 예산 -->
+                        <div style="flex: 1; min-width: 140px;">
+                            <label style="display:block; font-size: 11px; color: #475569; margin-bottom: 4px; font-weight: 600;">희망 예산 (보증금/월세 등)</label>
+                            <input type="text" id="brokerageReqBudget" placeholder="보증금/월세 또는 10억" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: inherit; font-size: 12px; outline: none; box-sizing: border-box;">
+                        </div>
+                        
+                        <!-- 면적 -->
+                        <div style="flex: 1; min-width: 140px;">
+                            <label style="display:block; font-size: 11px; color: #475569; margin-bottom: 4px; font-weight: 600;">희망 면적 (평 또는 ㎡)</label>
+                            <input type="text" id="brokerageReqArea" placeholder="예: 실 50평 또는 165㎡" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: inherit; font-size: 12px; outline: none; box-sizing: border-box;">
+                        </div>
+                    </div>
+                </div>
+                <!-- 숨겨둔 레거시 바인딩 백업용 필드 -->
+                <input type="hidden" id="brokerageReqs" value="">
+
+                <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>담당 중개사 <span style="color: red;">*</span></label>
+                        <select id="brokerageAgent" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; font-family: inherit; transition: border-color 0.3s; background-color: white; border-radius: 4px;">
+                            <!-- Dynamic options -->
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>진행 단계 <span style="color: red;">*</span></label>
+                        <select id="brokerageStatus" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; font-family: inherit; transition: border-color 0.3s; background-color: white; border-radius: 4px;">
+                            <option value="접수완료">접수완료</option>
+                            <option value="영업중">영업중</option>
+                            <option value="계약완료">계약완료</option>
+                            <option value="잔금완료">잔금완료</option>
+                            <option value="영업종료">영업종료</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- 영업종료 사유 선택 영역 (기본 숨김) -->
+                <div class="form-group" id="brokerageEndReasonGroup" style="display: none; margin-bottom: 15px;">
+                    <label>영업종료 상세 사유 <span style="color: red;">*</span></label>
+                    <select id="brokerageEndReason" style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; font-family: inherit; transition: border-color 0.3s; background-color: white; border-radius: 4px;">
+                        <option value="장기부재(일주일이상)">장기부재(일주일이상)</option>
+                        <option value="타부동산계약">타부동산계약</option>
+                        <option value="계약포기">계약포기</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>고객 요구조건 (희망 지역, 면적, 예산 등) <span style="color: red;">*</span></label>
+                    <input type="text" id="brokerageReqs" placeholder="예: 역삼역 인근 실 80평 이하, 보증금 2억 / 월 1500만 선" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                </div>
+
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="btnBrokerageModalCancel">취소</button>
+                    <button type="submit" class="btn-submit" style="width: auto; padding: 12px 30px; background: var(--accent-color); border-color: var(--accent-color); color: var(--primary-color); font-weight: bold;" id="btnBrokerageModalSave">저장하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- USER FORM MODAL (ADD / EDIT) -->
+    <div class="admin-modal" id="userModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 id="userModalTitle">새 임직원 등록</h3>
+                <button class="modal-close" id="btnUserModalClose">&times;</button>
+            </div>
+            <form id="userForm">
+                <input type="hidden" id="userId">
+                <div class="form-group">
+                    <label>로그인 아이디 (ID) <span style="color: red;">*</span></label>
+                    <input type="text" id="userLoginId" placeholder="아이디를 입력하세요" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                </div>
+                <div class="form-group">
+                    <label>비밀번호 (Password) <span style="color: red;">*</span></label>
+                    <input type="password" id="userPassword" placeholder="비밀번호를 입력하세요" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                </div>
+                <div class="form-group">
+                    <label>임직원 실명 <span style="color: red;">*</span></label>
+                    <input type="text" id="userName" placeholder="예: 홍길동" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                </div>
+
+                <div class="form-group">
+                    <label>관리자 권한 선택 <span style="color: red;">*</span></label>
+                    <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px; background: #f8fafc; padding: 15px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                        <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer;">
+                            <input type="checkbox" class="user-perm-check" value="properties" checked style="width: 16px; height: 16px;"> 매물 목록 관리 권한
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer;">
+                            <input type="checkbox" class="user-perm-check" value="guides" checked style="width: 16px; height: 16px;"> 임대차 가이드 관리 권한
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer;">
+                            <input type="checkbox" class="user-perm-check" value="reviews" checked style="width: 16px; height: 16px;"> 고객 후기 관리 권한
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer;">
+                            <input type="checkbox" class="user-perm-check" value="brokerage" checked style="width: 16px; height: 16px;"> 중개 현황 관리 권한 (본인 담당만 필터링)
+                        </label>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="btnUserModalCancel">취소</button>
+                    <button type="submit" class="btn-submit" style="width: auto; padding: 12px 30px; background: var(--accent-color); border-color: var(--accent-color); color: var(--primary-color); font-weight: bold;" id="btnUserModalSave">저장하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- DATABASE LOGIC & ROUTING SCRIPT -->
+    <script>
+        // Mock Properties Data Array (fallback for initialization)
+        const defaultProperties = [
+            {
+                id: "prop-1",
+                tag: "서울",
+                type: "사무실",
+                floor: "5층",
+                title: "역삼역 초역세권 대형 프라임 오피스",
+                desc: "전용 150평 / 테헤란로 뷰 / 고층 오피스 빌딩 내 지상 5층",
+                price: "보증금 5억 / 월 4,500만",
+                imageUrl: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800",
+                address: "서울특별시 강남구 테헤란로 152",
+                lat: 37.5019,
+                lng: 127.0374,
+                writer: "김철수 부장"
+            },
+            {
+                id: "prop-2",
+                tag: "서울",
+                type: "상가",
+                floor: "1층",
+                title: "청담동 명품거리 1층 로드샵 상가",
+                desc: "전용 80평 / 쇼룸 완비 / 1층 테라스 활용 가능",
+                price: "가격 협의",
+                imageUrl: "https://images.unsplash.com/photo-1554469384-e58fac16e23a?auto=format&fit=crop&q=80&w=800",
+                address: "서울특별시 강남구 압구정로 407",
+                lat: 37.5251,
+                lng: 127.0435,
+                writer: "이영희 팀장"
+            },
+            {
+                id: "prop-3",
+                tag: "경기",
+                type: "토지",
+                floor: "1층",
+                title: "용인 기흥 상업용 개발 토지 매매",
+                desc: "토지면적 450평 / 대로변 코너 / 근생 및 물류 부지 추천",
+                price: "매매 45억",
+                imageUrl: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=800",
+                address: "경기도 용인시 기흥구 흥덕중앙로 120",
+                lat: 37.2804,
+                lng: 127.1179,
+                writer: "박민수 과장"
+            },
+            {
+                id: "prop-4",
+                tag: "서울",
+                type: "상가",
+                floor: "-1층",
+                title: "강남역 인근 지하 대형 F&B 상가",
+                desc: "전용 120평 / 지하 1층 단독 진입 계단 / 주방 설비 완비 및 층고 4m",
+                price: "보증금 2억 / 월 1,500만",
+                imageUrl: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&q=80&w=800",
+                address: "서울특별시 강남구 강남대로 396",
+                lat: 37.4979,
+                lng: 127.0276,
+                writer: "마스터 관리자"
+            },
+            {
+                id: "prop-5",
+                tag: "경기",
+                type: "주거용",
+                floor: "12층",
+                title: "분당 정자동 오피스텔 주거용 풀옵션",
+                desc: "전용 24평 / 지상 12층 탄천 뷰 / 침실 2개 / 즉시 입주 가능",
+                price: "보증금 3,000만 / 월 180만",
+                imageUrl: "https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80&w=800",
+                address: "경기도 성남시 분당구 정자일로 132",
+                lat: 37.3614,
+                lng: 127.1086,
+                writer: "김철수 부장"
+            },
+            {
+                id: "prop-6",
+                tag: "서울",
+                type: "빌딩",
+                floor: "7층",
+                title: "테헤란로 삼성동 대로변 프라임 사옥 빌딩",
+                desc: "연면적 450평 / 지상 7층 전체 통임대 / 자주식 주차 10대",
+                price: "보증금 8억 / 월 6,000만",
+                imageUrl: "https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&q=80&w=800",
+                address: "서울특별시 강남구 영동대로 513",
+                lat: 37.5097,
+                lng: 127.0620,
+                writer: "마스터 관리자"
+            }
+        ];
+
+        // Auth credentials
+        const ADMIN_ID = "admin";
+        const ADMIN_PW = "admin";
+
+        // DOM Elements
+        const adminBody = document.getElementById('adminBody');
+        const loginCard = document.getElementById('loginCard');
+        const loginForm = document.getElementById('loginForm');
+        const dashboardContainer = document.getElementById('dashboardContainer');
+        const btnLogout = document.getElementById('btnLogout');
+        
+        const propertyTableBody = document.getElementById('propertyTableBody');
+        const btnNewProperty = document.getElementById('btnNewProperty');
+        const propertyModal = document.getElementById('propertyModal');
+        const propertyForm = document.getElementById('propertyForm');
+        const modalTitle = document.getElementById('modalTitle');
+        const btnModalClose = document.getElementById('btnModalClose');
+        const btnModalCancel = document.getElementById('btnModalCancel');
+
+        const inputId = document.getElementById('propertyId');
+        const selectPropWriter = document.getElementById('propWriter');
+        const inputTag = document.getElementById('propTag');
+        const inputType = document.getElementById('propType');
+        const inputFloor = document.getElementById('propFloor');
+        const inputTitle = document.getElementById('propTitle');
+        const inputDesc = document.getElementById('propDesc');
+        // Dynamic Price DOM bindings
+        const tradeTypeRadios = document.getElementsByName('tradeType');
+        const priceGroupSale = document.getElementById('priceGroupSale');
+        const priceGroupDepositOnly = document.getElementById('priceGroupDepositOnly');
+        const priceGroupRent = document.getElementById('priceGroupRent');
+        
+        const inputPriceSale = document.getElementById('priceSale');
+        const inputPriceDepositOnly = document.getElementById('priceDepositOnly');
+        const inputPriceDeposit = document.getElementById('priceDeposit');
+        const inputPriceMonthly = document.getElementById('priceMonthly');
+
+        // 동적으로 담당 중개사 목록 채우기 및 권한 제어
+        function populatePropWriter(selectedWriter) {
+            const user = JSON.parse(sessionStorage.getItem('nest_currentUser')) || { role: 'master' };
+            const users = getUsers(); // 등록된 임직원 목록
+            
+            selectPropWriter.innerHTML = '';
+            
+            // 모든 임직원 및 마스터 이름을 드롭다운 옵션으로 이식
+            users.forEach(u => {
+                const opt = document.createElement('option');
+                opt.value = u.name;
+                opt.textContent = u.name;
+                selectPropWriter.appendChild(opt);
+            });
+            
+            if (user.role === 'master') {
+                selectPropWriter.disabled = false;
+                if (selectedWriter) {
+                    selectPropWriter.value = selectedWriter;
+                } else {
+                    selectPropWriter.value = user.name; // 기본값 마스터 본인
+                }
+            } else {
+                // 일반 직원은 본인 실명 강제 지정 및 변경 불가
+                selectPropWriter.value = user.name;
+                selectPropWriter.disabled = true;
+            }
+        }
+
+        function updatePriceFields() {
+            let selectedType = "매매";
+            for (const radio of tradeTypeRadios) {
+                if (radio.checked) selectedType = radio.value;
+            }
+
+            if (selectedType === "매매") {
+                priceGroupSale.style.display = "block";
+                priceGroupDepositOnly.style.display = "none";
+                priceGroupRent.style.display = "none";
+                
+                inputPriceSale.setAttribute('required', 'required');
+                inputPriceDepositOnly.removeAttribute('required');
+                inputPriceDeposit.removeAttribute('required');
+                inputPriceMonthly.removeAttribute('required');
+            } else if (selectedType === "전세") {
+                priceGroupSale.style.display = "none";
+                priceGroupDepositOnly.style.display = "block";
+                priceGroupRent.style.display = "none";
+                
+                inputPriceSale.removeAttribute('required');
+                inputPriceDepositOnly.setAttribute('required', 'required');
+                inputPriceDeposit.removeAttribute('required');
+                inputPriceMonthly.removeAttribute('required');
+            } else if (selectedType === "월세") {
+                priceGroupSale.style.display = "none";
+                priceGroupDepositOnly.style.display = "none";
+                priceGroupRent.style.display = "flex";
+                
+                inputPriceSale.removeAttribute('required');
+                inputPriceDepositOnly.removeAttribute('required');
+                inputPriceDeposit.setAttribute('required', 'required');
+                inputPriceMonthly.setAttribute('required', 'required');
+            }
+        }
+
+        for (const radio of tradeTypeRadios) {
+            radio.addEventListener('change', updatePriceFields);
+        }
+        const inputImageUrl = document.getElementById('propImageUrl');
+        const inputFile = document.getElementById('propFile');
+        const previewContainer = document.getElementById('imagePreviewContainer');
+        const formImagePreview = document.getElementById('formImagePreview');
+        const inputAddress = document.getElementById('propAddress');
+        const inputMaintenance = document.getElementById('propMaintenance');
+        const inputSupplyArea = document.getElementById('propSupplyArea');
+        const inputExclusiveArea = document.getElementById('propExclusiveArea');
+        const inputLessorName = document.getElementById('propLessorName');
+        const inputLessorPhone = document.getElementById('propLessorPhone');
+        const btnSearchAddress = document.getElementById('btnSearchAddress');
+
+        const postcodeLayer = document.getElementById('postcodeLayer');
+        const btnClosePostcodeLayer = document.getElementById('btnClosePostcodeLayer');
+
+        if (btnClosePostcodeLayer) {
+            btnClosePostcodeLayer.addEventListener('click', () => {
+                postcodeLayer.style.display = 'none';
+            });
+        }
+
+        function execDaumPostcode() {
+            new daum.Postcode({
+                oncomplete: function(data) {
+                    let addr = '';
+                    if (data.userSelectedType === 'R') {
+                        addr = data.roadAddress;
+                    } else {
+                        addr = data.jibunAddress;
+                    }
+                    inputAddress.value = addr;
+                    postcodeLayer.style.display = 'none'; // 레이어 감춤
+                },
+                width: '100%',
+                height: '100%'
+            }).embed(postcodeLayer);
+
+            postcodeLayer.style.display = 'block';
+        }
+        btnSearchAddress.addEventListener('click', execDaumPostcode);
+        inputAddress.addEventListener('click', execDaumPostcode);
+
+
+
+        // Check Login Session
+        function checkSession() {
+            if (sessionStorage.getItem('nest_currentUser')) {
+                showDashboard();
+            } else {
+                showLoginForm();
+            }
+        }
+
+        function showDashboard() {
+            adminBody.classList.remove('admin-login-body');
+            loginCard.style.display = 'none';
+            dashboardContainer.style.display = 'block';
+            
+            const user = JSON.parse(sessionStorage.getItem('nest_currentUser'));
+            if (!user) {
+                showLoginForm();
+                return;
+            }
+
+            // 상단 환영 라벨 업데이트
+            const label = document.getElementById('currentUserLabel');
+            if (label) {
+                const roleBadge = user.role === 'master' ? '[마스터]' : '[임직원]';
+                label.innerHTML = `<i class="fas fa-user-shield" style="color: var(--accent-color); margin-right: 5px;"></i> <strong>${escapeHtml(user.name)}</strong> ${roleBadge}님`;
+            }
+
+            // 권한 기반 탭 버튼 노출/감춤 제어
+            const tabBtnProp = document.getElementById('tabBtnProperties');
+            const tabBtnGuide = document.getElementById('tabBtnGuides');
+            const tabBtnReview = document.getElementById('tabBtnReviews');
+            const tabBtnBrokerage = document.getElementById('tabBtnBrokerage');
+            const tabBtnUsers = document.getElementById('tabBtnUsers');
+
+            const hasProp = user.role === 'master' || user.permissions.includes('properties');
+            const hasGuide = user.role === 'master' || user.permissions.includes('guides');
+            const hasReview = user.role === 'master' || user.permissions.includes('reviews');
+            const hasBroker = user.role === 'master' || user.permissions.includes('brokerage');
+            const hasUsers = user.role === 'master';
+
+            tabBtnProp.style.display = hasProp ? 'inline-block' : 'none';
+            tabBtnGuide.style.display = hasGuide ? 'inline-block' : 'none';
+            tabBtnReview.style.display = hasReview ? 'inline-block' : 'none';
+            tabBtnBrokerage.style.display = hasBroker ? 'inline-block' : 'none';
+            tabBtnUsers.style.display = hasUsers ? 'inline-block' : 'none';
+
+            // 세션에 저장된 활성 탭 복구 시도 (새로고침 대응)
+            const savedTab = sessionStorage.getItem('nest_admin_active_tab');
+            let tabToSelect = '';
+
+            if (savedTab) {
+                // 저장된 탭이 존재하고 해당 유저에게 권한이 있는지 검증
+                if (savedTab === 'properties' && hasProp) tabToSelect = 'properties';
+                else if (savedTab === 'guides' && hasGuide) tabToSelect = 'guides';
+                else if (savedTab === 'reviews' && hasReview) tabToSelect = 'reviews';
+                else if (savedTab === 'brokerage' && hasBroker) tabToSelect = 'brokerage';
+                else if (savedTab === 'users' && hasUsers) tabToSelect = 'users';
+            }
+
+            // 복구할 탭 권한이 없거나 첫 로그인 시 권한이 있는 첫 번째 사용 가능 탭으로 자동 포커싱
+            if (!tabToSelect) {
+                if (hasProp) tabToSelect = 'properties';
+                else if (hasGuide) tabToSelect = 'guides';
+                else if (hasReview) tabToSelect = 'reviews';
+                else if (hasBroker) tabToSelect = 'brokerage';
+                else if (hasUsers) tabToSelect = 'users';
+            }
+
+            if (tabToSelect) {
+                switchTab(tabToSelect);
+            }
+        }
+
+        function showLoginForm() {
+            adminBody.classList.add('admin-login-body');
+            loginCard.style.display = 'block';
+            dashboardContainer.style.display = 'none';
+        }
+
+        // Login Handler (아이디별 로컬스토리지 대조)
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const id = document.getElementById('username').value.trim();
+            const pw = document.getElementById('password').value.trim();
+
+            const users = getUsers();
+            const matched = users.find(u => u.loginId === id && u.password === pw);
+
+            if (matched) {
+                sessionStorage.setItem('nest_currentUser', JSON.stringify(matched));
+                showDashboard();
+            } else {
+                alert('아이디 또는 비밀번호가 올바르지 않습니다.');
+            }
+        });
+
+        // Logout Handler
+        btnLogout.addEventListener('click', () => {
+            sessionStorage.removeItem('nest_currentUser');
+            sessionStorage.removeItem('nest_admin_active_tab'); // 로그아웃 시 탭 세션 기록도 영구 소거
+            showLoginForm();
+        });
+
+        // Get Properties Data
+        function getProperties() {
+            let props = localStorage.getItem('nest_properties');
+            if (!props || JSON.parse(props).length === 0) {
+                localStorage.setItem('nest_properties', JSON.stringify(defaultProperties));
+                return defaultProperties;
+            }
+            return JSON.parse(props);
+        }
+
+        // Populate Floor Option Dropdown (-6F to 30F)
+        function populateFloorOptions() {
+            const select = document.getElementById('propFloor');
+            select.innerHTML = '<option value="">층수를 선택하세요</option>';
+            // -6층 ~ -1층 (지하)
+            for (let i = -6; i <= -1; i++) {
+                const opt = document.createElement('option');
+                opt.value = `${i}층`;
+                opt.innerText = `지하 ${Math.abs(i)}층`;
+                select.appendChild(opt);
+            }
+            // 1층 ~ 30층
+            for (let i = 1; i <= 30; i++) {
+                const opt = document.createElement('option');
+                opt.value = `${i}층`;
+                opt.innerText = `${i}층`;
+                select.appendChild(opt);
+            }
+        }
+
+        // Apply Admin Side Filters
+        function applyAdminFilters() {
+            const region = document.getElementById('adminFilterRegion').value;
+            const type = document.getElementById('adminFilterType').value;
+            const floorType = document.getElementById('adminFilterFloor').value;
+            const allProps = getProperties();
+            const user = JSON.parse(sessionStorage.getItem('nest_currentUser')) || { role: 'master' };
+
+            const filtered = allProps.filter(p => {
+                // 로그인 계정 작성자 격리 필터
+                const writerMatch = user.role === 'master' || p.writer === user.name;
+                
+                const regionMatch = !region || p.tag === region;
+                const typeMatch = !type || p.type === type;
+                
+                let floorMatch = true;
+                if (floorType === '지하') {
+                    floorMatch = p.floor && p.floor.startsWith('-');
+                } else if (floorType === '1층') {
+                    floorMatch = p.floor === '1층';
+                } else if (floorType === '지상') {
+                    floorMatch = p.floor && !p.floor.startsWith('-') && p.floor !== '1층';
+                }
+                
+                return writerMatch && regionMatch && typeMatch && floorMatch;
+            });
+
+            document.getElementById('adminFilterCount').innerText = `검색된 매물: ${filtered.length}개`;
+            renderAdminProperties(filtered);
+        }
+
+        // Render Property rows in table
+        function renderAdminProperties(list) {
+            propertyTableBody.innerHTML = '';
+            
+            if (list.length === 0) {
+                propertyTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #888; padding: 30px;">검색 조건에 맞는 매물이 없습니다.</td></tr>';
+                return;
+            }
+
+            list.forEach(p => {
+                const displayFloor = p.floor && p.floor.startsWith('-') ? '지하 ' + p.floor.substring(1) : p.floor;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><img src="${p.imageUrl}" style="width: 70px; height: 50px; object-fit: cover; border-radius: 4px;"></td>
+                    <td>
+                        <span style="background: #e2e8f0; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; color: #475569; display: inline-block; margin-bottom: 4px;">${escapeHtml(p.tag)}</span>
+                        <div style="font-size: 12px; color: #64748b;">${escapeHtml(displayFloor)}</div>
+                    </td>
+                    <td style="font-weight: 700; color: var(--primary-color);">
+                        ${escapeHtml(p.title)}
+                        <div style="font-size: 11px; font-weight: normal; color: #64748b; margin-top: 5px; background: #f8fafc; border: 1px solid #e2e8f0; padding: 6px 10px; border-radius: 4px; line-height: 1.5; width: max-content; max-width: 320px;">
+                            <span style="color: #c5a059; font-weight: bold; display: block; margin-bottom: 2px;"><i class="fas fa-lock" style="margin-right: 4px;"></i>임대인 전용 비공개 정보</span>
+                            성함: ${escapeHtml(p.lessorName || '미지정')} / 연락처: ${escapeHtml(p.lessorPhone || '미지정')}<br>
+                            관리비: ${p.maintenance ? parseInt(p.maintenance).toLocaleString() + '원' : '0원'}<br>
+                            면적: 공급 ${escapeHtml(p.supplyArea || '-')} / 전용 ${escapeHtml(p.exclusiveArea || '-')}
+                        </div>
+                    </td>
+                    <td style="font-size: 13px; color: #64748b;">${escapeHtml(p.desc)}</td>
+                    <td style="font-weight: bold; color: var(--accent-color); font-size: 14px;">${escapeHtml(p.price)}</td>
+                    <td style="text-align: center; font-weight: 500; font-size: 13px; color: #475569;">
+                        ${escapeHtml(p.writer || '마스터 관리자')}
+                    </td>
+                    <td style="text-align: center;">
+                        <div style="display: flex; gap: 6px; justify-content: center;">
+                            <button onclick="editProperty('${p.id}')" style="padding: 5px 10px; font-size: 11px; background: #e2e8f0; border: 1px solid #cbd5e1; border-radius: 4px; cursor: pointer;">수정</button>
+                            <button onclick="deleteProperty('${p.id}')" style="padding: 5px 10px; font-size: 11px; background: #fee2e2; border: 1px solid #fca5a5; color: #b91c1c; border-radius: 4px; cursor: pointer;">삭제</button>
+                        </div>
+                    </td>
+                `;
+                propertyTableBody.appendChild(tr);
+            });
+        }
+
+        // Open Property Modal (Add)
+        btnNewProperty.addEventListener('click', () => {
+            modalTitle.innerText = "새 매물 등록";
+            inputId.value = '';
+            propertyForm.reset();
+
+            // Reset tradeType to '매매' and clear price fields
+            document.querySelector('input[name="tradeType"][value="매매"]').checked = true;
+            inputPriceSale.value = '';
+            inputPriceDepositOnly.value = '';
+            inputPriceDeposit.value = '';
+            inputPriceMonthly.value = '';
+            updatePriceFields();
+
+            // Reset maintenance, areas, and lessor info
+            inputMaintenance.value = '';
+            inputSupplyArea.value = '';
+            inputExclusiveArea.value = '';
+            inputLessorName.value = '';
+            inputLessorPhone.value = '';
+
+            inputImageUrl.value = '';
+            previewContainer.style.display = 'none';
+            formImagePreview.src = '';
+            populatePropWriter(null); // 새 매물 등록 모드에 맞게 작성자 셋업
+            propertyModal.classList.add('open');
+        });
+
+        // Close Modal Handlers
+        function closeModal() {
+            propertyModal.classList.remove('open');
+        }
+        btnModalClose.addEventListener('click', closeModal);
+        btnModalCancel.addEventListener('click', closeModal);
+
+        // File upload encoding (Base64)
+        inputFile.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    inputImageUrl.value = event.target.result;
+                    formImagePreview.src = event.target.result;
+                    previewContainer.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Save Property (Add or Edit) with Automatic Geocoding
+        propertyForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const list = getProperties();
+            const id = inputId.value;
+
+            const tag = inputTag.value;
+            const type = inputType.value;
+            const floor = inputFloor.value;
+            const title = inputTitle.value;
+            const desc = inputDesc.value;
+            const address = inputAddress.value.trim();
+
+            const maintenance = inputMaintenance.value ? parseInt(inputMaintenance.value) : 0;
+            const supplyArea = inputSupplyArea.value.trim();
+            const exclusiveArea = inputExclusiveArea.value.trim();
+            const lessorName = inputLessorName.value.trim();
+            const lessorPhone = inputLessorPhone.value.trim();
+
+            // 거래 유형에 따른 최종 가격 텍스트 빌드
+            let price = "";
+            let selectedType = "매매";
+            for (const radio of tradeTypeRadios) {
+                if (radio.checked) selectedType = radio.value;
+            }
+
+            if (selectedType === "매매") {
+                price = `매매 ${inputPriceSale.value.trim()}`;
+            } else if (selectedType === "전세") {
+                price = `전세 ${inputPriceDepositOnly.value.trim()}`;
+            } else if (selectedType === "월세") {
+                price = `보증금 ${inputPriceDeposit.value.trim()} / 월 ${inputPriceMonthly.value.trim()}`;
+            }
+            
+            // Set image fallback if none selected
+            const imageUrl = inputImageUrl.value || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800';
+
+            // Priority 1: Use Kakao Maps SDK Geocoder
+            if (typeof kakao !== 'undefined' && kakao.maps && kakao.maps.services && !window.kakaoGeocoderFailed) {
+                const geocoder = new kakao.maps.services.Geocoder();
+                geocoder.addressSearch(address, function(result, status) {
+                    if (status === kakao.maps.services.Status.OK) {
+                        const lat = parseFloat(result[0].y);
+                        const lng = parseFloat(result[0].x);
+                        executePropertySave(list, id, tag, type, floor, title, desc, price, address, imageUrl, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone, selectPropWriter.value);
+                    } else {
+                        // Kakao search fails, try backup OSM Nominatim Geocoder
+                        fallbackGeocodeNominatim(address, (lat, lng) => {
+                            executePropertySave(list, id, tag, type, floor, title, desc, price, address, imageUrl, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone, selectPropWriter.value);
+                        });
+                    }
+                });
+            } else {
+                // Priority 2: Kakao SDK Blocked/Failed on localhost -> Call OSM Nominatim API directly
+                fallbackGeocodeNominatim(address, (lat, lng) => {
+                    executePropertySave(list, id, tag, type, floor, title, desc, price, address, imageUrl, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone, selectPropWriter.value);
+                });
+            }
+        });
+
+        // 100% Free Backup Geocoding API (OSM Nominatim)
+        function fallbackGeocodeNominatim(address, callback) {
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`;
+            
+            fetch(url, {
+                headers: {
+                    'Accept-Language': 'ko-KR,ko;q=0.9,en;q=0.8'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.length > 0) {
+                    const lat = parseFloat(data[0].lat);
+                    const lng = parseFloat(data[0].lon);
+                    console.log("OSM Nominatim Geocode Success:", lat, lng);
+                    callback(lat, lng);
+                } else {
+                    // Fail-safe fallback to standard Gangnam Station coordinates
+                    console.warn("OSM Nominatim failed to decode. Saving with default Gangnam coordinates.");
+                    callback(37.4979, 127.0276);
+                }
+            })
+            .catch(err => {
+                console.error("OSM Nominatim fetch error:", err);
+                callback(37.4979, 127.0276); // Fallback to Gangnam Station
+            });
+        }
+
+        function executePropertySave(list, id, tag, type, floor, title, desc, price, address, imageUrl, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone, writer) {
+            if (id) {
+                // Edit mode
+                const idx = list.findIndex(p => p.id === id);
+                if (idx !== -1) {
+                    list[idx] = { id, tag, type, floor, title, desc, price, address, imageUrl, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone, writer };
+                }
+            } else {
+                // Add mode
+                const newProp = {
+                    id: "prop-" + Date.now(),
+                    tag, type, floor, title, desc, price, address, imageUrl, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone,
+                    writer
+                };
+                list.unshift(newProp); // Put new items at the beginning
+            }
+
+            localStorage.setItem('nest_properties', JSON.stringify(list));
+            closeModal();
+            applyAdminFilters();
+            alert('매물 정보가 성공적으로 반영되었습니다. 상세 주소를 기반으로 지도가 갱신됩니다.');
+        }
+
+        // Edit Property
+        window.editProperty = function(id) {
+            const list = getProperties();
+            const matched = list.find(p => p.id === id);
+            if (!matched) return;
+
+            // 계정 보안: 마스터가 아니고 작성자가 본인이 아닐 경우 편집 금지
+            const user = JSON.parse(sessionStorage.getItem('nest_currentUser')) || { role: 'master' };
+            if (user.role !== 'master' && matched.writer !== user.name) {
+                alert('본인이 등록한 매물만 수정할 수 있습니다.');
+                return;
+            }
+
+            modalTitle.innerText = "매물 정보 수정";
+            inputId.value = matched.id;
+            inputTag.value = matched.tag;
+            inputType.value = matched.type;
+            inputFloor.value = matched.floor;
+            inputTitle.value = matched.title;
+            inputDesc.value = matched.desc;
+            inputAddress.value = matched.address || '';
+            inputImageUrl.value = matched.imageUrl;
+            
+            // 가격 역디코딩 및 입력창 분배 채우기
+            const priceText = matched.price || '';
+            
+            // 개별 가격 인풋 리셋
+            inputPriceSale.value = '';
+            inputPriceDepositOnly.value = '';
+            inputPriceDeposit.value = '';
+            inputPriceMonthly.value = '';
+
+            if (priceText.startsWith("매매")) {
+                document.querySelector('input[name="tradeType"][value="매매"]').checked = true;
+                inputPriceSale.value = priceText.replace("매매", "").trim();
+            } else if (priceText.startsWith("전세")) {
+                document.querySelector('input[name="tradeType"][value="전세"]').checked = true;
+                inputPriceDepositOnly.value = priceText.replace("전세", "").trim();
+            } else if (priceText.includes("보증금") && priceText.includes("월")) {
+                document.querySelector('input[name="tradeType"][value="월세"]').checked = true;
+                const parts = priceText.split("/");
+                const depPart = parts[0] ? parts[0].replace("보증금", "").trim() : "";
+                const rentPart = parts[1] ? parts[1].replace("월", "").trim() : "";
+                inputPriceDeposit.value = depPart;
+                inputPriceMonthly.value = rentPart;
+            } else {
+                // 일반 자유 텍스트 (예: 가격 협의 등)일 때 매매 기본값으로 얹어주기
+                document.querySelector('input[name="tradeType"][value="매매"]').checked = true;
+                inputPriceSale.value = priceText;
+            }
+            updatePriceFields(); // 필드 활성 가시성 동기화!
+
+            // Bind new fields (maintenance, areas, lessor info)
+            inputMaintenance.value = matched.maintenance || '';
+            inputSupplyArea.value = matched.supplyArea || '';
+            inputExclusiveArea.value = matched.exclusiveArea || '';
+            inputLessorName.value = matched.lessorName || '';
+            inputLessorPhone.value = matched.lessorPhone || '';
+            
+            formImagePreview.src = matched.imageUrl;
+            previewContainer.style.display = 'block';
+            populatePropWriter(matched.writer); // 매물 편집 시 기존 작성자(등록자) 선택 로드
+            propertyModal.classList.add('open');
+        };
+
+        // Delete Property
+        window.deleteProperty = function(id) {
+            const list = getProperties();
+            const matched = list.find(p => p.id === id);
+            if (!matched) return;
+
+            // 계정 보안: 마스터가 아니고 작성자가 본인이 아닐 경우 삭제 금지
+            const user = JSON.parse(sessionStorage.getItem('nest_currentUser')) || { role: 'master' };
+            if (user.role !== 'master' && matched.writer !== user.name) {
+                alert('본인이 등록한 매물만 삭제할 수 있습니다.');
+                return;
+            }
+
+            if (!confirm('정말 이 매물 정보를 영구 삭제하시겠습니까?')) return;
+            let filteredList = list.filter(p => p.id !== id);
+            localStorage.setItem('nest_properties', JSON.stringify(filteredList));
+            applyAdminFilters();
+        };
+
+        // Helper: Simple HTML Escape
+        function escapeHtml(string) {
+            return String(string).replace(/[&<>"']/g, function (s) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;'
+                }[s];
+            });
+        }
+
+        // ==============================================================
+        // ================= TAB SYSTEM & BLOG CMS LOGIC ================
+        // ==============================================================
+        
+        // Tab switching logic
+        function switchTab(tabName) {
+            // 현재 활성화된 탭명을 세션스토리지에 저장하여 새로고침 시 복원하도록 지원
+            sessionStorage.setItem('nest_admin_active_tab', tabName);
+
+            const propTabArea = document.getElementById('propertiesTabArea');
+            const guideTabArea = document.getElementById('guidesTabArea');
+            const reviewsTabArea = document.getElementById('reviewsTabArea');
+            const brokerageTabArea = document.getElementById('brokerageTabArea');
+            const usersTabArea = document.getElementById('usersTabArea');
+            
+            const tabBtnProp = document.getElementById('tabBtnProperties');
+            const tabBtnGuide = document.getElementById('tabBtnGuides');
+            const tabBtnReview = document.getElementById('tabBtnReviews');
+            const tabBtnBrokerage = document.getElementById('tabBtnBrokerage');
+            const tabBtnUsers = document.getElementById('tabBtnUsers');
+
+            // Reset tabs display and active button styles
+            const tabs = [
+                { area: propTabArea, btn: tabBtnProp },
+                { area: guideTabArea, btn: tabBtnGuide },
+                { area: reviewsTabArea, btn: tabBtnReview },
+                { area: brokerageTabArea, btn: tabBtnBrokerage },
+                { area: usersTabArea, btn: tabBtnUsers }
+            ];
+
+            tabs.forEach(t => {
+                if (t.area) t.area.style.display = 'none';
+                if (t.btn) {
+                    t.btn.style.background = '#fff';
+                    t.btn.style.color = '#64748b';
+                    t.btn.style.fontWeight = '500';
+                    t.btn.style.borderColor = '#e2e8f0';
+                }
+            });
+
+            if (tabName === 'properties') {
+                propTabArea.style.display = 'block';
+                tabBtnProp.style.background = 'var(--primary-color)';
+                tabBtnProp.style.color = '#fff';
+                tabBtnProp.style.fontWeight = '700';
+                tabBtnProp.style.borderColor = 'var(--primary-color)';
+                applyAdminFilters();
+            } else if (tabName === 'guides') {
+                guideTabArea.style.display = 'block';
+                tabBtnGuide.style.background = 'var(--primary-color)';
+                tabBtnGuide.style.color = '#fff';
+                tabBtnGuide.style.fontWeight = '700';
+                tabBtnGuide.style.borderColor = 'var(--primary-color)';
+                renderAdminGuides();
+            } else if (tabName === 'reviews') {
+                reviewsTabArea.style.display = 'block';
+                tabBtnReview.style.background = 'var(--primary-color)';
+                tabBtnReview.style.color = '#fff';
+                tabBtnReview.style.fontWeight = '700';
+                tabBtnReview.style.borderColor = 'var(--primary-color)';
+                renderAdminReviews();
+            } else if (tabName === 'brokerage') {
+                brokerageTabArea.style.display = 'block';
+                tabBtnBrokerage.style.background = 'var(--primary-color)';
+                tabBtnBrokerage.style.color = '#fff';
+                tabBtnBrokerage.style.fontWeight = '700';
+                tabBtnBrokerage.style.borderColor = 'var(--primary-color)';
+                renderAdminBrokerage();
+            } else if (tabName === 'users') {
+                usersTabArea.style.display = 'block';
+                tabBtnUsers.style.background = 'var(--primary-color)';
+                tabBtnUsers.style.color = '#fff';
+                tabBtnUsers.style.fontWeight = '700';
+                tabBtnUsers.style.borderColor = 'var(--primary-color)';
+                renderAdminUsers();
+            }
+        }
+
+        // ==============================================================
+        // ======================= REVIEWS CMS LOGIC ====================
+        // ==============================================================
+        
+        // 10 default reviews (seed data)
+        const initialReviews = [
+            {
+                id: "rev-1",
+                author: "IT 스타트업 김대표님",
+                company: "테헤란로 입주",
+                text: "강남 진입을 위한 사무실을 찾는데 막막했습니다. 하지만 둥지부동산을 통해 우리 회사의 아이덴티티에 딱 맞는 공간을 찾았고, 계약 조건도 너무 만족스럽게 조율해주셨습니다."
+            },
+            {
+                id: "rev-2",
+                author: "프랜차이즈 본사 이실장님",
+                company: "압구정동 입주",
+                text: "여러 부동산을 다녀봤지만 이렇게 전문적이고 체계적인 브리핑은 처음이었습니다. 단순히 매물만 보여주는 게 아니라 향후 가치까지 분석해주셔서 믿고 계약했습니다."
+            },
+            {
+                id: "rev-3",
+                author: "자산운용사 박대표님",
+                company: "삼성동 입주",
+                text: "삼성동 법인 사옥 이전을 전담해주셨는데, 복잡한 주차 조건과 보안 설비를 완벽하게 조율해주셔서 임직원 모두가 대만족하고 있습니다."
+            },
+            {
+                id: "rev-4",
+                author: "디자인 에이전트 최대표님",
+                company: "신사동 입주",
+                text: "트렌디한 단독 사옥을 원했는데, 가로수길 이면에 숨겨진 노출 콘크리트 감성 빌딩을 매칭해주셨습니다. 덕분에 크리에이티브한 업무 환경이 완성되었습니다."
+            },
+            {
+                id: "rev-5",
+                author: "뷰티 코스메틱 정대표님",
+                company: "청담동 입주",
+                text: "청담동 쇼룸 겸 사옥 이전이라 까다로운 조건이 많았습니다. 인허가 문제부터 테라스 여부까지 꼼꼼히 확인해 주셔서 큰 시행착오를 줄였습니다."
+            },
+            {
+                id: "rev-6",
+                author: "바이오 헬스케어 송대표님",
+                company: "역삼동 입주",
+                text: "연구소 장비 반입을 위한 층고와 전력 용량이 필수적이었는데, 조건에 완벽히 부합하는 인프라를 지닌 테헤란로 빌딩을 찾아주셔서 성공적으로 이전했습니다."
+            },
+            {
+                id: "rev-7",
+                author: "대형 법률사무소 조파트너 변호사님",
+                company: "서초동 입주",
+                text: "법조타운 인근에서 의뢰인 브리핑실과 파티션 공간이 잘 나뉘는 사무실을 구해주셨습니다. 신속한 피드백과 꼼꼼한 계약서 검토가 매우 인상 깊었습니다."
+            },
+            {
+                id: "rev-8",
+                author: "글로벌 엔터테인먼트 황대표님",
+                company: "논현동 입주",
+                text: "연습실 방음 시공이 가능한 대형 지하 공간과 기획사 사옥으로 적합한 논현동 빌딩 통임대를 매끄럽게 중개해주셔서 사업 확장에 집중할 수 있게 되었습니다."
+            },
+            {
+                id: "rev-9",
+                author: "모바일 커머스 한대표님",
+                company: "역삼동 입주",
+                text: "신축 첫 입주라 임대료 렌트프리 조율이 관건이었는데, 둥지부동산의 독보적인 네트워킹 덕분에 기대 이상으로 유리하게 계약을 체결했습니다."
+            },
+            {
+                id: "rev-10",
+                author: "친환경 식음료 브랜드 강대표님",
+                company: "도곡동 입주",
+                text: "임직원들의 접근성과 주변 녹지 공간을 동시에 충족하는 양재천 인근 매물을 선점해주셨습니다. 둥지만의 검증된 실매물 DB 덕에 시간 낭비가 전혀 없었습니다."
+            }
+        ];
+
+        function getReviews() {
+            let list = localStorage.getItem('nest_reviews');
+            let reviews = [];
+            try {
+                if (list) {
+                    reviews = JSON.parse(list);
+                }
+            } catch (e) {
+                console.error("Failed to parse nest_reviews:", e);
+                reviews = [];
+            }
+            
+            if (!reviews || reviews.length === 0) {
+                localStorage.setItem('nest_reviews', JSON.stringify(initialReviews));
+                return initialReviews;
+            }
+            return reviews;
+        }
+
+        const reviewTableBody = document.getElementById('reviewTableBody');
+        const btnNewReview = document.getElementById('btnNewReview');
+        const reviewModal = document.getElementById('reviewModal');
+        const reviewForm = document.getElementById('reviewForm');
+        const reviewModalTitle = document.getElementById('reviewModalTitle');
+        const btnReviewModalClose = document.getElementById('btnReviewModalClose');
+        const btnReviewModalCancel = document.getElementById('btnReviewModalCancel');
+
+        const inputReviewId = document.getElementById('reviewId');
+        const inputReviewAuthor = document.getElementById('reviewAuthor');
+        const inputReviewCompany = document.getElementById('reviewCompany');
+        const inputReviewText = document.getElementById('reviewText');
+
+        function renderAdminReviews() {
+            const list = getReviews();
+            reviewTableBody.innerHTML = '';
+            
+            if (list.length === 0) {
+                reviewTableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #888; padding: 30px;">등록된 고객 후기가 없습니다.</td></tr>';
+                return;
+            }
+
+            list.forEach(r => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight: 700; color: var(--primary-color);">${escapeHtml(r.author)}</td>
+                    <td style="color: #64748b; font-size: 13px;">${escapeHtml(r.company)}</td>
+                    <td style="font-size: 13px; color: #64748b; max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(r.text)}</td>
+                    <td style="text-align: center;">
+                        <div style="display: flex; gap: 6px; justify-content: center;">
+                            <button onclick="editReview('${r.id}')" style="padding: 5px 10px; font-size: 11px; background: #e2e8f0; border: 1px solid #cbd5e1; border-radius: 4px; cursor: pointer;">수정</button>
+                            <button onclick="deleteReview('${r.id}')" style="padding: 5px 10px; font-size: 11px; background: #fee2e2; border: 1px solid #fca5a5; color: #b91c1c; border-radius: 4px; cursor: pointer;">삭제</button>
+                        </div>
+                    </td>
+                `;
+                reviewTableBody.appendChild(tr);
+            });
+        }
+
+        // Open Review Modal
+        btnNewReview.addEventListener('click', () => {
+            reviewModalTitle.innerText = "새 고객 후기 등록";
+            inputReviewId.value = '';
+            reviewForm.reset();
+            reviewModal.classList.add('open');
+        });
+
+        // Close Review Modal
+        function closeReviewModal() {
+            reviewModal.classList.remove('open');
+        }
+        btnReviewModalClose.addEventListener('click', closeReviewModal);
+        btnReviewModalCancel.addEventListener('click', closeReviewModal);
+
+        // Save Review
+        reviewForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const list = getReviews();
+            const id = inputReviewId.value;
+            const author = inputReviewAuthor.value;
+            const company = inputReviewCompany.value;
+            const text = inputReviewText.value;
+
+            if (id) {
+                // Edit
+                const idx = list.findIndex(r => r.id === id);
+                if (idx !== -1) {
+                    list[idx].author = author;
+                    list[idx].company = company;
+                    list[idx].text = text;
+                }
+            } else {
+                // Add
+                const newRev = {
+                    id: "rev-" + Date.now(),
+                    author,
+                    company,
+                    text
+                };
+                list.unshift(newRev);
+            }
+
+            localStorage.setItem('nest_reviews', JSON.stringify(list));
+            closeReviewModal();
+            renderAdminReviews();
+            alert("고객 후기가 안전하게 저장되었습니다.");
+        });
+
+        // Edit Review
+        window.editReview = function(id) {
+            const list = getReviews();
+            const matched = list.find(r => r.id === id);
+            if (!matched) return;
+
+            reviewModalTitle.innerText = "고객 후기 수정";
+            inputReviewId.value = matched.id;
+            inputReviewAuthor.value = matched.author;
+            inputReviewCompany.value = matched.company;
+            inputReviewText.value = matched.text;
+
+            reviewModal.classList.add('open');
+        }
+
+        // Delete Review
+        window.deleteReview = function(id) {
+            if (!confirm("정말 이 고객 후기를 영구 삭제하시겠습니까?")) return;
+            let list = getReviews();
+            list = list.filter(r => r.id !== id);
+            localStorage.setItem('nest_reviews', JSON.stringify(list));
+            renderAdminReviews();
+        };
+
+
+
+        // ==========================================================================
+        // ======================= BROKERAGE CMS LOGIC ==============================
+        // ==========================================================================
+        
+        // 4 default brokerages (seed data)
+        const initialBrokerages = [
+            {
+                id: "broker-1",
+                client: "(주)넥스트유니콘 스타트업",
+                phone: "010-9876-5432",
+                agent: "이영희 팀장",
+                status: "매물 매칭중",
+                reqs: "강남역 도보 5분 이내, 전용 100평선, 예산 월 1,800만 원 이하, 즉시 입주",
+                notes: "1차 실사 후보지 3곳(에이프로빌딩, 삼우빌딩 등) 브리핑 완료. 다음 주 화요일 오후 3시 대표님 동반 투어 예정."
+            },
+            {
+                id: "broker-2",
+                client: "태양자산운용(주) 법인사옥",
+                phone: "02-511-1234",
+                agent: "김철수 부장",
+                status: "계약서 검토",
+                reqs: "삼성동 대로변 통임대 빌딩, 연면적 300평 이상, 자주식 주차 8대 이상 선호",
+                notes: "영동대로 신축 빌딩 임대 조건 협의 마무리 단계. 렌트프리 4개월 합의 완료. 법무팀 계약서 최종 조항 검토 중."
+            },
+            {
+                id: "broker-3",
+                client: "청담 코스메틱 플래그십 쇼룸",
+                phone: "010-2222-8888",
+                agent: "최지우 대리",
+                status: "실사/미팅중",
+                reqs: "청담동 메인 노드 1층 상가, 실 50평 이상, 전면 윈도우 및 테라스 활용 공간 필수",
+                notes: "청담 명품거리 이면 1층 신축 상가 투어 완료. 임대인 측 렌트프리 조율 의지 있음. 평당 관리비 최종 절충 중."
+            },
+            {
+                id: "broker-4",
+                client: "에이원 바이오 연구소 분원",
+                phone: "010-4433-2211",
+                agent: "박민수 과장",
+                status: "접수완료",
+                reqs: "테헤란로 인근, 층고 3.5m 이상(장비용), 전력 용량 100kW 이상 확보된 사무실",
+                notes: "전력 용량 및 하중 조건 적합 여부 빌딩 관리단에 공문 확인 요청 상태. 적격 판정 시 다음 주 미팅 약속 잡을 것."
+            }
+        ];
+
+        function getBrokerages() {
+            let list = localStorage.getItem('nest_brokerage');
+            let brokerages = [];
+            try {
+                if (list) {
+                    brokerages = JSON.parse(list);
+                }
+            } catch (e) {
+                console.error("Failed to parse nest_brokerage:", e);
+                brokerages = [];
+            }
+            
+            if (!brokerages || brokerages.length === 0) {
+                localStorage.setItem('nest_brokerage', JSON.stringify(initialBrokerages));
+                return initialBrokerages;
+            }
+            return brokerages;
+        }
+        window.getBrokerages = getBrokerages;
+
+        const brokerageTableBody = document.getElementById('brokerageTableBody');
+        const btnNewBrokerage = document.getElementById('btnNewBrokerage');
+        const brokerageModal = document.getElementById('brokerageModal');
+        const brokerageForm = document.getElementById('brokerageForm');
+        const brokerageModalTitle = document.getElementById('brokerageModalTitle');
+        const btnBrokerageModalClose = document.getElementById('btnBrokerageModalClose');
+        const btnBrokerageModalCancel = document.getElementById('btnBrokerageModalCancel');
+
+        const inputBrokerageId = document.getElementById('brokerageId');
+        const inputBrokerageClient = document.getElementById('brokerageClient');
+        const inputBrokeragePhone = document.getElementById('brokeragePhone');
+        const inputBrokerageAgent = document.getElementById('brokerageAgent');
+        const inputBrokerageStatus = document.getElementById('brokerageStatus');
+        const brokerageEndReasonGroup = document.getElementById('brokerageEndReasonGroup');
+        const inputBrokerageEndReason = document.getElementById('brokerageEndReason');
+        const inputBrokerageReqs = document.getElementById('brokerageReqs');
+        
+        // 상세 세분화 필드 매핑
+        const inputBrokerageReqType = document.getElementById('brokerageReqType');
+        const inputBrokerageReqMoveInDate = document.getElementById('brokerageReqMoveInDate');
+        const inputBrokerageReqBizType = document.getElementById('brokerageReqBizType');
+        const inputBrokerageReqBudget = document.getElementById('brokerageReqBudget');
+        const inputBrokerageReqArea = document.getElementById('brokerageReqArea');
+
+        // 진행 단계 영업종료 선택 시 사유 선택창 노출/감춤 제어
+        if (inputBrokerageStatus) {
+            inputBrokerageStatus.addEventListener('change', () => {
+                if (inputBrokerageStatus.value === '영업종료') {
+                    brokerageEndReasonGroup.style.display = 'block';
+                } else {
+                    brokerageEndReasonGroup.style.display = 'none';
+                }
+            });
+        }
+
+        function renderAdminBrokerage() {
+            const list = getBrokerages();
+            const user = JSON.parse(sessionStorage.getItem('nest_currentUser')) || { role: 'master' };
+            
+            // 일반 직원은 본인이 담당자인 건만 필터링 노출!
+            let displayList = list;
+            if (user.role !== 'master') {
+                displayList = list.filter(b => b.agent === user.name);
+            }
+
+            brokerageTableBody.innerHTML = '';
+            
+            // 통계 카드는 필터링된 담당자 데이터 및 마스터 여부에 맞춰 정밀 정산
+            updateBrokerageStats(displayList, user.role === 'master');
+
+            if (displayList.length === 0) {
+                brokerageTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #888; padding: 30px;">등록된 중개 관리 현황이 없습니다.</td></tr>';
+                return;
+            }
+
+            displayList.forEach(b => {
+                let statusBadgeColor = "#475569"; // 기본 회색 (접수완료)
+                let statusBadgeBg = "#f1f5f9";
+                if (b.status === "영업중") {
+                    statusBadgeColor = "#1d4ed8"; statusBadgeBg = "#dbeafe";
+                } else if (b.status === "계약완료") {
+                    statusBadgeColor = "#15803d"; statusBadgeBg = "#dcfce7";
+                } else if (b.status === "잔금완료") {
+                    statusBadgeColor = "#a16207"; statusBadgeBg = "#fef3c7";
+                } else if (b.status === "영업종료") {
+                    statusBadgeColor = "#b91c1c"; statusBadgeBg = "#fee2e2";
+                }
+
+                // 영업종료 사유 노출 텍스트 조합
+                let displayStatus = b.status;
+                if (b.status === "영업종료" && b.endReason) {
+                    displayStatus = `영업종료 (${b.endReason})`;
+                }
+
+                const tr = document.createElement('tr');
+                tr.style.cursor = 'pointer';
+                tr.style.transition = 'background 0.2s';
+                
+                // 마우스 호버 시 행 전체가 살짝 밝은 연골드색으로 하이라이트
+                tr.addEventListener('mouseenter', () => {
+                    tr.style.background = 'rgba(181, 149, 78, 0.04)';
+                });
+                tr.addEventListener('mouseleave', () => {
+                    tr.style.background = 'transparent';
+                });
+                
+                // 수정/삭제 버튼 이외의 행 빈공간 클릭 시 상세 열기/닫기 토글
+                tr.addEventListener('click', (event) => {
+                    if (!event.target.closest('button')) {
+                        toggleBrokerageDetails(b.id);
+                    }
+                });
+
+                tr.innerHTML = `
+                    <td style="font-weight: 700; color: var(--accent-color); text-decoration: underline;" title="상세 상담일지 보기">${escapeHtml(b.client)}</td>
+                    <td style="color: #64748b; font-size: 13px;">${escapeHtml(b.phone)}</td>
+                    <td style="font-weight: bold; color: #475569; font-size: 13px;">${escapeHtml(b.agent)}</td>
+                    <td style="font-size: 13px; color: #334155; line-height: 1.4;">${escapeHtml(b.reqs)}</td>
+                    <td style="text-align: center;">
+                        <span style="background: ${statusBadgeBg}; color: ${statusBadgeColor}; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; display: inline-block;">${escapeHtml(displayStatus)}</span>
+                    </td>
+                    <td style="text-align: center;">
+                        <div style="display: flex; gap: 6px; justify-content: center;">
+                            <button onclick="editBrokerage('${b.id}')" style="padding: 5px 10px; font-size: 11px; background: #e2e8f0; border: 1px solid #cbd5e1; border-radius: 4px; cursor: pointer;">수정</button>
+                            <button onclick="deleteBrokerage('${b.id}')" ${user.role === 'master' ? 'style="padding: 5px 10px; font-size: 11px; background: #fee2e2; border: 1px solid #fca5a5; color: #b91c1c; border-radius: 4px; cursor: pointer;"' : 'disabled style="padding: 5px 10px; font-size: 11px; border-radius: 4px; opacity: 0.4; cursor: not-allowed;"'} title="${user.role === 'master' ? '삭제' : '삭제 권한 없음 (마스터 전용)'}">삭제</button>
+                        </div>
+                    </td>
+                `;
+                brokerageTableBody.appendChild(tr);
+
+                // 상세보기용 접이식 아코디언 행 생성 및 추가
+                const detailTr = document.createElement('tr');
+                detailTr.id = `details-${b.id}`;
+                detailTr.style.display = 'none';
+                detailTr.style.background = '#fbf9f3'; // 부드러운 웜그레이/아이보리 배경
+                detailTr.innerHTML = `
+                    <td colspan="6" style="padding: 20px; border-top: 1px solid #f3ebd6; border-bottom: 1px solid #f3ebd6;">
+                        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                            <!-- 왼쪽: 고객 상세 정보 카드 -->
+                            <div style="flex: 1.2; min-width: 250px; background: #fff; padding: 15px; border: 1px solid #e2e8f0; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); text-align: left;">
+                                <h4 style="margin: 0 0 12px 0; color: var(--primary-color); font-size: 14px; border-bottom: 2px solid var(--accent-color); padding-bottom: 6px;">
+                                    <i class="fas fa-user-tie" style="color: var(--accent-color); margin-right: 4px;"></i> 고객 카드 정보
+                                </h4>
+                                <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: #475569; line-height: 1.4;">
+                                    <div><strong>의뢰사/고객명:</strong> ${escapeHtml(b.client)}</div>
+                                    <div><strong>연락처:</strong> ${escapeHtml(b.phone)}</div>
+                                    <div><strong>담당 중개사:</strong> ${escapeHtml(b.agent)}</div>
+                                    <div style="display: flex; align-items: center; gap: 5px;">
+                                        <strong>진행 단계:</strong>
+                                        <select onchange="updateInlineBrokerageStatus('${b.id}', this.value)" style="padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12.5px; outline: none; font-weight: bold; color: var(--primary-color); background-color: #fff; cursor: pointer;">
+                                            <option value="접수완료" ${b.status === '접수완료' ? 'selected' : ''}>접수완료</option>
+                                            <option value="영업중" ${b.status === '영업중' ? 'selected' : ''}>영업중</option>
+                                            <option value="계약완료" ${b.status === '계약완료' ? 'selected' : ''}>계약완료</option>
+                                            <option value="잔금완료" ${b.status === '잔금완료' ? 'selected' : ''}>잔금완료</option>
+                                            <option value="영업종료" ${b.status === '영업종료' ? 'selected' : ''}>영업종료</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <!-- 영업종료 사유 조건부 드롭다운 즉시 출력 -->
+                                    ${b.status === '영업종료' ? `
+                                    <div style="margin-top: 5px; display: flex; align-items: center; gap: 5px; background: #fff1f2; border: 1px solid #fecdd3; padding: 6px; border-radius: 4px;">
+                                        <strong style="color: #991b1b; font-size: 11.5px;">종료 사유:</strong>
+                                        <select onchange="updateInlineBrokerageEndReason('${b.id}', this.value)" style="padding: 3px 6px; border: 1px solid #fda4af; border-radius: 4px; font-size: 12px; outline: none; font-weight: 500; color: #991b1b; background-color: #fff; cursor: pointer;">
+                                            <option value="장기부재(일주일이상)" ${b.endReason === '장기부재(일주일이상)' ? 'selected' : ''}>장기부재(일주일이상)</option>
+                                            <option value="타부동산계약" ${b.endReason === '타부동산계약' ? 'selected' : ''}>타부동산계약</option>
+                                            <option value="계약포기" ${b.endReason === '계약포기' ? 'selected' : ''}>계약포기</option>
+                                        </select>
+                                    </div>
+                                    ` : ''}
+
+                                    <!-- 계약 성사 정보 입력 패널 (진행 단계가 '계약완료' 또는 '잔금완료' 일 때 노출) -->
+                                    ${(b.status === '계약완료' || b.status === '잔금완료') ? `
+                                    <div style="margin-top: 10px; padding: 12px; background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 6px; display: flex; flex-direction: column; gap: 8px; text-align: left;">
+                                        <strong style="color: #6b21a8; font-size: 12.5px;"><i class="fas fa-file-signature"></i> 계약 정보 입력</strong>
+                                        
+                                        <div style="display: flex; align-items: center; gap: 5px; font-size: 12px;">
+                                            <span>거래유형:</span>
+                                            <select id="inline-deal-type-${b.id}" onchange="toggleInlineDealFields('${b.id}', this.value); validateInlineContractForm('${b.id}');" style="padding: 3px 6px; border: 1px solid #d8b4fe; border-radius: 4px; font-size: 11.5px; outline: none; background-color:#fff; cursor: pointer;">
+                                                <option value="매매" ${b.dealType === '매매' ? 'selected' : ''}>매매</option>
+                                                <option value="전세" ${b.dealType === '전세' ? 'selected' : ''}>전세</option>
+                                                <option value="월세" ${b.dealType === '월세' || !b.dealType ? 'selected' : ''}>월세</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                            <!-- 금액 입력 동적 돔 구역 (toggleInlineDealFields 가 제어) -->
+                                            <div id="inline-deal-inputs-area-${b.id}" style="display: flex; gap: 8px; flex: 3; flex-wrap: wrap;">
+                                                ${b.dealType === '매매' ? `
+                                                <div style="flex: 1; min-width: 100px;">
+                                                    <label style="display:block; font-size: 10.5px; color: #6b21a8; margin-bottom: 2px;">매매가 (만원)</label>
+                                                    <input type="text" id="inline-deal-price-${b.id}" value="${b.dealPrice ? parseInt(b.dealPrice).toLocaleString() : ''}" oninput="formatNumberWithCommas(this); validateInlineContractForm('${b.id}')" style="width: 100%; padding: 5px; border: 1px solid #d8b4fe; border-radius: 4px; font-size: 11.5px; outline: none;">
+                                                </div>
+                                                ` : ''}
+                                                
+                                                ${b.dealType === '전세' ? `
+                                                <div style="flex: 1; min-width: 100px;">
+                                                    <label style="display:block; font-size: 10.5px; color: #6b21a8; margin-bottom: 2px;">전세금 (만원)</label>
+                                                    <input type="text" id="inline-deal-deposit-${b.id}" value="${b.dealDeposit ? parseInt(b.dealDeposit).toLocaleString() : ''}" oninput="formatNumberWithCommas(this); validateInlineContractForm('${b.id}')" style="width: 100%; padding: 5px; border: 1px solid #d8b4fe; border-radius: 4px; font-size: 11.5px; outline: none;">
+                                                </div>
+                                                ` : ''}
+                                                
+                                                ${b.dealType === '월세' || !b.dealType ? `
+                                                <div style="flex: 1; min-width: 80px;">
+                                                    <label style="display:block; font-size: 10.5px; color: #6b21a8; margin-bottom: 2px;">보증금 (만원)</label>
+                                                    <input type="text" id="inline-deal-deposit-${b.id}" value="${b.dealDeposit ? parseInt(b.dealDeposit).toLocaleString() : ''}" oninput="formatNumberWithCommas(this); validateInlineContractForm('${b.id}')" style="width: 100%; padding: 5px; border: 1px solid #d8b4fe; border-radius: 4px; font-size: 11.5px; outline: none;">
+                                                </div>
+                                                <div style="flex: 1; min-width: 80px;">
+                                                    <label style="display:block; font-size: 10.5px; color: #6b21a8; margin-bottom: 2px;">월세 (만원)</label>
+                                                    <input type="text" id="inline-deal-rent-${b.id}" value="${b.dealRent ? parseInt(b.dealRent).toLocaleString() : ''}" oninput="formatNumberWithCommas(this); validateInlineContractForm('${b.id}')" style="width: 100%; padding: 5px; border: 1px solid #d8b4fe; border-radius: 4px; font-size: 11.5px; outline: none;">
+                                                </div>
+                                                ` : ''}
+                                            </div>
+                                            
+                                            <div style="flex: 1; min-width: 80px;">
+                                                <label style="display:block; font-size: 10.5px; color: #6b21a8; margin-bottom: 2px;">요율 (%)</label>
+                                                <input type="number" step="0.1" min="0.1" max="0.9" id="inline-deal-rate-${b.id}" placeholder="0.1~0.9" value="${b.commissionRate || ''}" oninput="validateInlineContractForm('${b.id}')" style="width: 100%; padding: 5px; border: 1px solid #d8b4fe; border-radius: 4px; font-size: 11.5px; outline: none;">
+                                            </div>
+                                        </div>
+
+                                        <!-- 잔금일 설정 -->
+                                        <div style="display: flex; flex-direction: column; gap: 2px;">
+                                            <label style="display:block; font-size: 10.5px; color: #6b21a8; margin-bottom: 2px;">잔금일 지정</label>
+                                            <input type="date" id="inline-deal-balance-date-${b.id}" value="${b.dealBalanceDate || ''}" onchange="validateInlineContractForm('${b.id}')" style="width: 100%; padding: 5px; border: 1px solid #d8b4fe; border-radius: 4px; font-size: 11.5px; outline: none; font-family: inherit; box-sizing: border-box; background-color: #fff;">
+                                        </div>
+                                        
+                                        <!-- 저장 단추 -->
+                                        <button type="button" id="inline-deal-save-btn-${b.id}" disabled onclick="saveInlineBrokerageContract('${b.id}')" style="margin-top: 5px; width: 100%; padding: 8px; background: #a78bfa; color: #fff; border: none; border-radius: 4px; font-weight: bold; font-size: 12px; cursor: not-allowed; opacity: 0.6; transition: all 0.3s;">
+                                            계약 정보 저장 & 이력 반영
+                                        </button>
+                                        
+                                        <div style="font-size: 11.5px; color: #7e22ce; font-weight: bold; background: #fff; padding: 6px; border-radius: 4px; border: 1px dashed #d8b4fe; margin-top: 2px;">
+                                            <i class="fas fa-calculator"></i> 저장된 예상수수료: 
+                                            <span style="color: #b91c1c; font-size: 12.5px; text-decoration: underline;">
+                                                ${b.calculatedFee ? Math.floor(b.calculatedFee).toLocaleString() + '원' : '미정 상태'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    ` : ''}
+
+                                    <div style="margin-top: 6px; padding-top: 8px; border-top: 1px solid #f1f5f9;">
+                                        <strong>고객 요구조건:</strong>
+                                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 8px; border-radius: 4px; margin-top: 4px; font-size: 12px; line-height: 1.5;">${escapeHtml(b.reqs)}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 오른쪽: 상담 이력 타임라인 -->
+                            <div style="flex: 1.8; min-width: 300px; background: #fff; padding: 15px; border: 1px solid #e2e8f0; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); display: flex; flex-direction: column; gap: 10px; text-align: left;">
+                                <h4 style="margin: 0 0 5px 0; color: var(--primary-color); font-size: 14px; border-bottom: 2px solid var(--accent-color); padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
+                                    <span><i class="fas fa-history" style="color: var(--accent-color); margin-right: 4px;"></i> 상담 이력 (누적 타임라인)</span>
+                                </h4>
+                                
+                                <!-- 타임라인 누적 뷰어 -->
+                                <div id="history-timeline-${b.id}" style="max-height: 180px; overflow-y: auto; border: 1px solid #f1f5f9; padding: 8px; border-radius: 4px; background: #fafafa;">
+                                    <!-- Dynamic elements -->
+                                </div>
+                                
+                                <!-- 새 상담 이력 빠른 작성 폼 -->
+                                <div style="display: flex; gap: 8px; margin-top: 5px;">
+                                    <input type="text" id="new-history-input-${b.id}" placeholder="상담 내용을 간단히 입력하세요" style="flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; outline: none; transition: border-color 0.3s;" onfocus="this.style.borderColor='var(--accent-color)';">
+                                    <button type="button" onclick="addBrokerageHistory('${b.id}')" style="padding: 10px 16px; background: var(--accent-color); color: var(--primary-color); border: none; border-radius: 4px; font-weight: bold; font-size: 12px; cursor: pointer; transition: all 0.3s; white-space: nowrap;"
+                                            onmouseenter="this.style.opacity='0.9';" onmouseleave="this.style.opacity='1';">
+                                        + 이력 추가
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                `;
+                brokerageTableBody.appendChild(detailTr);
+                refreshHistoryTimeline(b.id, b.history || []); // 초기 이력 목록 즉시 로딩
+            });
+        }
+
+        function updateBrokerageStats(list, isMaster) {
+            const countActive = list.filter(b => b.status === '접수완료' || b.status === '영업중').length;
+            // 계약완료/잔금 대기 건을 카운트
+            const countReview = list.filter(b => b.status === '계약완료').length;
+            
+            // 수수료 정산
+            const baseCommission = isMaster ? 125000000 : 0; 
+            
+            // 실제 수수료 합산액 계산!
+            let dynamicCommission = 0;
+            list.forEach(b => {
+                if (b.status === '계약완료' || b.status === '잔금완료') {
+                    if (b.calculatedFee && b.calculatedFee > 0) {
+                        dynamicCommission += b.calculatedFee;
+                    } else {
+                        // 미입력 건은 하위호환/디폴트로 건당 35,000,000원 적용
+                        dynamicCommission += 35000000;
+                    }
+                }
+            });
+            const totalCommission = baseCommission + dynamicCommission;
+
+            const activeStatEl = document.getElementById('brokerActiveCount');
+            const reviewStatEl = document.getElementById('brokerReviewCount');
+            const commStatEl = document.getElementById('brokerCommissionTotal');
+
+            if (activeStatEl) activeStatEl.innerText = countActive + "건";
+            if (reviewStatEl) reviewStatEl.innerText = countReview + "건";
+            if (commStatEl) {
+                if (isMaster) {
+                    commStatEl.innerText = (totalCommission / 100000000).toFixed(2) + "억원";
+                } else {
+                    commStatEl.innerText = (totalCommission / 10000).toLocaleString() + "만원";
+                }
+            }
+        }
+
+        // 동적으로 담당 중개사 목록 채우기 및 권한 제어 (중개 현황용)
+        function populateBrokerageAgent(selectedAgent) {
+            const user = JSON.parse(sessionStorage.getItem('nest_currentUser')) || { role: 'master' };
+            const users = getUsers(); // 등록된 임직원 목록
+            
+            inputBrokerageAgent.innerHTML = '';
+            
+            // 1. 미배정 옵션 추가 (마스터 배정 관리용)
+            const optUnassigned = document.createElement('option');
+            optUnassigned.value = '미배정 (신규인입)';
+            optUnassigned.textContent = '미배정 (신규인입)';
+            inputBrokerageAgent.appendChild(optUnassigned);
+            
+            // 2. 모든 임직원 명단을 드롭다운 옵션으로 이식
+            users.forEach(u => {
+                const opt = document.createElement('option');
+                opt.value = u.name;
+                opt.textContent = u.name;
+                inputBrokerageAgent.appendChild(opt);
+            });
+            
+            if (user.role === 'master') {
+                inputBrokerageAgent.disabled = false;
+                if (selectedAgent) {
+                    inputBrokerageAgent.value = selectedAgent;
+                } else {
+                    inputBrokerageAgent.value = '미배정 (신규인입)'; // 기본값
+                }
+            } else {
+                // 일반 직원은 본인 실명 강제 지정 및 변경 불가
+                inputBrokerageAgent.value = user.name;
+                inputBrokerageAgent.disabled = true;
+            }
+        }
+
+        // Open Brokerage Modal
+        if (btnNewBrokerage) {
+            btnNewBrokerage.addEventListener('click', () => {
+                brokerageModalTitle.innerText = "새 중개 의뢰 등록";
+                inputBrokerageId.value = '';
+                brokerageForm.reset();
+                if (inputBrokerageReqType) inputBrokerageReqType.value = '월세'; // 기본값 월세 강제 지정
+                brokerageEndReasonGroup.style.display = 'none'; // 사유 선택 기본 숨김
+                inputBrokerageEndReason.value = '장기부재(일주일이상)';
+                populateBrokerageAgent(null); // 에이전트 목록 로드 및 세션 권한 제어
+                brokerageModal.classList.add('open');
+            });
+        }
+
+        // Close Brokerage Modal
+        function closeBrokerageModal() {
+            brokerageModal.classList.remove('open');
+        }
+        if (btnBrokerageModalClose) btnBrokerageModalClose.addEventListener('click', closeBrokerageModal);
+        if (btnBrokerageModalCancel) btnBrokerageModalCancel.addEventListener('click', closeBrokerageModal);
+
+        // Save Brokerage
+        if (brokerageForm) {
+            brokerageForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const list = getBrokerages();
+                const id = inputBrokerageId.value;
+                const client = inputBrokerageClient.value;
+                const phone = inputBrokeragePhone.value;
+                const agent = inputBrokerageAgent.value;
+                const status = inputBrokerageStatus.value;
+                const endReason = (status === '영업종료') ? inputBrokerageEndReason.value : '';
+                
+                // 개별 입력 필드 값 가져오기
+                const reqType = inputBrokerageReqType.value || '월세';
+                const reqMoveInDate = inputBrokerageReqMoveInDate.value || '';
+                const reqBizType = inputBrokerageReqBizType.value || '';
+                const reqBudget = inputBrokerageReqBudget.value || '';
+                const reqArea = inputBrokerageReqArea.value || '';
+                
+                // 테이블 뷰 노출 및 하위 호환을 위해 하나의 reqs 텍스트로 요약 조립
+                let reqsParts = [];
+                reqsParts.push(`[${reqType}]`);
+                if (reqBizType) reqsParts.push(`업종: ${reqBizType}`);
+                if (reqBudget) reqsParts.push(`예산: ${reqBudget}`);
+                if (reqArea) reqsParts.push(`면적: ${reqArea}`);
+                if (reqMoveInDate) reqsParts.push(`입주: ${reqMoveInDate}`);
+                const reqs = reqsParts.join(' / ');
+
+                if (id) {
+                     // Edit
+                     const idx = list.findIndex(b => b.id === id);
+                     if (idx !== -1) {
+                         list[idx].client = client;
+                         list[idx].phone = phone;
+                         list[idx].agent = agent;
+                         list[idx].status = status;
+                         list[idx].endReason = endReason;
+                         
+                         list[idx].reqType = reqType;
+                         list[idx].reqMoveInDate = reqMoveInDate;
+                         list[idx].reqBizType = reqBizType;
+                         list[idx].reqBudget = reqBudget;
+                         list[idx].reqArea = reqArea;
+                         list[idx].reqs = reqs;
+                     }
+                } else {
+                     // Add
+                     const newBrokerage = {
+                         id: "broker-" + Date.now(),
+                         client,
+                         phone,
+                         agent,
+                         status,
+                         endReason,
+                         reqType,
+                         reqMoveInDate,
+                         reqBizType,
+                         reqBudget,
+                         reqArea,
+                         reqs,
+                         notes: '',
+                         notesUpdatedAt: '',
+                         history: []
+                     };
+                     list.unshift(newBrokerage);
+                }
+
+                localStorage.setItem('nest_brokerage', JSON.stringify(list));
+                closeBrokerageModal();
+                renderAdminBrokerage();
+                alert("중개 현황이 성공적으로 반영되었습니다.");
+            });
+        }
+
+        // Edit Brokerage
+        window.editBrokerage = function(id) {
+            const list = getBrokerages();
+            const matched = list.find(b => b.id === id);
+            if (!matched) return;
+
+            brokerageModalTitle.innerText = "중개 의뢰 수정";
+            inputBrokerageId.value = matched.id;
+            inputBrokerageClient.value = matched.client;
+            inputBrokeragePhone.value = matched.phone;
+            inputBrokerageStatus.value = matched.status;
+            
+            // 상세 세분화 필드 복구
+            inputBrokerageReqType.value = matched.reqType || '월세';
+            inputBrokerageReqMoveInDate.value = matched.reqMoveInDate || '';
+            inputBrokerageReqBizType.value = matched.reqBizType || '';
+            inputBrokerageReqBudget.value = matched.reqBudget || '';
+            inputBrokerageReqArea.value = matched.reqArea || '';
+            inputBrokerageReqs.value = matched.reqs || '';
+
+            // 영업종료 사유 필드 분기 노출 제어
+            if (matched.status === '영업종료') {
+                brokerageEndReasonGroup.style.display = 'block';
+                inputBrokerageEndReason.value = matched.endReason || '장기부재(일주일이상)';
+            } else {
+                brokerageEndReasonGroup.style.display = 'none';
+                inputBrokerageEndReason.value = '장기부재(일주일이상)';
+            }
+
+            populateBrokerageAgent(matched.agent); // 기존 담당 에이전트 선택 로드
+
+            brokerageModal.classList.add('open');
+        }
+
+        // 부분 이력 타임라인 목록 새로고침 컴파일러
+        window.refreshHistoryTimeline = function(id, historyList) {
+            const timelineEl = document.getElementById(`history-timeline-${id}`);
+            if (!timelineEl) return;
+            
+            if (!historyList || historyList.length === 0) {
+                timelineEl.innerHTML = '<div style="color: #94a3b8; font-size: 12px; text-align: center; padding: 25px 0;"><i class="fas fa-info-circle"></i> 기록된 상담 이력이 아직 없습니다.<br>아래 입력창에 상담 내용을 적어 등록하세요.</div>';
+                return;
+            }
+            
+            let html = '';
+            // 최신 글이 맨 위로 가도록 역순 렌더링
+            const reversed = [...historyList].reverse();
+            reversed.forEach(item => {
+                html += `
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 8px 10px; border-radius: 4px; margin-bottom: 6px; font-size: 12.5px; text-align: left;">
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #64748b; margin-bottom: 3px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 3px;">
+                            <span style="font-weight: 700; color: var(--primary-color);">${escapeHtml(item.writer)}</span>
+                            <span><i class="far fa-clock"></i> ${escapeHtml(item.time)}</span>
+                        </div>
+                        <div style="color: #334155; line-height: 1.5; white-space: pre-wrap;">${escapeHtml(item.content)}</div>
+                    </div>
+                `;
+            });
+            timelineEl.innerHTML = html;
+        };
+
+        // 이 아코디언 창 내에서 실시간 상담 이력 저장/누적
+        window.addBrokerageHistory = function(id) {
+            const inputEl = document.getElementById(`new-history-input-${id}`);
+            if (!inputEl) return;
+            const content = inputEl.value.trim();
+            if (!content) {
+                alert("상담 내용을 입력해 주세요.");
+                return;
+            }
+
+            const list = getBrokerages();
+            const idx = list.findIndex(b => b.id === id);
+            if (idx === -1) return;
+
+            const currentUser = JSON.parse(sessionStorage.getItem('nest_currentUser')) || { name: '마스터 관리자' };
+            
+            const now = new Date();
+            const formattedTime = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+
+            if (!list[idx].history) {
+                list[idx].history = [];
+            }
+            
+            const newHistoryItem = {
+                time: formattedTime,
+                writer: currentUser.name,
+                content: content
+            };
+            
+            list[idx].history.push(newHistoryItem);
+            
+            // 하위 호환성 연동 (요약 필드 동기화)
+            list[idx].notes = content;
+            list[idx].notesUpdatedAt = formattedTime;
+
+            localStorage.setItem('nest_brokerage', JSON.stringify(list));
+            
+            refreshHistoryTimeline(id, list[idx].history);
+            inputEl.value = ''; // 입력 버퍼 청소
+        };
+
+        // 대한민국 법정 중개 수수료 공식에 의한 실시간 산출 함수 (만원 단위 입력 기준)
+        function calculateBrokerageFee(dealType, price, deposit, rent, ratePercent) {
+            const rate = parseFloat(ratePercent || 0) / 100; // 0.9% -> 0.009
+            if (rate <= 0) return 0;
+            
+            // 만원 단위를 원 단위로 환산하여 계산
+            const p = parseInt(price || 0) * 10000;
+            const d = parseInt(deposit || 0) * 10000;
+            const r = parseInt(rent || 0) * 10000;
+            
+            let baseAmount = 0;
+            if (dealType === '매매') {
+                baseAmount = p;
+            } else if (dealType === '전세') {
+                baseAmount = d;
+            } else if (dealType === '월세') {
+                baseAmount = d + (r * 100);
+                // 대한민국 월세 환산보증금 5천만원 미만 예외처리
+                if (baseAmount < 50000000) {
+                    baseAmount = d + (r * 70);
+                }
+            }
+            return Math.floor(baseAmount * rate);
+        }
+
+        // 숫자에 3자리 단위 쉼표 실시간 추가 포맷터
+        window.formatNumberWithCommas = function(inputEl) {
+            let val = inputEl.value.replace(/[^0-9]/g, '');
+            if (val) {
+                inputEl.value = parseInt(val).toLocaleString();
+            } else {
+                inputEl.value = '';
+            }
+        };
+
+        // 전화번호 입력 시 자동으로 010-XXXX-XXXX 하이픈 기입
+        window.formatPhoneNumberWithHyphens = function(inputEl) {
+            let num = inputEl.value.replace(/[^0-9]/g, '');
+            if (num.length < 4) {
+                inputEl.value = num;
+            } else if (num.length < 7) {
+                inputEl.value = `${num.substring(0, 3)}-${num.substring(3)}`;
+            } else if (num.length < 11) {
+                inputEl.value = `${num.substring(0, 3)}-${num.substring(3, 6)}-${num.substring(6)}`;
+            } else {
+                inputEl.value = `${num.substring(0, 3)}-${num.substring(3, 7)}-${num.substring(7, 11)}`;
+            }
+        };
+
+        // 아코디언 내 계약 거래유형 스위치 시 테이블 리렌더링 없이 즉시 입력창 돔 영역만 Show/Hide 교환 (무중단 UX 완성)
+        window.toggleInlineDealFields = function(id, type) {
+            const container = document.getElementById(`inline-deal-inputs-area-${id}`);
+            if (!container) return;
+            
+            const list = getBrokerages();
+            const matched = list.find(b => b.id === id) || {};
+            
+            if (type === '매매') {
+                container.innerHTML = `
+                    <div style="flex: 1; min-width: 100px;">
+                        <label style="display:block; font-size: 10.5px; color: #6b21a8; margin-bottom: 2px;">매매가 (만원)</label>
+                        <input type="text" id="inline-deal-price-${id}" value="${matched.dealPrice ? parseInt(matched.dealPrice).toLocaleString() : ''}" oninput="formatNumberWithCommas(this); validateInlineContractForm('${id}')" style="width: 100%; padding: 5px; border: 1px solid #d8b4fe; border-radius: 4px; font-size: 11.5px; outline: none;">
+                    </div>
+                `;
+            } else if (type === '전세') {
+                container.innerHTML = `
+                    <div style="flex: 1; min-width: 100px;">
+                        <label style="display:block; font-size: 10.5px; color: #6b21a8; margin-bottom: 2px;">전세금 (만원)</label>
+                        <input type="text" id="inline-deal-deposit-${id}" value="${matched.dealDeposit ? parseInt(matched.dealDeposit).toLocaleString() : ''}" oninput="formatNumberWithCommas(this); validateInlineContractForm('${id}')" style="width: 100%; padding: 5px; border: 1px solid #d8b4fe; border-radius: 4px; font-size: 11.5px; outline: none;">
+                    </div>
+                `;
+            } else if (type === '월세') {
+                container.innerHTML = `
+                    <div style="flex: 1; min-width: 80px;">
+                        <label style="display:block; font-size: 10.5px; color: #6b21a8; margin-bottom: 2px;">보증금 (만원)</label>
+                        <input type="text" id="inline-deal-deposit-${id}" value="${matched.dealDeposit ? parseInt(matched.dealDeposit).toLocaleString() : ''}" oninput="formatNumberWithCommas(this); validateInlineContractForm('${id}')" style="width: 100%; padding: 5px; border: 1px solid #d8b4fe; border-radius: 4px; font-size: 11.5px; outline: none;">
+                    </div>
+                    <div style="flex: 1; min-width: 80px;">
+                        <label style="display:block; font-size: 10.5px; color: #6b21a8; margin-bottom: 2px;">월세 (만원)</label>
+                        <input type="text" id="inline-deal-rent-${id}" value="${matched.dealRent ? parseInt(matched.dealRent).toLocaleString() : ''}" oninput="formatNumberWithCommas(this); validateInlineContractForm('${id}')" style="width: 100%; padding: 5px; border: 1px solid #d8b4fe; border-radius: 4px; font-size: 11.5px; outline: none;">
+                    </div>
+                `;
+            }
+            validateInlineContractForm(id); // 필드 교환 시 유효성 상태 재평가
+        };
+
+        // 아코디언 내 계약 입력 폼 실시간 유효성 평가기 및 저장 단추 잠금 해제 제어
+        window.validateInlineContractForm = function(id) {
+            const dealTypeEl = document.getElementById(`inline-deal-type-${id}`);
+            const priceEl = document.getElementById(`inline-deal-price-${id}`);
+            const depositEl = document.getElementById(`inline-deal-deposit-${id}`);
+            const rentEl = document.getElementById(`inline-deal-rent-${id}`);
+            const rateEl = document.getElementById(`inline-deal-rate-${id}`);
+            const balanceDateEl = document.getElementById(`inline-deal-balance-date-${id}`);
+            const btn = document.getElementById(`inline-deal-save-btn-${id}`);
+            
+            if (!dealTypeEl || !btn) return;
+            
+            const dealType = dealTypeEl.value;
+            const balanceDate = balanceDateEl ? balanceDateEl.value : '';
+            const rate = rateEl ? parseFloat(rateEl.value || 0) : 0;
+            
+            let hasAmount = false;
+            if (dealType === '매매') {
+                const price = priceEl ? parseFloat(priceEl.value.replace(/,/g, '') || 0) : 0;
+                hasAmount = price > 0;
+            } else if (dealType === '전세') {
+                const deposit = depositEl ? parseFloat(depositEl.value.replace(/,/g, '') || 0) : 0;
+                hasAmount = deposit > 0;
+            } else if (dealType === '월세') {
+                const deposit = depositEl ? parseFloat(depositEl.value.replace(/,/g, '') || 0) : 0;
+                const rent = rentEl ? parseFloat(rentEl.value.replace(/,/g, '') || 0) : 0;
+                hasAmount = deposit > 0 && rent > 0;
+            }
+            
+            // 필수 요건 (금액 입력 완료, 보수요율 기입 완료, 잔금일 지정 완료) 만족 시 활성화
+            if (hasAmount && rate > 0 && balanceDate) {
+                btn.disabled = false;
+                btn.style.background = '#6b21a8';
+                btn.style.cursor = 'pointer';
+                btn.style.opacity = '1';
+            } else {
+                btn.disabled = true;
+                btn.style.background = '#a78bfa';
+                btn.style.cursor = 'not-allowed';
+                btn.style.opacity = '0.6';
+            }
+        };
+
+        // 아코디언 계약 정보 일괄 확정 저장 및 상담이력 자동 기입 연동
+        window.saveInlineBrokerageContract = function(id) {
+            const dealTypeEl = document.getElementById(`inline-deal-type-${id}`);
+            const priceEl = document.getElementById(`inline-deal-price-${id}`);
+            const depositEl = document.getElementById(`inline-deal-deposit-${id}`);
+            const rentEl = document.getElementById(`inline-deal-rent-${id}`);
+            const rateEl = document.getElementById(`inline-deal-rate-${id}`);
+            const balanceDateEl = document.getElementById(`inline-deal-balance-date-${id}`);
+            
+            if (!dealTypeEl) return;
+            
+            const dealType = dealTypeEl.value;
+            const price = priceEl ? parseFloat(priceEl.value.replace(/,/g, '') || 0) : 0;
+            const deposit = depositEl ? parseFloat(depositEl.value.replace(/,/g, '') || 0) : 0;
+            const rent = rentEl ? parseFloat(rentEl.value.replace(/,/g, '') || 0) : 0;
+            const rate = rateEl ? parseFloat(rateEl.value || 0) : 0;
+            const balanceDate = balanceDateEl ? balanceDateEl.value : '';
+            
+            // 수수료 계산
+            const calculatedFee = calculateBrokerageFee(dealType, price, deposit, rent, rate);
+            
+            const list = getBrokerages();
+            const idx = list.findIndex(b => b.id === id);
+            if (idx === -1) return;
+            
+            list[idx].dealType = dealType;
+            list[idx].dealPrice = price;
+            list[idx].dealDeposit = deposit;
+            list[idx].dealRent = rent;
+            list[idx].commissionRate = rate;
+            list[idx].dealBalanceDate = balanceDate;
+            list[idx].calculatedFee = calculatedFee;
+            
+            // 자동 상담이력 누적용 정보 텍스트 빌딩
+            let amountText = '';
+            if (dealType === '매매') {
+                amountText = `매매가 ${price.toLocaleString()}만원`;
+            } else if (dealType === '전세') {
+                amountText = `전세금 ${deposit.toLocaleString()}만원`;
+            } else if (dealType === '월세') {
+                amountText = `보증금 ${deposit.toLocaleString()}만원 / 월세 ${rent.toLocaleString()}만원`;
+            }
+            
+            const feeText = calculatedFee > 0 ? `${Math.floor(calculatedFee / 10000).toLocaleString()}만원` : '0원';
+            const balanceText = balanceDate ? balanceDate : '미지정';
+            
+            // 타임스탬프 계산
+            const currentUser = JSON.parse(sessionStorage.getItem('nest_currentUser')) || { name: '마스터 관리자' };
+            const now = new Date();
+            const formattedTime = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+            
+            // 시스템 로그 자동 생성
+            const systemLog = `[계약정보저장] 거래유형: ${dealType} / 금액: ${amountText} / 요율: ${rate}% / 예상수수료: ${feeText} / 잔금일: ${balanceText}`;
+            
+            if (!list[idx].history) {
+                list[idx].history = [];
+            }
+            list[idx].history.push({
+                time: formattedTime,
+                writer: currentUser.name,
+                content: systemLog
+            });
+            
+            // 하위 호환성 동기화
+            list[idx].notes = systemLog;
+            list[idx].notesUpdatedAt = formattedTime;
+            
+            localStorage.setItem('nest_brokerage', JSON.stringify(list));
+            
+            alert("계약 정보가 성공적으로 저장되었으며 상담 이력에 실시간 반영되었습니다.");
+            
+            renderAdminBrokerage();
+            toggleBrokerageDetails(id);
+        };
+
+        // 아코디언 카드 내부에서 진행 단계를 즉시 변경 및 자동 동기화 저장
+        window.updateInlineBrokerageStatus = function(id, newStatus) {
+            const list = getBrokerages();
+            const idx = list.findIndex(b => b.id === id);
+            if (idx === -1) return;
+            
+            list[idx].status = newStatus;
+            if (newStatus !== '영업종료') {
+                list[idx].endReason = '';
+            } else {
+                list[idx].endReason = '장기부재(일주일이상)'; // 기본값 강제 할당
+            }
+            
+            localStorage.setItem('nest_brokerage', JSON.stringify(list));
+            
+            // 데이터 돔 새로고침 후, 사용자가 조작 중이던 아코디언 상태를 그대로 복원하여 열어둔다!
+            renderAdminBrokerage();
+            toggleBrokerageDetails(id);
+        };
+
+        // 아코디언 카드 내부에서 영업종료 상세 사유를 즉시 변경 및 저장
+        window.updateInlineBrokerageEndReason = function(id, newReason) {
+            const list = getBrokerages();
+            const idx = list.findIndex(b => b.id === id);
+            if (idx === -1) return;
+            
+            list[idx].endReason = newReason;
+            localStorage.setItem('nest_brokerage', JSON.stringify(list));
+            
+            renderAdminBrokerage();
+            toggleBrokerageDetails(id);
+        };
+
+        // Toggle Brokerage Detailed Notes Accordion
+        window.toggleBrokerageDetails = function(id) {
+            const el = document.getElementById(`details-${id}`);
+            if (el) {
+                if (el.style.display === 'none') {
+                    el.style.display = 'table-row';
+                } else {
+                    el.style.display = 'none';
+                }
+            }
+        };
+
+        // Delete Brokerage
+        window.deleteBrokerage = function(id) {
+            const user = JSON.parse(sessionStorage.getItem('nest_currentUser')) || { role: 'staff' };
+            if (user.role !== 'master') {
+                alert("삭제 권한이 없습니다. 중개 의뢰 삭제는 마스터 관리자만 가능합니다.");
+                return;
+            }
+            if (!confirm("정말 이 중개 현황을 영구 삭제하시겠습니까?")) return;
+            let list = getBrokerages();
+            list = list.filter(b => b.id !== id);
+            localStorage.setItem('nest_brokerage', JSON.stringify(list));
+            renderAdminBrokerage();
+        };
+
+
+
+        // Default guides data (seed)
+        const initialGuides = [
+            {
+                id: "guide-1",
+                title: "빌딩 렌트프리(Rent-free) 협상 기술과 주의점",
+                summary: "임대료를 절감하는 핵심 카드인 렌트프리(무상 임대)와 핏아웃(인테리어 기간) 계약서 조항의 실무 꿀팁을 대방출합니다.",
+                content: `상업용 오피스나 대형 사옥 임대차 계약 시 반드시 등장하는 개념이 바로 '렌트프리(Rent-Free)'입니다. 렌트프리는 임대 기간 중 특정 개월 동안 임대료를 면제해주는 파격적인 조건이지만, 계약서 작성법과 세금 처리 등에서 면밀히 살피지 않으면 독이 될 수 있습니다.\n\n1. 렌트프리 협상의 타이밍\n렌트프리는 통상 빌딩 공실률이 높거나 브랜드 입주사가 들어설 때 협상력이 극대화됩니다. 계약기간이 장기일수록(3년 또는 5년) 렌트프리 제공 개월 수도 늘어납니다.\n\n2. 관리비 부과 여부 확인\n대부분의 빌딩은 렌트프리 기간 동안 '임대료'만 면제하고, '관리비'는 평당 실비로 부과합니다. 따라서 임대료 0원이라고 관리비까지 면제되는 것으로 착각해서는 안 됩니다.\n\n3. 계약 해지 시 반환 조항 유의\n계약 기간 중간에 입주사가 이탈할 경우, 기제공받은 렌트프리 비용을 일할 계산하여 반환하라는 불리한 위약 조항이 계약서에 삽입되는 경우가 있습니다. 임대인과 사전 조율이 필요합니다.`,
+                imageUrl: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800",
+                date: "2026.06.30"
+            },
+            {
+                id: "guide-2",
+                title: "사무실 원상복구 범위와 보증금 반환 분쟁 예방법",
+                summary: "사옥 이전 시 가장 분쟁이 빈번한 '원상복구 의무'. 판례 분석을 통해 입주 시점의 인테리어 철거 범위와 정산 요령을 알려드립니다.",
+                content: `계약 만료를 앞두고 임대인과 임차인 간에 가장 얼굴을 붉히는 주제가 바로 '원상복구(원상회복)' 범위입니다. 어디까지 철거하고 고쳐놓아야 정상적으로 보증금을 돌려받을 수 있을까요?\n\n1. 복구의 기준점은 '입주 시점'\n대법원 판례에 따르면 별도의 특약이 없는 한, 전 임차인이 개설한 시설물까지 현 임차인이 철거할 의무는 없습니다. 자신이 입주할 당시의 상태로 돌려놓는 것이 원칙입니다.\n\n2. 사진 및 동영상 기록 필수\n계약 직후 인테리어 공사를 시작하기 전, 빌딩 바닥, 천장, 텍스 상태, 소방 감지기 위치 등을 꼼꼼히 기록에 남겨두어야 나중에 과도한 복구 비용 청구를 방어할 수 있습니다.\n\n3. 시설 합의 권리금 주의\n전 임차인에게 권리금을 주고 시설을 인수받은 경우, 임대인은 '시설 전체에 대한 원상복구 의무까지 승계했다'고 주장할 여지가 큽니다. 권리금 계약 시 이 원상복구 의무 주체를 반드시 특약으로 합의해 두어야 합니다.`,
+                imageUrl: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=800",
+                date: "2026.06.30"
+            },
+            {
+                id: "guide-3",
+                title: "보증금·월세 환산 임대료 비교 계산법 가이드",
+                summary: "빌딩마다 다른 보증금 비율과 월세를 한눈에 비교하기 위해 실무자들이 사용하는 '전환이율' 공식과 보증금 안심 반환 팁을 안내합니다.",
+                content: `A빌딩은 보증금 3억에 월세 1,500만 원, B빌딩은 보증금 1억에 월세 1,700만 원일 때, 어떤 빌딩의 임대 조건이 계약사에게 실질적으로 이득일까요? 전환율 계산 공식을 통해 명쾌하게 비교해 보겠습니다.\n\n1. 연간 전환이율의 이해\n시장 평균 전환이율(통상 4% ~ 6%)을 적용하여 보증금 차액을 월세로 환산합니다.\n계산식: 보증금 차이 × 전환율(%) ÷ 12개월 = 월세 상당액\n\n2. 직접 비교 예시\n예를 들어 보증금 차이가 2억이고 전환이율이 5%라면,\n2억 × 0.05 ÷ 12 = 약 83만 원입니다.\n즉 보증금 2억을 추가 납부하는 것은 월세 83만 원을 깎는 것과 금융적으로 동일한 가치를 가집니다.\n\n3. 보증금 안심 확보 수단\n대형 빌딩이 아닌 개인 소유 빌딩의 고액 보증금을 지키기 위해서는 임대차 전세권 설정 등기 또는 확정일자 부여 외에 전세금반환보증보험 가입 요건을 반드시 검토해야 합니다.`,
+                imageUrl: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=800",
+                date: "2026.06.30"
+            }
+        ];
+
+        // Fetch guide lists from localStorage
+        function getGuides() {
+            let guides = localStorage.getItem('nest_guides');
+            if (!guides || JSON.parse(guides).length === 0) {
+                localStorage.setItem('nest_guides', JSON.stringify(initialGuides));
+                return initialGuides;
+            }
+            return JSON.parse(guides);
+        }
+
+        const guideTableBody = document.getElementById('guideTableBody');
+        const btnNewGuide = document.getElementById('btnNewGuide');
+        const guideModal = document.getElementById('guideModal');
+        const guideForm = document.getElementById('guideForm');
+        const guideModalTitle = document.getElementById('guideModalTitle');
+        const btnGuideModalClose = document.getElementById('btnGuideModalClose');
+        const btnGuideModalCancel = document.getElementById('btnGuideModalCancel');
+
+        const inputGuideId = document.getElementById('guideId');
+        const inputGuideTitle = document.getElementById('guideTitle');
+        const inputGuideSummary = document.getElementById('guideSummary');
+        const inputGuideImageUrl = document.getElementById('guideImageUrl');
+        const inputGuideContent = document.getElementById('guideContent');
+
+        function renderAdminGuides() {
+            const list = getGuides();
+            guideTableBody.innerHTML = '';
+            
+            if (list.length === 0) {
+                guideTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #888; padding: 30px;">등록된 가이드 글이 없습니다.</td></tr>';
+                return;
+            }
+
+            list.forEach(g => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><img src="${g.imageUrl || 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=800'}" style="width: 70px; height: 50px; object-fit: cover; border-radius: 4px;"></td>
+                    <td style="color: #64748b; font-size: 13px;">${escapeHtml(g.date || '2026.06.30')}</td>
+                    <td style="font-weight: 700; color: var(--primary-color);">${escapeHtml(g.title)}</td>
+                    <td style="font-size: 13px; color: #64748b;">${escapeHtml(g.summary)}</td>
+                    <td style="text-align: center;">
+                        <div style="display: flex; gap: 6px; justify-content: center;">
+                            <button onclick="editGuide('${g.id}')" style="padding: 5px 10px; font-size: 11px; background: #e2e8f0; border: 1px solid #cbd5e1; border-radius: 4px; cursor: pointer;">수정</button>
+                            <button onclick="deleteGuide('${g.id}')" style="padding: 5px 10px; font-size: 11px; background: #fee2e2; border: 1px solid #fca5a5; color: #b91c1c; border-radius: 4px; cursor: pointer;">삭제</button>
+                        </div>
+                    </td>
+                `;
+                guideTableBody.appendChild(tr);
+            });
+        }
+
+        // Open Guide Modal (Add)
+        btnNewGuide.addEventListener('click', () => {
+            guideModalTitle.innerText = "새 임대차 가이드 등록";
+            inputGuideId.value = '';
+            guideForm.reset();
+            guideModal.classList.add('open');
+        });
+
+        // Close Guide Modal
+        function closeGuideModal() {
+            guideModal.classList.remove('open');
+        }
+        btnGuideModalClose.addEventListener('click', closeGuideModal);
+        btnGuideModalCancel.addEventListener('click', closeGuideModal);
+
+        // Save Guide (Add / Edit)
+        guideForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const list = getGuides();
+            const id = inputGuideId.value;
+            const title = inputGuideTitle.value;
+            const summary = inputGuideSummary.value;
+            const imageUrl = inputGuideImageUrl.value.trim() || 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=800';
+            const content = inputGuideContent.value;
+            
+            // Format current date
+            const today = new Date();
+            const dateStr = `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}`;
+
+            if (id) {
+                // Edit
+                const idx = list.findIndex(g => g.id === id);
+                if (idx !== -1) {
+                    list[idx].title = title;
+                    list[idx].summary = summary;
+                    list[idx].imageUrl = imageUrl;
+                    list[idx].content = content;
+                    list[idx].date = dateStr;
+                }
+            } else {
+                // Add
+                const newGuide = {
+                    id: "guide-" + Date.now(),
+                    title,
+                    summary,
+                    imageUrl,
+                    content,
+                    date: dateStr
+                };
+                list.unshift(newGuide); // Put new ones at the beginning
+            }
+
+            localStorage.setItem('nest_guides', JSON.stringify(list));
+            closeGuideModal();
+            renderAdminGuides();
+            alert("가이드 게시글이 안전하게 저장되었습니다.");
+        });
+
+        // Edit Guide
+        window.editGuide = function(id) {
+            const list = getGuides();
+            const matched = list.find(g => g.id === id);
+            if (!matched) return;
+
+            guideModalTitle.innerText = "임대차 가이드 수정";
+            inputGuideId.value = matched.id;
+            inputGuideTitle.value = matched.title;
+            inputGuideSummary.value = matched.summary;
+            inputGuideImageUrl.value = matched.imageUrl === 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=800' ? '' : matched.imageUrl;
+            inputGuideContent.value = matched.content;
+
+            guideModal.classList.add('open');
+        }
+
+        // Delete Guide
+        window.deleteGuide = function(id) {
+            if (!confirm("정말 이 가이드 글을 삭제하시겠습니까?")) return;
+            let list = getGuides();
+            list = list.filter(g => g.id !== id);
+            localStorage.setItem('nest_guides', JSON.stringify(list));
+            renderAdminGuides();
+        };
+
+        // ==============================================================
+        // ================== STAFF USERS MANAGEMENT CMS =================
+        // ==============================================================
+
+        // 1. Initial Default Seed Users
+        const defaultUsers = [
+            {
+                id: "user-1",
+                loginId: "admin",
+                password: "admin",
+                name: "마스터 관리자",
+                agentLink: "마스터 관리자",
+                role: "master",
+                permissions: ["properties", "guides", "reviews", "brokerage"]
+            },
+            {
+                id: "user-2",
+                loginId: "kim",
+                password: "kim",
+                name: "김철수 부장",
+                agentLink: "김철수 부장",
+                role: "staff",
+                permissions: ["properties", "brokerage"]
+            },
+            {
+                id: "user-3",
+                loginId: "lee",
+                password: "lee",
+                name: "이영희 팀장",
+                agentLink: "이영희 팀장",
+                role: "staff",
+                permissions: ["brokerage"]
+            },
+            {
+                id: "user-4",
+                loginId: "park",
+                password: "park",
+                name: "박민수 과장",
+                agentLink: "박민수 과장",
+                role: "staff",
+                permissions: ["guides", "brokerage"]
+            }
+        ];
+
+        // 2. LocalStorage Getters/Setters
+        function getUsers() {
+            let users = localStorage.getItem('nest_users');
+            if (!users || JSON.parse(users).length === 0) {
+                localStorage.setItem('nest_users', JSON.stringify(defaultUsers));
+                return defaultUsers;
+            }
+            return JSON.parse(users);
+        }
+
+        // 3. Elements mapping
+        const userTableBody = document.getElementById('userTableBody');
+        const userModal = document.getElementById('userModal');
+        const userForm = document.getElementById('userForm');
+        const userModalTitle = document.getElementById('userModalTitle');
+        const btnNewUser = document.getElementById('btnNewUser');
+        const btnUserModalClose = document.getElementById('btnUserModalClose');
+        const btnUserModalCancel = document.getElementById('btnUserModalCancel');
+
+        const inputUserId = document.getElementById('userId');
+        const inputUserLoginId = document.getElementById('userLoginId');
+        const inputUserPassword = document.getElementById('userPassword');
+        const inputUserName = document.getElementById('userName');
+
+        // 4. Render Staff Table list
+        function renderAdminUsers() {
+            const list = getUsers();
+            userTableBody.innerHTML = '';
+
+            list.forEach(u => {
+                const permLabels = [];
+                if (u.permissions.includes('properties')) permLabels.push('<span style="background: #e2e8f0; color: #475569; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-right: 4px;">매물관리</span>');
+                if (u.permissions.includes('guides')) permLabels.push('<span style="background: #e2e8f0; color: #475569; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-right: 4px;">가이드관리</span>');
+                if (u.permissions.includes('reviews')) permLabels.push('<span style="background: #e2e8f0; color: #475569; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-right: 4px;">후기관리</span>');
+                if (u.permissions.includes('brokerage')) permLabels.push('<span style="background: #e2e8f0; color: #475569; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-right: 4px;">중개관리(본인)</span>');
+                
+                const permsHtml = permLabels.length > 0 ? permLabels.join('') : '<span style="color: #cbd5e1; font-size: 11px;">권한 없음</span>';
+                
+                let roleColor = u.role === 'master' ? '#b91c1c' : '#2563eb';
+                let roleBg = u.role === 'master' ? '#fee2e2' : '#dbeafe';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight: bold; color: var(--primary-color);">${escapeHtml(u.loginId)}</td>
+                    <td style="font-weight: 500;">${escapeHtml(u.name)}</td>
+                    <td>${permsHtml}</td>
+                    <td style="text-align: center;">
+                        <span style="background: ${roleBg}; color: ${roleColor}; padding: 3px 8px; border-radius: 20px; font-size: 10.5px; font-weight: bold;">${u.role.toUpperCase()}</span>
+                    </td>
+                    <td style="text-align: center;">
+                        <div style="display: flex; gap: 6px; justify-content: center;">
+                            <button onclick="editUser('${u.id}')" style="padding: 5px 10px; font-size: 11px; background: #e2e8f0; border: 1px solid #cbd5e1; border-radius: 4px; cursor: pointer;">수정</button>
+                            <button onclick="deleteUser('${u.id}')" ${u.role === 'master' ? 'disabled style="opacity: 0.5; padding: 5px 10px; font-size: 11px; border-radius: 4px;"' : 'style="padding: 5px 10px; font-size: 11px; background: #fee2e2; border: 1px solid #fca5a5; color: #b91c1c; border-radius: 4px; cursor: pointer;"'}>삭제</button>
+                        </div>
+                    </td>
+                `;
+                userTableBody.appendChild(tr);
+            });
+        }
+
+        // 5. Open User Modal (Add)
+        if (btnNewUser) {
+            btnNewUser.addEventListener('click', () => {
+                userModalTitle.innerText = "새 임직원 계정 등록";
+                inputUserId.value = '';
+                userForm.reset();
+                inputUserLoginId.disabled = false;
+                userModal.classList.add('open');
+            });
+        }
+
+        // 6. Close User Modal
+        function closeUserModal() {
+            userModal.classList.remove('open');
+        }
+        if (btnUserModalClose) btnUserModalClose.addEventListener('click', closeUserModal);
+        if (btnUserModalCancel) btnUserModalCancel.addEventListener('click', closeUserModal);
+
+        // 7. Save User (Add / Edit)
+        if (userForm) {
+            userForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const list = getUsers();
+                const id = inputUserId.value;
+                const loginId = inputUserLoginId.value.trim().toLowerCase();
+                const password = inputUserPassword.value.trim();
+                const name = inputUserName.value.trim();
+
+                // 권한 체크박스 추출
+                const permChecks = document.querySelectorAll('.user-perm-check');
+                const permissions = [];
+                permChecks.forEach(cb => {
+                    if (cb.checked) permissions.push(cb.value);
+                });
+
+                if (id) {
+                    // Edit
+                    const idx = list.findIndex(u => u.id === id);
+                    if (idx !== -1) {
+                        // 로그인 ID 중복 검사 (변경된 ID가 다른 사람의 ID와 겹치는 경우 차단)
+                        const originalLoginId = list[idx].loginId;
+                        if (loginId !== originalLoginId && list.some(u => u.loginId === loginId)) {
+                            alert("이미 존재하는 로그인 ID입니다. 다른 아이디를 입력해 주세요.");
+                            return;
+                        }
+                        list[idx].loginId = loginId; // 수정된 로그인 ID 적용
+                        list[idx].password = password;
+                        list[idx].name = name;
+                        list[idx].agentLink = name; // 하위 호환성 및 실명 동기화
+                        list[idx].permissions = permissions;
+                    }
+                } else {
+                    // Add (ID 중복 체크)
+                    if (list.some(u => u.loginId === loginId)) {
+                        alert("이미 존재하는 로그인 ID입니다. 다른 아이디를 입력해 주세요.");
+                        return;
+                    }
+                    const newUser = {
+                        id: "user-" + Date.now(),
+                        loginId,
+                        password,
+                        name,
+                        agentLink: name, // 실명 대조 동기화
+                        role: "staff",
+                        permissions: permissions
+                    };
+                    list.push(newUser);
+                }
+
+                localStorage.setItem('nest_users', JSON.stringify(list));
+                closeUserModal();
+                renderAdminUsers();
+                
+                // 만약 본인 계정 정보가 수정된 경우 세션에 실시간 갱신 반영
+                const currentUser = JSON.parse(sessionStorage.getItem('nest_currentUser'));
+                if (currentUser && currentUser.id === id) {
+                    const updated = list.find(u => u.id === id);
+                    sessionStorage.setItem('nest_currentUser', JSON.stringify(updated));
+                    showDashboard(); // 탭 렌더링 동기화 갱신
+                }
+                
+                alert("임직원 계정 정보가 정상적으로 저장되었습니다.");
+            });
+        }
+
+        // 8. Edit User
+        window.editUser = function(id) {
+            const list = getUsers();
+            const matched = list.find(u => u.id === id);
+            if (!matched) return;
+
+            userModalTitle.innerText = "임직원 정보 & 권한 수정";
+            inputUserId.value = matched.id;
+            inputUserLoginId.value = matched.loginId;
+            
+            // 마스터 관리자 계정인 경우에만 ID 수정 가능하도록 제한적으로 해제
+            const currentUser = JSON.parse(sessionStorage.getItem('nest_currentUser')) || { role: 'master' };
+            if (currentUser.role === 'master') {
+                inputUserLoginId.disabled = false;
+            } else {
+                inputUserLoginId.disabled = true;
+            }
+            
+            inputUserPassword.value = matched.password;
+            inputUserName.value = matched.name;
+
+            // 권한 체크박스 바인딩
+            const permChecks = document.querySelectorAll('.user-perm-check');
+            permChecks.forEach(cb => {
+                cb.checked = matched.permissions.includes(cb.value) || matched.role === 'master';
+                cb.disabled = matched.role === 'master';
+            });
+
+            userModal.classList.add('open');
+        }
+
+        // 9. Delete User
+        window.deleteUser = function(id) {
+            const list = getUsers();
+            const matched = list.find(u => u.id === id);
+            if (!matched) return;
+
+            if (matched.role === 'master') {
+                alert("마스터 관리자 계정은 삭제할 수 없습니다.");
+                return;
+            }
+
+            if (!confirm(`정말 ${matched.name}님의 계정을 영구 삭제하시겠습니까? 로그인할 수 없게 됩니다.`)) return;
+
+            const filtered = list.filter(u => u.id !== id);
+            localStorage.setItem('nest_users', JSON.stringify(filtered));
+            renderAdminUsers();
+            alert("임직원 계정이 영구 삭제되었습니다.");
+        };
+
+
+
+        // Initialize setup
+        populateFloorOptions();
+        checkSession();
+    </script>
+    <!-- Load Kakao Map SDK and Daum Postcode Library -->
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=3e8097eb16c9e4942d0cbb215d2da6e6&libraries=services" onerror="window.kakaoGeocoderFailed = true;"></script>
+</body>
+
+</html>

@@ -209,7 +209,7 @@
                             <div id="brokerActiveCount" style="font-size: 24px; font-weight: bold; color: var(--primary-color);">0건</div>
                         </div>
                         <div style="flex: 1; min-width: 200px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-left: 4px solid #3b82f6;">
-                            <div style="font-size: 12px; color: #64748b; font-weight: bold; margin-bottom: 5px;">계약서 검토 / 잔금대기</div>
+                            <div style="font-size: 12px; color: #64748b; font-weight: bold; margin-bottom: 5px;">계약완료 / 잔금대기</div>
                             <div id="brokerReviewCount" style="font-size: 24px; font-weight: bold; color: var(--primary-color);">0건</div>
                         </div>
                         <div style="flex: 1; min-width: 200px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-left: 4px solid #10b981;">
@@ -506,9 +506,55 @@
                     </div>
                     <div class="form-group" style="flex: 1;">
                         <label>연락처 <span style="color: red;">*</span></label>
-                        <input type="text" id="brokeragePhone" placeholder="예: 010-1234-5678" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                        <input type="text" id="brokeragePhone" placeholder="예: 010-1234-5678" oninput="formatPhoneNumberWithHyphens(this)" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
                     </div>
                 </div>
+                
+                <!-- 세분화된 상세 고객 요구조건 영역 (선택 입력) -->
+                <div style="border: 1px solid #e2e8f0; padding: 15px; border-radius: 6px; background-color: #f8fafc; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; text-align: left;">
+                    <strong style="color: var(--primary-color); font-size: 13px;"><i class="fas fa-tasks" style="color: var(--accent-color); margin-right: 4px;"></i> 상세 고객 요구조건 (선택 입력)</strong>
+                    
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <!-- 희망 유형 -->
+                        <div style="flex: 1; min-width: 120px;">
+                            <label style="display:block; font-size: 11px; color: #475569; margin-bottom: 4px; font-weight: 600;">희망 유형</label>
+                            <select id="brokerageReqType" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: inherit; font-size: 12px; outline: none; background-color:#fff; cursor: pointer;">
+                                <option value="월세" selected>월세</option>
+                                <option value="전세">전세</option>
+                                <option value="매매">매매</option>
+                            </select>
+                        </div>
+                        
+                        <!-- 입주날짜 (연월 형태) -->
+                        <div style="flex: 1; min-width: 120px;">
+                            <label style="display:block; font-size: 11px; color: #475569; margin-bottom: 4px; font-weight: 600;">입주 희망일</label>
+                            <input type="month" id="brokerageReqMoveInDate" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: inherit; font-size: 12px; outline: none; box-sizing: border-box; background-color: #fff;">
+                        </div>
+                        
+                        <!-- 업종 -->
+                        <div style="flex: 1; min-width: 120px;">
+                            <label style="display:block; font-size: 11px; color: #475569; margin-bottom: 4px; font-weight: 600;">희망 업종</label>
+                            <input type="text" id="brokerageReqBizType" placeholder="예: IT 사무실" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: inherit; font-size: 12px; outline: none; box-sizing: border-box;">
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <!-- 예산 -->
+                        <div style="flex: 1; min-width: 140px;">
+                            <label style="display:block; font-size: 11px; color: #475569; margin-bottom: 4px; font-weight: 600;">희망 예산 (보증금/월세 등)</label>
+                            <input type="text" id="brokerageReqBudget" placeholder="보증금/월세 또는 10억" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: inherit; font-size: 12px; outline: none; box-sizing: border-box;">
+                        </div>
+                        
+                        <!-- 면적 -->
+                        <div style="flex: 1; min-width: 140px;">
+                            <label style="display:block; font-size: 11px; color: #475569; margin-bottom: 4px; font-weight: 600;">희망 면적 (평 또는 ㎡)</label>
+                            <input type="text" id="brokerageReqArea" placeholder="예: 실 50평 또는 165㎡" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: inherit; font-size: 12px; outline: none; box-sizing: border-box;">
+                        </div>
+                    </div>
+                </div>
+                <!-- 숨겨둔 레거시 바인딩 백업용 필드 -->
+                <input type="hidden" id="brokerageReqs" value="">
+
                 <div style="display: flex; gap: 15px; margin-bottom: 15px;">
                     <div class="form-group" style="flex: 1;">
                         <label>담당 중개사 <span style="color: red;">*</span></label>
@@ -520,22 +566,27 @@
                         <label>진행 단계 <span style="color: red;">*</span></label>
                         <select id="brokerageStatus" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; font-family: inherit; transition: border-color 0.3s; background-color: white; border-radius: 4px;">
                             <option value="접수완료">접수완료</option>
-                            <option value="매물 매칭중">매물 매칭중</option>
-                            <option value="실사/미팅중">실사/미팅중</option>
-                            <option value="계약서 검토">계약서 검토</option>
-                            <option value="잔금 대기">잔금 대기</option>
+                            <option value="영업중">영업중</option>
                             <option value="계약완료">계약완료</option>
+                            <option value="잔금완료">잔금완료</option>
+                            <option value="영업종료">영업종료</option>
                         </select>
                     </div>
+                </div>
+                <!-- 영업종료 사유 선택 영역 (기본 숨김) -->
+                <div class="form-group" id="brokerageEndReasonGroup" style="display: none; margin-bottom: 15px;">
+                    <label>영업종료 상세 사유 <span style="color: red;">*</span></label>
+                    <select id="brokerageEndReason" style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; font-family: inherit; transition: border-color 0.3s; background-color: white; border-radius: 4px;">
+                        <option value="장기부재(일주일이상)">장기부재(일주일이상)</option>
+                        <option value="타부동산계약">타부동산계약</option>
+                        <option value="계약포기">계약포기</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>고객 요구조건 (희망 지역, 면적, 예산 등) <span style="color: red;">*</span></label>
                     <input type="text" id="brokerageReqs" placeholder="예: 역삼역 인근 실 80평 이하, 보증금 2억 / 월 1500만 선" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
                 </div>
-                <div class="form-group">
-                    <label>최신 상담 및 진행 일지 (비고)</label>
-                    <textarea id="brokerageNotes" rows="4" placeholder="실사 방문 이력이나 조율 현황을 상세히 기록해 두세요." style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit; font-size: 14px; resize: vertical; line-height: 1.6;"></textarea>
-                </div>
+
 
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" id="btnBrokerageModalCancel">취소</button>
@@ -1637,6 +1688,7 @@
             }
             return brokerages;
         }
+        window.getBrokerages = getBrokerages;
 
         const brokerageTableBody = document.getElementById('brokerageTableBody');
         const btnNewBrokerage = document.getElementById('btnNewBrokerage');
@@ -1651,8 +1703,27 @@
         const inputBrokeragePhone = document.getElementById('brokeragePhone');
         const inputBrokerageAgent = document.getElementById('brokerageAgent');
         const inputBrokerageStatus = document.getElementById('brokerageStatus');
+        const brokerageEndReasonGroup = document.getElementById('brokerageEndReasonGroup');
+        const inputBrokerageEndReason = document.getElementById('brokerageEndReason');
         const inputBrokerageReqs = document.getElementById('brokerageReqs');
-        const inputBrokerageNotes = document.getElementById('brokerageNotes');
+        
+        // 상세 세분화 필드 매핑
+        const inputBrokerageReqType = document.getElementById('brokerageReqType');
+        const inputBrokerageReqMoveInDate = document.getElementById('brokerageReqMoveInDate');
+        const inputBrokerageReqBizType = document.getElementById('brokerageReqBizType');
+        const inputBrokerageReqBudget = document.getElementById('brokerageReqBudget');
+        const inputBrokerageReqArea = document.getElementById('brokerageReqArea');
+
+        // 진행 단계 영업종료 선택 시 사유 선택창 노출/감춤 제어
+        if (inputBrokerageStatus) {
+            inputBrokerageStatus.addEventListener('change', () => {
+                if (inputBrokerageStatus.value === '영업종료') {
+                    brokerageEndReasonGroup.style.display = 'block';
+                } else {
+                    brokerageEndReasonGroup.style.display = 'none';
+                }
+            });
+        }
 
         function renderAdminBrokerage() {
             const list = getBrokerages();
@@ -1677,51 +1748,223 @@
             displayList.forEach(b => {
                 let statusBadgeColor = "#475569"; // 기본 회색 (접수완료)
                 let statusBadgeBg = "#f1f5f9";
-                if (b.status === "매물 매칭중") {
+                if (b.status === "영업중") {
                     statusBadgeColor = "#1d4ed8"; statusBadgeBg = "#dbeafe";
-                } else if (b.status === "실사/미팅중") {
-                    statusBadgeColor = "#854d0e"; statusBadgeBg = "#fef9c3";
-                } else if (b.status === "계약서 검토") {
-                    statusBadgeColor = "#c2410c"; statusBadgeBg = "#ffedd5";
-                } else if (b.status === "잔금 대기") {
-                    statusBadgeColor = "#a16207"; statusBadgeBg = "#fef3c7";
                 } else if (b.status === "계약완료") {
                     statusBadgeColor = "#15803d"; statusBadgeBg = "#dcfce7";
+                } else if (b.status === "잔금완료") {
+                    statusBadgeColor = "#a16207"; statusBadgeBg = "#fef3c7";
+                } else if (b.status === "영업종료") {
+                    statusBadgeColor = "#b91c1c"; statusBadgeBg = "#fee2e2";
+                }
+
+                // 영업종료 사유 노출 텍스트 조합
+                let displayStatus = b.status;
+                if (b.status === "영업종료" && b.endReason) {
+                    displayStatus = `영업종료 (${b.endReason})`;
                 }
 
                 const tr = document.createElement('tr');
+                tr.style.cursor = 'pointer';
+                tr.style.transition = 'background 0.2s';
+                
+                // 마우스 호버 시 행 전체가 살짝 밝은 연골드색으로 하이라이트
+                tr.addEventListener('mouseenter', () => {
+                    tr.style.background = 'rgba(181, 149, 78, 0.04)';
+                });
+                tr.addEventListener('mouseleave', () => {
+                    tr.style.background = 'transparent';
+                });
+                
+                // 수정/삭제 버튼 이외의 행 빈공간 클릭 시 상세 열기/닫기 토글
+                tr.addEventListener('click', (event) => {
+                    if (!event.target.closest('button')) {
+                        toggleBrokerageDetails(b.id);
+                    }
+                });
+
                 tr.innerHTML = `
-                    <td style="font-weight: 700; color: var(--primary-color);">${escapeHtml(b.client)}</td>
+                    <td style="font-weight: 700; color: var(--accent-color); text-decoration: underline;" title="상세 상담일지 보기">${escapeHtml(b.client)}</td>
                     <td style="color: #64748b; font-size: 13px;">${escapeHtml(b.phone)}</td>
                     <td style="font-weight: bold; color: #475569; font-size: 13px;">${escapeHtml(b.agent)}</td>
-                    <td style="font-size: 13px; color: #334155; line-height: 1.4;">
-                        <strong>요구조건:</strong> ${escapeHtml(b.reqs)}
-                        <div style="font-size: 11.5px; color: #64748b; margin-top: 5px; background: #f8fafc; border: 1px solid #e2e8f0; padding: 6px 10px; border-radius: 4px; line-height: 1.5;">
-                            ${escapeHtml(b.notes || '기록된 일지 없음')}
-                        </div>
-                    </td>
+                    <td style="font-size: 13px; color: #334155; line-height: 1.4;">${escapeHtml(b.reqs)}</td>
                     <td style="text-align: center;">
-                        <span style="background: ${statusBadgeBg}; color: ${statusBadgeColor}; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; display: inline-block;">${escapeHtml(b.status)}</span>
+                        <span style="background: ${statusBadgeBg}; color: ${statusBadgeColor}; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; display: inline-block;">${escapeHtml(displayStatus)}</span>
                     </td>
                     <td style="text-align: center;">
                         <div style="display: flex; gap: 6px; justify-content: center;">
                             <button onclick="editBrokerage('${b.id}')" style="padding: 5px 10px; font-size: 11px; background: #e2e8f0; border: 1px solid #cbd5e1; border-radius: 4px; cursor: pointer;">수정</button>
-                            <button onclick="deleteBrokerage('${b.id}')" style="padding: 5px 10px; font-size: 11px; background: #fee2e2; border: 1px solid #fca5a5; color: #b91c1c; border-radius: 4px; cursor: pointer;">삭제</button>
+                            <button onclick="deleteBrokerage('${b.id}')" ${user.role === 'master' ? 'style="padding: 5px 10px; font-size: 11px; background: #fee2e2; border: 1px solid #fca5a5; color: #b91c1c; border-radius: 4px; cursor: pointer;"' : 'disabled style="padding: 5px 10px; font-size: 11px; border-radius: 4px; opacity: 0.4; cursor: not-allowed;"'} title="${user.role === 'master' ? '삭제' : '삭제 권한 없음 (마스터 전용)'}">삭제</button>
                         </div>
                     </td>
                 `;
                 brokerageTableBody.appendChild(tr);
+
+                // 상세보기용 접이식 아코디언 행 생성 및 추가
+                const detailTr = document.createElement('tr');
+                detailTr.id = `details-${b.id}`;
+                detailTr.style.display = 'none';
+                detailTr.style.background = '#fbf9f3'; // 부드러운 웜그레이/아이보리 배경
+                detailTr.innerHTML = `
+                    <td colspan="6" style="padding: 20px; border-top: 1px solid #f3ebd6; border-bottom: 1px solid #f3ebd6;">
+                        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                            <!-- 왼쪽: 고객 상세 정보 카드 -->
+                            <div style="flex: 1.2; min-width: 250px; background: #fff; padding: 15px; border: 1px solid #e2e8f0; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); text-align: left;">
+                                <h4 style="margin: 0 0 12px 0; color: var(--primary-color); font-size: 14px; border-bottom: 2px solid var(--accent-color); padding-bottom: 6px;">
+                                    <i class="fas fa-user-tie" style="color: var(--accent-color); margin-right: 4px;"></i> 고객 카드 정보
+                                </h4>
+                                <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: #475569; line-height: 1.4;">
+                                    <div><strong>의뢰사/고객명:</strong> ${escapeHtml(b.client)}</div>
+                                    <div><strong>연락처:</strong> ${escapeHtml(b.phone)}</div>
+                                    <div><strong>담당 중개사:</strong> ${escapeHtml(b.agent)}</div>
+                                    <div style="display: flex; align-items: center; gap: 5px;">
+                                        <strong>진행 단계:</strong>
+                                        <select onchange="updateInlineBrokerageStatus('${b.id}', this.value)" style="padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12.5px; outline: none; font-weight: bold; color: var(--primary-color); background-color: #fff; cursor: pointer;">
+                                            <option value="접수완료" ${b.status === '접수완료' ? 'selected' : ''}>접수완료</option>
+                                            <option value="영업중" ${b.status === '영업중' ? 'selected' : ''}>영업중</option>
+                                            <option value="계약완료" ${b.status === '계약완료' ? 'selected' : ''}>계약완료</option>
+                                            <option value="잔금완료" ${b.status === '잔금완료' ? 'selected' : ''}>잔금완료</option>
+                                            <option value="영업종료" ${b.status === '영업종료' ? 'selected' : ''}>영업종료</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <!-- 영업종료 사유 조건부 드롭다운 즉시 출력 -->
+                                    ${b.status === '영업종료' ? `
+                                    <div style="margin-top: 5px; display: flex; align-items: center; gap: 5px; background: #fff1f2; border: 1px solid #fecdd3; padding: 6px; border-radius: 4px;">
+                                        <strong style="color: #991b1b; font-size: 11.5px;">종료 사유:</strong>
+                                        <select onchange="updateInlineBrokerageEndReason('${b.id}', this.value)" style="padding: 3px 6px; border: 1px solid #fda4af; border-radius: 4px; font-size: 12px; outline: none; font-weight: 500; color: #991b1b; background-color: #fff; cursor: pointer;">
+                                            <option value="장기부재(일주일이상)" ${b.endReason === '장기부재(일주일이상)' ? 'selected' : ''}>장기부재(일주일이상)</option>
+                                            <option value="타부동산계약" ${b.endReason === '타부동산계약' ? 'selected' : ''}>타부동산계약</option>
+                                            <option value="계약포기" ${b.endReason === '계약포기' ? 'selected' : ''}>계약포기</option>
+                                        </select>
+                                    </div>
+                                    ` : ''}
+
+                                    <!-- 계약 성사 정보 입력 패널 (진행 단계가 '계약완료' 또는 '잔금완료' 일 때 노출) -->
+                                    ${(b.status === '계약완료' || b.status === '잔금완료') ? `
+                                    <div style="margin-top: 10px; padding: 12px; background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 6px; display: flex; flex-direction: column; gap: 8px; text-align: left;">
+                                        <strong style="color: #6b21a8; font-size: 12.5px;"><i class="fas fa-file-signature"></i> 계약 정보 입력</strong>
+                                        
+                                        <div style="display: flex; align-items: center; gap: 5px; font-size: 12px;">
+                                            <span>거래유형:</span>
+                                            <select id="inline-deal-type-${b.id}" onchange="toggleInlineDealFields('${b.id}', this.value); validateInlineContractForm('${b.id}');" style="padding: 3px 6px; border: 1px solid #d8b4fe; border-radius: 4px; font-size: 11.5px; outline: none; background-color:#fff; cursor: pointer;">
+                                                <option value="매매" ${b.dealType === '매매' ? 'selected' : ''}>매매</option>
+                                                <option value="전세" ${b.dealType === '전세' ? 'selected' : ''}>전세</option>
+                                                <option value="월세" ${b.dealType === '월세' || !b.dealType ? 'selected' : ''}>월세</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                            <!-- 금액 입력 동적 돔 구역 (toggleInlineDealFields 가 제어) -->
+                                            <div id="inline-deal-inputs-area-${b.id}" style="display: flex; gap: 8px; flex: 3; flex-wrap: wrap;">
+                                                ${b.dealType === '매매' ? `
+                                                <div style="flex: 1; min-width: 100px;">
+                                                    <label style="display:block; font-size: 10.5px; color: #6b21a8; margin-bottom: 2px;">매매가 (만원)</label>
+                                                    <input type="text" id="inline-deal-price-${b.id}" value="${b.dealPrice ? parseInt(b.dealPrice).toLocaleString() : ''}" oninput="formatNumberWithCommas(this); validateInlineContractForm('${b.id}')" style="width: 100%; padding: 5px; border: 1px solid #d8b4fe; border-radius: 4px; font-size: 11.5px; outline: none;">
+                                                </div>
+                                                ` : ''}
+                                                
+                                                ${b.dealType === '전세' ? `
+                                                <div style="flex: 1; min-width: 100px;">
+                                                    <label style="display:block; font-size: 10.5px; color: #6b21a8; margin-bottom: 2px;">전세금 (만원)</label>
+                                                    <input type="text" id="inline-deal-deposit-${b.id}" value="${b.dealDeposit ? parseInt(b.dealDeposit).toLocaleString() : ''}" oninput="formatNumberWithCommas(this); validateInlineContractForm('${b.id}')" style="width: 100%; padding: 5px; border: 1px solid #d8b4fe; border-radius: 4px; font-size: 11.5px; outline: none;">
+                                                </div>
+                                                ` : ''}
+                                                
+                                                ${b.dealType === '월세' || !b.dealType ? `
+                                                <div style="flex: 1; min-width: 80px;">
+                                                    <label style="display:block; font-size: 10.5px; color: #6b21a8; margin-bottom: 2px;">보증금 (만원)</label>
+                                                    <input type="text" id="inline-deal-deposit-${b.id}" value="${b.dealDeposit ? parseInt(b.dealDeposit).toLocaleString() : ''}" oninput="formatNumberWithCommas(this); validateInlineContractForm('${b.id}')" style="width: 100%; padding: 5px; border: 1px solid #d8b4fe; border-radius: 4px; font-size: 11.5px; outline: none;">
+                                                </div>
+                                                <div style="flex: 1; min-width: 80px;">
+                                                    <label style="display:block; font-size: 10.5px; color: #6b21a8; margin-bottom: 2px;">월세 (만원)</label>
+                                                    <input type="text" id="inline-deal-rent-${b.id}" value="${b.dealRent ? parseInt(b.dealRent).toLocaleString() : ''}" oninput="formatNumberWithCommas(this); validateInlineContractForm('${b.id}')" style="width: 100%; padding: 5px; border: 1px solid #d8b4fe; border-radius: 4px; font-size: 11.5px; outline: none;">
+                                                </div>
+                                                ` : ''}
+                                            </div>
+                                            
+                                            <div style="flex: 1; min-width: 80px;">
+                                                <label style="display:block; font-size: 10.5px; color: #6b21a8; margin-bottom: 2px;">요율 (%)</label>
+                                                <input type="number" step="0.1" min="0.1" max="0.9" id="inline-deal-rate-${b.id}" placeholder="0.1~0.9" value="${b.commissionRate || ''}" oninput="validateInlineContractForm('${b.id}')" style="width: 100%; padding: 5px; border: 1px solid #d8b4fe; border-radius: 4px; font-size: 11.5px; outline: none;">
+                                            </div>
+                                        </div>
+
+                                        <!-- 잔금일 설정 -->
+                                        <div style="display: flex; flex-direction: column; gap: 2px;">
+                                            <label style="display:block; font-size: 10.5px; color: #6b21a8; margin-bottom: 2px;">잔금일 지정</label>
+                                            <input type="date" id="inline-deal-balance-date-${b.id}" value="${b.dealBalanceDate || ''}" onchange="validateInlineContractForm('${b.id}')" style="width: 100%; padding: 5px; border: 1px solid #d8b4fe; border-radius: 4px; font-size: 11.5px; outline: none; font-family: inherit; box-sizing: border-box; background-color: #fff;">
+                                        </div>
+                                        
+                                        <!-- 저장 단추 -->
+                                        <button type="button" id="inline-deal-save-btn-${b.id}" disabled onclick="saveInlineBrokerageContract('${b.id}')" style="margin-top: 5px; width: 100%; padding: 8px; background: #a78bfa; color: #fff; border: none; border-radius: 4px; font-weight: bold; font-size: 12px; cursor: not-allowed; opacity: 0.6; transition: all 0.3s;">
+                                            계약 정보 저장 & 이력 반영
+                                        </button>
+                                        
+                                        <div style="font-size: 11.5px; color: #7e22ce; font-weight: bold; background: #fff; padding: 6px; border-radius: 4px; border: 1px dashed #d8b4fe; margin-top: 2px;">
+                                            <i class="fas fa-calculator"></i> 저장된 예상수수료: 
+                                            <span style="color: #b91c1c; font-size: 12.5px; text-decoration: underline;">
+                                                ${b.calculatedFee ? Math.floor(b.calculatedFee).toLocaleString() + '원' : '미정 상태'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    ` : ''}
+
+                                    <div style="margin-top: 6px; padding-top: 8px; border-top: 1px solid #f1f5f9;">
+                                        <strong>고객 요구조건:</strong>
+                                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 8px; border-radius: 4px; margin-top: 4px; font-size: 12px; line-height: 1.5;">${escapeHtml(b.reqs)}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 오른쪽: 상담 이력 타임라인 -->
+                            <div style="flex: 1.8; min-width: 300px; background: #fff; padding: 15px; border: 1px solid #e2e8f0; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); display: flex; flex-direction: column; gap: 10px; text-align: left;">
+                                <h4 style="margin: 0 0 5px 0; color: var(--primary-color); font-size: 14px; border-bottom: 2px solid var(--accent-color); padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
+                                    <span><i class="fas fa-history" style="color: var(--accent-color); margin-right: 4px;"></i> 상담 이력 (누적 타임라인)</span>
+                                </h4>
+                                
+                                <!-- 타임라인 누적 뷰어 -->
+                                <div id="history-timeline-${b.id}" style="max-height: 180px; overflow-y: auto; border: 1px solid #f1f5f9; padding: 8px; border-radius: 4px; background: #fafafa;">
+                                    <!-- Dynamic elements -->
+                                </div>
+                                
+                                <!-- 새 상담 이력 빠른 작성 폼 -->
+                                <div style="display: flex; gap: 8px; margin-top: 5px;">
+                                    <input type="text" id="new-history-input-${b.id}" placeholder="상담 내용을 간단히 입력하세요" style="flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; outline: none; transition: border-color 0.3s;" onfocus="this.style.borderColor='var(--accent-color)';">
+                                    <button type="button" onclick="addBrokerageHistory('${b.id}')" style="padding: 10px 16px; background: var(--accent-color); color: var(--primary-color); border: none; border-radius: 4px; font-weight: bold; font-size: 12px; cursor: pointer; transition: all 0.3s; white-space: nowrap;"
+                                            onmouseenter="this.style.opacity='0.9';" onmouseleave="this.style.opacity='1';">
+                                        + 이력 추가
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                `;
+                brokerageTableBody.appendChild(detailTr);
+                refreshHistoryTimeline(b.id, b.history || []); // 초기 이력 목록 즉시 로딩
             });
         }
 
         function updateBrokerageStats(list, isMaster) {
-            const countActive = list.filter(b => b.status !== '계약완료').length;
-            const countReview = list.filter(b => b.status === '계약서 검토' || b.status === '잔금 대기').length;
+            const countActive = list.filter(b => b.status === '접수완료' || b.status === '영업중').length;
+            // 계약완료/잔금 대기 건을 카운트
+            const countReview = list.filter(b => b.status === '계약완료').length;
             
             // 수수료 정산
-            const baseCommission = isMaster ? 125000000 : 0; // 마스터는 기본 1.25억부터 누적, 직원은 0원부터
-            const completedCount = list.filter(b => b.status === '계약완료').length;
-            const totalCommission = baseCommission + (completedCount * 35000000);
+            const baseCommission = isMaster ? 125000000 : 0; 
+            
+            // 실제 수수료 합산액 계산!
+            let dynamicCommission = 0;
+            list.forEach(b => {
+                if (b.status === '계약완료' || b.status === '잔금완료') {
+                    if (b.calculatedFee && b.calculatedFee > 0) {
+                        dynamicCommission += b.calculatedFee;
+                    } else {
+                        // 미입력 건은 하위호환/디폴트로 건당 35,000,000원 적용
+                        dynamicCommission += 35000000;
+                    }
+                }
+            });
+            const totalCommission = baseCommission + dynamicCommission;
 
             const activeStatEl = document.getElementById('brokerActiveCount');
             const reviewStatEl = document.getElementById('brokerReviewCount');
@@ -1779,6 +2022,9 @@
                 brokerageModalTitle.innerText = "새 중개 의뢰 등록";
                 inputBrokerageId.value = '';
                 brokerageForm.reset();
+                if (inputBrokerageReqType) inputBrokerageReqType.value = '월세'; // 기본값 월세 강제 지정
+                brokerageEndReasonGroup.style.display = 'none'; // 사유 선택 기본 숨김
+                inputBrokerageEndReason.value = '장기부재(일주일이상)';
                 populateBrokerageAgent(null); // 에이전트 목록 로드 및 세션 권한 제어
                 brokerageModal.classList.add('open');
             });
@@ -1801,32 +2047,61 @@
                 const phone = inputBrokeragePhone.value;
                 const agent = inputBrokerageAgent.value;
                 const status = inputBrokerageStatus.value;
-                const reqs = inputBrokerageReqs.value;
-                const notes = inputBrokerageNotes.value;
+                const endReason = (status === '영업종료') ? inputBrokerageEndReason.value : '';
+                
+                // 개별 입력 필드 값 가져오기
+                const reqType = inputBrokerageReqType.value || '월세';
+                const reqMoveInDate = inputBrokerageReqMoveInDate.value || '';
+                const reqBizType = inputBrokerageReqBizType.value || '';
+                const reqBudget = inputBrokerageReqBudget.value || '';
+                const reqArea = inputBrokerageReqArea.value || '';
+                
+                // 테이블 뷰 노출 및 하위 호환을 위해 하나의 reqs 텍스트로 요약 조립
+                let reqsParts = [];
+                reqsParts.push(`[${reqType}]`);
+                if (reqBizType) reqsParts.push(`업종: ${reqBizType}`);
+                if (reqBudget) reqsParts.push(`예산: ${reqBudget}`);
+                if (reqArea) reqsParts.push(`면적: ${reqArea}`);
+                if (reqMoveInDate) reqsParts.push(`입주: ${reqMoveInDate}`);
+                const reqs = reqsParts.join(' / ');
 
                 if (id) {
-                    // Edit
-                    const idx = list.findIndex(b => b.id === id);
-                    if (idx !== -1) {
-                        list[idx].client = client;
-                        list[idx].phone = phone;
-                        list[idx].agent = agent;
-                        list[idx].status = status;
-                        list[idx].reqs = reqs;
-                        list[idx].notes = notes;
-                    }
+                     // Edit
+                     const idx = list.findIndex(b => b.id === id);
+                     if (idx !== -1) {
+                         list[idx].client = client;
+                         list[idx].phone = phone;
+                         list[idx].agent = agent;
+                         list[idx].status = status;
+                         list[idx].endReason = endReason;
+                         
+                         list[idx].reqType = reqType;
+                         list[idx].reqMoveInDate = reqMoveInDate;
+                         list[idx].reqBizType = reqBizType;
+                         list[idx].reqBudget = reqBudget;
+                         list[idx].reqArea = reqArea;
+                         list[idx].reqs = reqs;
+                     }
                 } else {
-                    // Add
-                    const newBrokerage = {
-                        id: "broker-" + Date.now(),
-                        client,
-                        phone,
-                        agent,
-                        status,
-                        reqs,
-                        notes
-                    };
-                    list.unshift(newBrokerage);
+                     // Add
+                     const newBrokerage = {
+                         id: "broker-" + Date.now(),
+                         client,
+                         phone,
+                         agent,
+                         status,
+                         endReason,
+                         reqType,
+                         reqMoveInDate,
+                         reqBizType,
+                         reqBudget,
+                         reqArea,
+                         reqs,
+                         notes: '',
+                         notesUpdatedAt: '',
+                         history: []
+                     };
+                     list.unshift(newBrokerage);
                 }
 
                 localStorage.setItem('nest_brokerage', JSON.stringify(list));
@@ -1847,16 +2122,353 @@
             inputBrokerageClient.value = matched.client;
             inputBrokeragePhone.value = matched.phone;
             inputBrokerageStatus.value = matched.status;
-            inputBrokerageReqs.value = matched.reqs;
-            inputBrokerageNotes.value = matched.notes || '';
+            
+            // 상세 세분화 필드 복구
+            inputBrokerageReqType.value = matched.reqType || '월세';
+            inputBrokerageReqMoveInDate.value = matched.reqMoveInDate || '';
+            inputBrokerageReqBizType.value = matched.reqBizType || '';
+            inputBrokerageReqBudget.value = matched.reqBudget || '';
+            inputBrokerageReqArea.value = matched.reqArea || '';
+            inputBrokerageReqs.value = matched.reqs || '';
+
+            // 영업종료 사유 필드 분기 노출 제어
+            if (matched.status === '영업종료') {
+                brokerageEndReasonGroup.style.display = 'block';
+                inputBrokerageEndReason.value = matched.endReason || '장기부재(일주일이상)';
+            } else {
+                brokerageEndReasonGroup.style.display = 'none';
+                inputBrokerageEndReason.value = '장기부재(일주일이상)';
+            }
 
             populateBrokerageAgent(matched.agent); // 기존 담당 에이전트 선택 로드
 
             brokerageModal.classList.add('open');
         }
 
+        // 부분 이력 타임라인 목록 새로고침 컴파일러
+        window.refreshHistoryTimeline = function(id, historyList) {
+            const timelineEl = document.getElementById(`history-timeline-${id}`);
+            if (!timelineEl) return;
+            
+            if (!historyList || historyList.length === 0) {
+                timelineEl.innerHTML = '<div style="color: #94a3b8; font-size: 12px; text-align: center; padding: 25px 0;"><i class="fas fa-info-circle"></i> 기록된 상담 이력이 아직 없습니다.<br>아래 입력창에 상담 내용을 적어 등록하세요.</div>';
+                return;
+            }
+            
+            let html = '';
+            // 최신 글이 맨 위로 가도록 역순 렌더링
+            const reversed = [...historyList].reverse();
+            reversed.forEach(item => {
+                html += `
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 8px 10px; border-radius: 4px; margin-bottom: 6px; font-size: 12.5px; text-align: left;">
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #64748b; margin-bottom: 3px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 3px;">
+                            <span style="font-weight: 700; color: var(--primary-color);">${escapeHtml(item.writer)}</span>
+                            <span><i class="far fa-clock"></i> ${escapeHtml(item.time)}</span>
+                        </div>
+                        <div style="color: #334155; line-height: 1.5; white-space: pre-wrap;">${escapeHtml(item.content)}</div>
+                    </div>
+                `;
+            });
+            timelineEl.innerHTML = html;
+        };
+
+        // 이 아코디언 창 내에서 실시간 상담 이력 저장/누적
+        window.addBrokerageHistory = function(id) {
+            const inputEl = document.getElementById(`new-history-input-${id}`);
+            if (!inputEl) return;
+            const content = inputEl.value.trim();
+            if (!content) {
+                alert("상담 내용을 입력해 주세요.");
+                return;
+            }
+
+            const list = getBrokerages();
+            const idx = list.findIndex(b => b.id === id);
+            if (idx === -1) return;
+
+            const currentUser = JSON.parse(sessionStorage.getItem('nest_currentUser')) || { name: '마스터 관리자' };
+            
+            const now = new Date();
+            const formattedTime = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+
+            if (!list[idx].history) {
+                list[idx].history = [];
+            }
+            
+            const newHistoryItem = {
+                time: formattedTime,
+                writer: currentUser.name,
+                content: content
+            };
+            
+            list[idx].history.push(newHistoryItem);
+            
+            // 하위 호환성 연동 (요약 필드 동기화)
+            list[idx].notes = content;
+            list[idx].notesUpdatedAt = formattedTime;
+
+            localStorage.setItem('nest_brokerage', JSON.stringify(list));
+            
+            refreshHistoryTimeline(id, list[idx].history);
+            inputEl.value = ''; // 입력 버퍼 청소
+        };
+
+        // 대한민국 법정 중개 수수료 공식에 의한 실시간 산출 함수 (만원 단위 입력 기준)
+        function calculateBrokerageFee(dealType, price, deposit, rent, ratePercent) {
+            const rate = parseFloat(ratePercent || 0) / 100; // 0.9% -> 0.009
+            if (rate <= 0) return 0;
+            
+            // 만원 단위를 원 단위로 환산하여 계산
+            const p = parseInt(price || 0) * 10000;
+            const d = parseInt(deposit || 0) * 10000;
+            const r = parseInt(rent || 0) * 10000;
+            
+            let baseAmount = 0;
+            if (dealType === '매매') {
+                baseAmount = p;
+            } else if (dealType === '전세') {
+                baseAmount = d;
+            } else if (dealType === '월세') {
+                baseAmount = d + (r * 100);
+                // 대한민국 월세 환산보증금 5천만원 미만 예외처리
+                if (baseAmount < 50000000) {
+                    baseAmount = d + (r * 70);
+                }
+            }
+            return Math.floor(baseAmount * rate);
+        }
+
+        // 숫자에 3자리 단위 쉼표 실시간 추가 포맷터
+        window.formatNumberWithCommas = function(inputEl) {
+            let val = inputEl.value.replace(/[^0-9]/g, '');
+            if (val) {
+                inputEl.value = parseInt(val).toLocaleString();
+            } else {
+                inputEl.value = '';
+            }
+        };
+
+        // 전화번호 입력 시 자동으로 010-XXXX-XXXX 하이픈 기입
+        window.formatPhoneNumberWithHyphens = function(inputEl) {
+            let num = inputEl.value.replace(/[^0-9]/g, '');
+            if (num.length < 4) {
+                inputEl.value = num;
+            } else if (num.length < 7) {
+                inputEl.value = `${num.substring(0, 3)}-${num.substring(3)}`;
+            } else if (num.length < 11) {
+                inputEl.value = `${num.substring(0, 3)}-${num.substring(3, 6)}-${num.substring(6)}`;
+            } else {
+                inputEl.value = `${num.substring(0, 3)}-${num.substring(3, 7)}-${num.substring(7, 11)}`;
+            }
+        };
+
+        // 아코디언 내 계약 거래유형 스위치 시 테이블 리렌더링 없이 즉시 입력창 돔 영역만 Show/Hide 교환 (무중단 UX 완성)
+        window.toggleInlineDealFields = function(id, type) {
+            const container = document.getElementById(`inline-deal-inputs-area-${id}`);
+            if (!container) return;
+            
+            const list = getBrokerages();
+            const matched = list.find(b => b.id === id) || {};
+            
+            if (type === '매매') {
+                container.innerHTML = `
+                    <div style="flex: 1; min-width: 100px;">
+                        <label style="display:block; font-size: 10.5px; color: #6b21a8; margin-bottom: 2px;">매매가 (만원)</label>
+                        <input type="text" id="inline-deal-price-${id}" value="${matched.dealPrice ? parseInt(matched.dealPrice).toLocaleString() : ''}" oninput="formatNumberWithCommas(this); validateInlineContractForm('${id}')" style="width: 100%; padding: 5px; border: 1px solid #d8b4fe; border-radius: 4px; font-size: 11.5px; outline: none;">
+                    </div>
+                `;
+            } else if (type === '전세') {
+                container.innerHTML = `
+                    <div style="flex: 1; min-width: 100px;">
+                        <label style="display:block; font-size: 10.5px; color: #6b21a8; margin-bottom: 2px;">전세금 (만원)</label>
+                        <input type="text" id="inline-deal-deposit-${id}" value="${matched.dealDeposit ? parseInt(matched.dealDeposit).toLocaleString() : ''}" oninput="formatNumberWithCommas(this); validateInlineContractForm('${id}')" style="width: 100%; padding: 5px; border: 1px solid #d8b4fe; border-radius: 4px; font-size: 11.5px; outline: none;">
+                    </div>
+                `;
+            } else if (type === '월세') {
+                container.innerHTML = `
+                    <div style="flex: 1; min-width: 80px;">
+                        <label style="display:block; font-size: 10.5px; color: #6b21a8; margin-bottom: 2px;">보증금 (만원)</label>
+                        <input type="text" id="inline-deal-deposit-${id}" value="${matched.dealDeposit ? parseInt(matched.dealDeposit).toLocaleString() : ''}" oninput="formatNumberWithCommas(this); validateInlineContractForm('${id}')" style="width: 100%; padding: 5px; border: 1px solid #d8b4fe; border-radius: 4px; font-size: 11.5px; outline: none;">
+                    </div>
+                    <div style="flex: 1; min-width: 80px;">
+                        <label style="display:block; font-size: 10.5px; color: #6b21a8; margin-bottom: 2px;">월세 (만원)</label>
+                        <input type="text" id="inline-deal-rent-${id}" value="${matched.dealRent ? parseInt(matched.dealRent).toLocaleString() : ''}" oninput="formatNumberWithCommas(this); validateInlineContractForm('${id}')" style="width: 100%; padding: 5px; border: 1px solid #d8b4fe; border-radius: 4px; font-size: 11.5px; outline: none;">
+                    </div>
+                `;
+            }
+            validateInlineContractForm(id); // 필드 교환 시 유효성 상태 재평가
+        };
+
+        // 아코디언 내 계약 입력 폼 실시간 유효성 평가기 및 저장 단추 잠금 해제 제어
+        window.validateInlineContractForm = function(id) {
+            const dealTypeEl = document.getElementById(`inline-deal-type-${id}`);
+            const priceEl = document.getElementById(`inline-deal-price-${id}`);
+            const depositEl = document.getElementById(`inline-deal-deposit-${id}`);
+            const rentEl = document.getElementById(`inline-deal-rent-${id}`);
+            const rateEl = document.getElementById(`inline-deal-rate-${id}`);
+            const balanceDateEl = document.getElementById(`inline-deal-balance-date-${id}`);
+            const btn = document.getElementById(`inline-deal-save-btn-${id}`);
+            
+            if (!dealTypeEl || !btn) return;
+            
+            const dealType = dealTypeEl.value;
+            const balanceDate = balanceDateEl ? balanceDateEl.value : '';
+            const rate = rateEl ? parseFloat(rateEl.value || 0) : 0;
+            
+            let hasAmount = false;
+            if (dealType === '매매') {
+                const price = priceEl ? parseFloat(priceEl.value.replace(/,/g, '') || 0) : 0;
+                hasAmount = price > 0;
+            } else if (dealType === '전세') {
+                const deposit = depositEl ? parseFloat(depositEl.value.replace(/,/g, '') || 0) : 0;
+                hasAmount = deposit > 0;
+            } else if (dealType === '월세') {
+                const deposit = depositEl ? parseFloat(depositEl.value.replace(/,/g, '') || 0) : 0;
+                const rent = rentEl ? parseFloat(rentEl.value.replace(/,/g, '') || 0) : 0;
+                hasAmount = deposit > 0 && rent > 0;
+            }
+            
+            // 필수 요건 (금액 입력 완료, 보수요율 기입 완료, 잔금일 지정 완료) 만족 시 활성화
+            if (hasAmount && rate > 0 && balanceDate) {
+                btn.disabled = false;
+                btn.style.background = '#6b21a8';
+                btn.style.cursor = 'pointer';
+                btn.style.opacity = '1';
+            } else {
+                btn.disabled = true;
+                btn.style.background = '#a78bfa';
+                btn.style.cursor = 'not-allowed';
+                btn.style.opacity = '0.6';
+            }
+        };
+
+        // 아코디언 계약 정보 일괄 확정 저장 및 상담이력 자동 기입 연동
+        window.saveInlineBrokerageContract = function(id) {
+            const dealTypeEl = document.getElementById(`inline-deal-type-${id}`);
+            const priceEl = document.getElementById(`inline-deal-price-${id}`);
+            const depositEl = document.getElementById(`inline-deal-deposit-${id}`);
+            const rentEl = document.getElementById(`inline-deal-rent-${id}`);
+            const rateEl = document.getElementById(`inline-deal-rate-${id}`);
+            const balanceDateEl = document.getElementById(`inline-deal-balance-date-${id}`);
+            
+            if (!dealTypeEl) return;
+            
+            const dealType = dealTypeEl.value;
+            const price = priceEl ? parseFloat(priceEl.value.replace(/,/g, '') || 0) : 0;
+            const deposit = depositEl ? parseFloat(depositEl.value.replace(/,/g, '') || 0) : 0;
+            const rent = rentEl ? parseFloat(rentEl.value.replace(/,/g, '') || 0) : 0;
+            const rate = rateEl ? parseFloat(rateEl.value || 0) : 0;
+            const balanceDate = balanceDateEl ? balanceDateEl.value : '';
+            
+            // 수수료 계산
+            const calculatedFee = calculateBrokerageFee(dealType, price, deposit, rent, rate);
+            
+            const list = getBrokerages();
+            const idx = list.findIndex(b => b.id === id);
+            if (idx === -1) return;
+            
+            list[idx].dealType = dealType;
+            list[idx].dealPrice = price;
+            list[idx].dealDeposit = deposit;
+            list[idx].dealRent = rent;
+            list[idx].commissionRate = rate;
+            list[idx].dealBalanceDate = balanceDate;
+            list[idx].calculatedFee = calculatedFee;
+            
+            // 자동 상담이력 누적용 정보 텍스트 빌딩
+            let amountText = '';
+            if (dealType === '매매') {
+                amountText = `매매가 ${price.toLocaleString()}만원`;
+            } else if (dealType === '전세') {
+                amountText = `전세금 ${deposit.toLocaleString()}만원`;
+            } else if (dealType === '월세') {
+                amountText = `보증금 ${deposit.toLocaleString()}만원 / 월세 ${rent.toLocaleString()}만원`;
+            }
+            
+            const feeText = calculatedFee > 0 ? `${Math.floor(calculatedFee / 10000).toLocaleString()}만원` : '0원';
+            const balanceText = balanceDate ? balanceDate : '미지정';
+            
+            // 타임스탬프 계산
+            const currentUser = JSON.parse(sessionStorage.getItem('nest_currentUser')) || { name: '마스터 관리자' };
+            const now = new Date();
+            const formattedTime = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+            
+            // 시스템 로그 자동 생성
+            const systemLog = `[계약정보저장] 거래유형: ${dealType} / 금액: ${amountText} / 요율: ${rate}% / 예상수수료: ${feeText} / 잔금일: ${balanceText}`;
+            
+            if (!list[idx].history) {
+                list[idx].history = [];
+            }
+            list[idx].history.push({
+                time: formattedTime,
+                writer: currentUser.name,
+                content: systemLog
+            });
+            
+            // 하위 호환성 동기화
+            list[idx].notes = systemLog;
+            list[idx].notesUpdatedAt = formattedTime;
+            
+            localStorage.setItem('nest_brokerage', JSON.stringify(list));
+            
+            alert("계약 정보가 성공적으로 저장되었으며 상담 이력에 실시간 반영되었습니다.");
+            
+            renderAdminBrokerage();
+            toggleBrokerageDetails(id);
+        };
+
+        // 아코디언 카드 내부에서 진행 단계를 즉시 변경 및 자동 동기화 저장
+        window.updateInlineBrokerageStatus = function(id, newStatus) {
+            const list = getBrokerages();
+            const idx = list.findIndex(b => b.id === id);
+            if (idx === -1) return;
+            
+            list[idx].status = newStatus;
+            if (newStatus !== '영업종료') {
+                list[idx].endReason = '';
+            } else {
+                list[idx].endReason = '장기부재(일주일이상)'; // 기본값 강제 할당
+            }
+            
+            localStorage.setItem('nest_brokerage', JSON.stringify(list));
+            
+            // 데이터 돔 새로고침 후, 사용자가 조작 중이던 아코디언 상태를 그대로 복원하여 열어둔다!
+            renderAdminBrokerage();
+            toggleBrokerageDetails(id);
+        };
+
+        // 아코디언 카드 내부에서 영업종료 상세 사유를 즉시 변경 및 저장
+        window.updateInlineBrokerageEndReason = function(id, newReason) {
+            const list = getBrokerages();
+            const idx = list.findIndex(b => b.id === id);
+            if (idx === -1) return;
+            
+            list[idx].endReason = newReason;
+            localStorage.setItem('nest_brokerage', JSON.stringify(list));
+            
+            renderAdminBrokerage();
+            toggleBrokerageDetails(id);
+        };
+
+        // Toggle Brokerage Detailed Notes Accordion
+        window.toggleBrokerageDetails = function(id) {
+            const el = document.getElementById(`details-${id}`);
+            if (el) {
+                if (el.style.display === 'none') {
+                    el.style.display = 'table-row';
+                } else {
+                    el.style.display = 'none';
+                }
+            }
+        };
+
         // Delete Brokerage
         window.deleteBrokerage = function(id) {
+            const user = JSON.parse(sessionStorage.getItem('nest_currentUser')) || { role: 'staff' };
+            if (user.role !== 'master') {
+                alert("삭제 권한이 없습니다. 중개 의뢰 삭제는 마스터 관리자만 가능합니다.");
+                return;
+            }
             if (!confirm("정말 이 중개 현황을 영구 삭제하시겠습니까?")) return;
             let list = getBrokerages();
             list = list.filter(b => b.id !== id);
