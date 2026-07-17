@@ -14,12 +14,11 @@
 </head>
 
 <body>
-    <header id="header" class="scrolled"> <!-- Force header background color on static page -->
+    <header id="header" class="scrolled">
         <div class="container">
+            <!-- 로고 (인라인 절대배치 제거, CSS Flexbox에서 제어) -->
             <a href="index.html" class="logo" style="text-decoration: none;">(주)둥지부동산중개법인</a>
-            <div class="menu-toggle" id="mobile-menu">
-                <i class="fas fa-bars"></i>
-            </div>
+            
             <nav>
                 <ul class="nav-list">
                     <li><a href="index.html#home">홈</a></li>
@@ -34,6 +33,17 @@
                     <li><a href="index.html#contact" class="btn-consult">상담문의</a></li>
                 </ul>
             </nav>
+            
+            <!-- 데스크톱용 맨 오른쪽 정렬 관리자 로그인 -->
+            <a href="admin.html" class="btn-admin-nav desktop-only" style="border: 1px solid rgba(255, 255, 255, 0.15); padding: 8px 16px; border-radius: 4px; font-size: 12.5px; color: rgba(255, 255, 255, 0.45); text-decoration: none; transition: all 0.3s; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; background: transparent; white-space: nowrap;"
+               onmouseenter="this.style.borderColor='var(--accent-color)'; this.style.color='var(--accent-color)'; this.querySelector('i').style.opacity='1';" 
+               onmouseleave="this.style.borderColor='rgba(255, 255, 255, 0.15)'; this.style.color='rgba(255, 255, 255, 0.45)'; this.querySelector('i').style.opacity='0.5';">
+                <i class="fas fa-lock" style="font-size: 10.5px; color: var(--accent-color); opacity: 0.5; transition: opacity 0.3s;"></i> 관리자 로그인
+            </a>
+
+            <div class="menu-toggle" id="mobile-menu">
+                <i class="fas fa-bars"></i>
+            </div>
         </div>
     </header>
 
@@ -176,11 +186,16 @@
                 }
             ];
 
-            if (!props || JSON.parse(props).length === 0 || JSON.parse(props)[0].tag === "부산진구" || (JSON.parse(props)[0].tag !== "서울" && JSON.parse(props)[0].tag !== "경기")) {
+            if (props === null) {
                 localStorage.setItem('nest_properties', JSON.stringify(defaultProperties));
                 return defaultProperties;
             }
-            return JSON.parse(props);
+            try {
+                return JSON.parse(props) || [];
+            } catch (e) {
+                console.error("Failed to parse nest_properties in properties page:", e);
+                return [];
+            }
         }
 
         const propertiesGrid = document.getElementById('propertiesGrid');
@@ -199,15 +214,15 @@
                 card.className = 'property-card';
                 card.id = `card-${p.id}`;
                 card.innerHTML = `
-                    <div class="card-image" style="background-image: url('${p.imageUrl}');">
+                    <div class="card-image" style="background-image: url('${p.imageUrl}'); cursor: pointer;" onclick="openPremiumDetailModal('${p.id}')">
                         <span class="tag" style="background: var(--accent-color);">${escapeHtml(p.tag)} | ${escapeHtml(p.floor && p.floor.startsWith('-') ? '지하 ' + p.floor.substring(1) : p.floor)}</span>
                     </div>
                     <div class="card-body">
-                        <h3>${escapeHtml(p.title)}</h3>
+                        <h3 style="cursor: pointer;" onclick="openPremiumDetailModal('${p.id}')">${escapeHtml(p.title)}</h3>
                         <p class="desc">${escapeHtml(p.desc)}</p>
                         <div class="card-footer">
                             <span class="price">${escapeHtml(p.price)}</span>
-                            <button class="btn-text" onclick="alert('둥지부동산에 매물 관련 문의 전화를 주시면 상세 안내를 도와드립니다.')">자세히 보기 &rarr;</button>
+                             <button class="btn-text" onclick="openPremiumDetailModal('${p.id}')">자세히 보기 &rarr;</button>
                         </div>
                     </div>
                 `;
@@ -298,7 +313,43 @@
         // Run
         populateFloorOptions();
         parseUrlParameters();
+
+        // 프리미엄 매물 상세 모달 제어 함수
+        window.openPremiumDetailModal = function(propId) {
+            const modal = document.getElementById('premiumDetailModal');
+            const iframe = document.getElementById('premiumDetailIframe');
+            if (modal && iframe) {
+                iframe.src = `property-detail.html?id=${propId}`;
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        };
+
+        window.closePremiumDetailModal = function() {
+            const modal = document.getElementById('premiumDetailModal');
+            const iframe = document.getElementById('premiumDetailIframe');
+            if (modal && iframe) {
+                modal.style.display = 'none';
+                iframe.src = '';
+                document.body.style.overflow = '';
+            }
+        };
     </script>
+
+    <!-- 프리미엄 매물 상세 모달 팝업 컨테이너 (iframe 기반) -->
+    <div id="premiumDetailModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.65); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 20px;">
+        <div style="background: #fff; border-radius: 12px; width: 100%; max-width: 1000px; height: 85vh; display: flex; flex-direction: column; overflow: hidden; position: relative; box-shadow: 0 10px 35px rgba(0,0,0,0.3); animation: slideUp 0.3s ease-out;">
+            <span onclick="closePremiumDetailModal()" style="position: absolute; top: 15px; right: 25px; font-size: 32px; color: #64748b; cursor: pointer; z-index: 10010; transition: color 0.2s;" onmouseenter="this.style.color='var(--accent-color)'" onmouseleave="this.style.color='#64748b'">&times;</span>
+            <iframe id="premiumDetailIframe" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+        </div>
+    </div>
+    
+    <style>
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
 </body>
 
 </html>

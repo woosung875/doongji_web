@@ -343,13 +343,13 @@
                     <label>거래 유형 <span style="color: red;">*</span></label>
                     <div style="display: flex; gap: 15px; margin-top: 5px;">
                         <label style="display: inline-flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer; color: var(--primary-color);">
-                            <input type="radio" name="tradeType" value="매매" checked style="accent-color: var(--accent-color); transform: scale(1.15);"> 매매
+                            <input type="radio" name="tradeType" value="매매" style="accent-color: var(--accent-color); transform: scale(1.15);"> 매매
                         </label>
                         <label style="display: inline-flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer; color: var(--primary-color);">
                             <input type="radio" name="tradeType" value="전세" style="accent-color: var(--accent-color); transform: scale(1.15);"> 전세
                         </label>
                         <label style="display: inline-flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer; color: var(--primary-color);">
-                            <input type="radio" name="tradeType" value="월세" style="accent-color: var(--accent-color); transform: scale(1.15);"> 월세
+                            <input type="radio" name="tradeType" value="월세" checked style="accent-color: var(--accent-color); transform: scale(1.15);"> 월세
                         </label>
                     </div>
                 </div>
@@ -392,8 +392,8 @@
                 <!-- 관리비 및 면적 입력 필드 -->
                 <div style="display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap;">
                     <div class="form-group" style="flex: 1; min-width: 150px;">
-                        <label>관리비 (원 단위)</label>
-                        <input type="number" id="propMaintenance" placeholder="예: 300000" style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                        <label>관리비 (만원 단위)</label>
+                        <input type="text" id="propMaintenance" placeholder="예: 30" style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
                     </div>
                     <div class="form-group" style="flex: 1; min-width: 150px;">
                         <label>공급면적</label>
@@ -418,12 +418,15 @@
                 </div>
 
                 <div class="form-group">
-                    <label>이미지 첨부 (직접 업로드)</label>
-                    <input type="file" id="propFile" accept="image/*" style="border: none; padding: 5px 0;">
-                    <input type="hidden" id="propImageUrl">
+                    <label>이미지 첨부 (다중 선택 가능, 최대 20장) <span style="color: red;">*</span></label>
+                    <input type="file" id="propFile" accept="image/*" multiple style="border: none; padding: 5px 0;">
+                    <input type="hidden" id="propImageUrl"> <!-- 단수 이미지 (하위 호환) -->
+                    <input type="hidden" id="propImageUrls" value="[]"> <!-- 다중 이미지 JSON 배열 -->
                     <div id="imagePreviewContainer" style="margin-top: 10px; display: none;">
-                        <p style="font-size: 0.85rem; color: #777; margin-bottom: 5px;">이미지 미리보기:</p>
-                        <img id="formImagePreview" src="" alt="미리보기" style="max-width: 100%; height: 120px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
+                        <p style="font-size: 0.85rem; color: #777; margin-bottom: 5px;">선택된 사진 목록 (<span id="previewCount">0</span>장):</p>
+                        <div id="formImagePreviewList" style="display: flex; gap: 8px; flex-wrap: wrap; max-height: 200px; overflow-y: auto; padding: 5px; border: 1px solid #ddd; border-radius: 4px; background: #f8fafc;">
+                            <!-- 다중 미리보기 썸네일 동적 생성 -->
+                        </div>
                     </div>
                 </div>
 
@@ -851,6 +854,7 @@
             radio.addEventListener('change', updatePriceFields);
         }
         const inputImageUrl = document.getElementById('propImageUrl');
+        const inputImageUrls = document.getElementById('propImageUrls');
         const inputFile = document.getElementById('propFile');
         const previewContainer = document.getElementById('imagePreviewContainer');
         const formImagePreview = document.getElementById('formImagePreview');
@@ -997,14 +1001,20 @@
             showLoginForm();
         });
 
-        // Get Properties Data
+
+        // Get Properties Data (더 이상 데이터 삭제 시 씨드 복원하지 않음)
         function getProperties() {
             let props = localStorage.getItem('nest_properties');
-            if (!props || JSON.parse(props).length === 0) {
+            if (props === null) { // 로컬스토리지에 키가 최초에 아예 없을 때만 디폴트 매물 주입!
                 localStorage.setItem('nest_properties', JSON.stringify(defaultProperties));
                 return defaultProperties;
             }
-            return JSON.parse(props);
+            try {
+                return JSON.parse(props) || [];
+            } catch (e) {
+                console.error("Failed to parse nest_properties:", e);
+                return [];
+            }
         }
 
         // Populate Floor Option Dropdown (-6F to 30F)
@@ -1103,30 +1113,7 @@
 
         // Open Property Modal (Add)
         btnNewProperty.addEventListener('click', () => {
-            modalTitle.innerText = "새 매물 등록";
-            inputId.value = '';
-            propertyForm.reset();
-
-            // Reset tradeType to '매매' and clear price fields
-            document.querySelector('input[name="tradeType"][value="매매"]').checked = true;
-            inputPriceSale.value = '';
-            inputPriceDepositOnly.value = '';
-            inputPriceDeposit.value = '';
-            inputPriceMonthly.value = '';
-            updatePriceFields();
-
-            // Reset maintenance, areas, and lessor info
-            inputMaintenance.value = '';
-            inputSupplyArea.value = '';
-            inputExclusiveArea.value = '';
-            inputLessorName.value = '';
-            inputLessorPhone.value = '';
-
-            inputImageUrl.value = '';
-            previewContainer.style.display = 'none';
-            formImagePreview.src = '';
-            populatePropWriter(null); // 새 매물 등록 모드에 맞게 작성자 셋업
-            propertyModal.classList.add('open');
+            openPremiumDetailModal(null, 'add');
         });
 
         // Close Modal Handlers
@@ -1136,17 +1123,73 @@
         btnModalClose.addEventListener('click', closeModal);
         btnModalCancel.addEventListener('click', closeModal);
 
-        // File upload encoding (Base64)
+        // 숫자 3자리 콤마 포맷터
+        function formatNumberWithCommas(value) {
+            const num = value.replace(/[^0-9]/g, '');
+            if (!num) return '';
+            return parseInt(num).toLocaleString();
+        }
+
+        // 가격 관련 입력 필드들에 실시간 오토콤마 적용
+        const priceInputsList = [inputPriceSale, inputPriceDepositOnly, inputPriceDeposit, inputPriceMonthly, inputMaintenance];
+        priceInputsList.forEach(inputEl => {
+            if (inputEl) {
+                inputEl.addEventListener('input', (e) => {
+                    e.target.value = formatNumberWithCommas(e.target.value);
+                });
+            }
+        });
+
+        // File upload encoding (Base64) - 다중 파일 (최대 20장) 리더
+        let selectedBase64Images = [];
         inputFile.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    inputImageUrl.value = event.target.result;
-                    formImagePreview.src = event.target.result;
-                    previewContainer.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
+            const files = Array.from(e.target.files);
+            if (files.length > 20) {
+                alert("사진은 최대 20장까지만 업로드 가능합니다.");
+                inputFile.value = "";
+                return;
+            }
+            
+            selectedBase64Images = [];
+            const previewList = document.getElementById('formImagePreviewList');
+            const previewCount = document.getElementById('previewCount');
+            if (previewList) previewList.innerHTML = '';
+            
+            if (files.length > 0) {
+                let loadedCount = 0;
+                files.forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const base64Str = event.target.result;
+                        selectedBase64Images.push(base64Str);
+                        
+                        if (previewList) {
+                            const img = document.createElement('img');
+                            img.src = base64Str;
+                            img.style.width = "60px";
+                            img.style.height = "60px";
+                            img.style.objectFit = "cover";
+                            img.style.borderRadius = "4px";
+                            img.style.border = "1px solid #ddd";
+                            img.title = `사진 ${index + 1}`;
+                            previewList.appendChild(img);
+                        }
+                        
+                        loadedCount++;
+                        if (loadedCount === files.length) {
+                            inputImageUrl.value = selectedBase64Images[0]; // 대표 이미지
+                            document.getElementById('propImageUrls').value = JSON.stringify(selectedBase64Images);
+                            if (previewCount) previewCount.innerText = loadedCount;
+                            previewContainer.style.display = 'block';
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                });
+            } else {
+                inputImageUrl.value = '';
+                document.getElementById('propImageUrls').value = '[]';
+                previewContainer.style.display = 'none';
+                if (previewCount) previewCount.innerText = '0';
             }
         });
 
@@ -1163,7 +1206,8 @@
             const desc = inputDesc.value;
             const address = inputAddress.value.trim();
 
-            const maintenance = inputMaintenance.value ? parseInt(inputMaintenance.value) : 0;
+            // 관리비 파싱 (오토콤마가 박혀있으므로 콤마 제거 후 만원 단위 곱하기 만원)
+            const maintenance = inputMaintenance.value ? parseInt(inputMaintenance.value.replace(/,/g, '')) * 10000 : 0;
             const supplyArea = inputSupplyArea.value.trim();
             const exclusiveArea = inputExclusiveArea.value.trim();
             const lessorName = inputLessorName.value.trim();
@@ -1171,21 +1215,23 @@
 
             // 거래 유형에 따른 최종 가격 텍스트 빌드
             let price = "";
-            let selectedType = "매매";
+            let selectedType = "월세";
             for (const radio of tradeTypeRadios) {
                 if (radio.checked) selectedType = radio.value;
             }
 
             if (selectedType === "매매") {
-                price = `매매 ${inputPriceSale.value.trim()}`;
+                price = `매매 ${inputPriceSale.value.trim()}만원`;
             } else if (selectedType === "전세") {
-                price = `전세 ${inputPriceDepositOnly.value.trim()}`;
+                price = `전세 ${inputPriceDepositOnly.value.trim()}만원`;
             } else if (selectedType === "월세") {
-                price = `보증금 ${inputPriceDeposit.value.trim()} / 월 ${inputPriceMonthly.value.trim()}`;
+                price = `보증금 ${inputPriceDeposit.value.trim()}만원 / 월 ${inputPriceMonthly.value.trim()}만원`;
             }
             
             // Set image fallback if none selected
             const imageUrl = inputImageUrl.value || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800';
+            const imageUrlsVal = document.getElementById('propImageUrls').value || '[]';
+            const imageUrls = JSON.parse(imageUrlsVal);
 
             // Priority 1: Use Kakao Maps SDK Geocoder
             if (typeof kakao !== 'undefined' && kakao.maps && kakao.maps.services && !window.kakaoGeocoderFailed) {
@@ -1194,18 +1240,18 @@
                     if (status === kakao.maps.services.Status.OK) {
                         const lat = parseFloat(result[0].y);
                         const lng = parseFloat(result[0].x);
-                        executePropertySave(list, id, tag, type, floor, title, desc, price, address, imageUrl, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone, selectPropWriter.value);
+                        executePropertySave(list, id, tag, type, floor, title, desc, price, address, imageUrl, imageUrls, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone, selectPropWriter.value);
                     } else {
                         // Kakao search fails, try backup OSM Nominatim Geocoder
                         fallbackGeocodeNominatim(address, (lat, lng) => {
-                            executePropertySave(list, id, tag, type, floor, title, desc, price, address, imageUrl, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone, selectPropWriter.value);
+                            executePropertySave(list, id, tag, type, floor, title, desc, price, address, imageUrl, imageUrls, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone, selectPropWriter.value);
                         });
                     }
                 });
             } else {
                 // Priority 2: Kakao SDK Blocked/Failed on localhost -> Call OSM Nominatim API directly
                 fallbackGeocodeNominatim(address, (lat, lng) => {
-                    executePropertySave(list, id, tag, type, floor, title, desc, price, address, imageUrl, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone, selectPropWriter.value);
+                    executePropertySave(list, id, tag, type, floor, title, desc, price, address, imageUrl, imageUrls, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone, selectPropWriter.value);
                 });
             }
         });
@@ -1238,18 +1284,18 @@
             });
         }
 
-        function executePropertySave(list, id, tag, type, floor, title, desc, price, address, imageUrl, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone, writer) {
+        function executePropertySave(list, id, tag, type, floor, title, desc, price, address, imageUrl, imageUrls, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone, writer) {
             if (id) {
                 // Edit mode
                 const idx = list.findIndex(p => p.id === id);
                 if (idx !== -1) {
-                    list[idx] = { id, tag, type, floor, title, desc, price, address, imageUrl, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone, writer };
+                    list[idx] = { id, tag, type, floor, title, desc, price, address, imageUrl, imageUrls, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone, writer };
                 }
             } else {
                 // Add mode
                 const newProp = {
                     id: "prop-" + Date.now(),
-                    tag, type, floor, title, desc, price, address, imageUrl, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone,
+                    tag, type, floor, title, desc, price, address, imageUrl, imageUrls, lat, lng, maintenance, supplyArea, exclusiveArea, lessorName, lessorPhone,
                     writer
                 };
                 list.unshift(newProp); // Put new items at the beginning
@@ -1274,56 +1320,7 @@
                 return;
             }
 
-            modalTitle.innerText = "매물 정보 수정";
-            inputId.value = matched.id;
-            inputTag.value = matched.tag;
-            inputType.value = matched.type;
-            inputFloor.value = matched.floor;
-            inputTitle.value = matched.title;
-            inputDesc.value = matched.desc;
-            inputAddress.value = matched.address || '';
-            inputImageUrl.value = matched.imageUrl;
-            
-            // 가격 역디코딩 및 입력창 분배 채우기
-            const priceText = matched.price || '';
-            
-            // 개별 가격 인풋 리셋
-            inputPriceSale.value = '';
-            inputPriceDepositOnly.value = '';
-            inputPriceDeposit.value = '';
-            inputPriceMonthly.value = '';
-
-            if (priceText.startsWith("매매")) {
-                document.querySelector('input[name="tradeType"][value="매매"]').checked = true;
-                inputPriceSale.value = priceText.replace("매매", "").trim();
-            } else if (priceText.startsWith("전세")) {
-                document.querySelector('input[name="tradeType"][value="전세"]').checked = true;
-                inputPriceDepositOnly.value = priceText.replace("전세", "").trim();
-            } else if (priceText.includes("보증금") && priceText.includes("월")) {
-                document.querySelector('input[name="tradeType"][value="월세"]').checked = true;
-                const parts = priceText.split("/");
-                const depPart = parts[0] ? parts[0].replace("보증금", "").trim() : "";
-                const rentPart = parts[1] ? parts[1].replace("월", "").trim() : "";
-                inputPriceDeposit.value = depPart;
-                inputPriceMonthly.value = rentPart;
-            } else {
-                // 일반 자유 텍스트 (예: 가격 협의 등)일 때 매매 기본값으로 얹어주기
-                document.querySelector('input[name="tradeType"][value="매매"]').checked = true;
-                inputPriceSale.value = priceText;
-            }
-            updatePriceFields(); // 필드 활성 가시성 동기화!
-
-            // Bind new fields (maintenance, areas, lessor info)
-            inputMaintenance.value = matched.maintenance || '';
-            inputSupplyArea.value = matched.supplyArea || '';
-            inputExclusiveArea.value = matched.exclusiveArea || '';
-            inputLessorName.value = matched.lessorName || '';
-            inputLessorPhone.value = matched.lessorPhone || '';
-            
-            formImagePreview.src = matched.imageUrl;
-            previewContainer.style.display = 'block';
-            populatePropWriter(matched.writer); // 매물 편집 시 기존 작성자(등록자) 선택 로드
-            propertyModal.classList.add('open');
+            openPremiumDetailModal(id, 'edit');
         };
 
         // Delete Property
@@ -1683,21 +1680,16 @@
 
         function getBrokerages() {
             let list = localStorage.getItem('nest_brokerage');
-            let brokerages = [];
-            try {
-                if (list) {
-                    brokerages = JSON.parse(list);
-                }
-            } catch (e) {
-                console.error("Failed to parse nest_brokerage:", e);
-                brokerages = [];
-            }
-            
-            if (!brokerages || brokerages.length === 0) {
+            if (list === null) { // 로컬스토리지 키가 최초에 없을 때만 씨드 데이터 주입!
                 localStorage.setItem('nest_brokerage', JSON.stringify(initialBrokerages));
                 return initialBrokerages;
             }
-            return brokerages;
+            try {
+                return JSON.parse(list) || [];
+            } catch (e) {
+                console.error("Failed to parse nest_brokerage:", e);
+                return [];
+            }
         }
         window.getBrokerages = getBrokerages;
 
@@ -1765,7 +1757,7 @@
                     const userList = JSON.parse(localStorage.getItem('nest_users')) || [];
                     const agents = [...new Set(userList.map(u => u.name))].filter(Boolean);
                     
-                    let html = '<option value="all">전체 담당사 보기</option>';
+                    let html = '<option value="all">담당자 보기</option>';
                     agents.forEach(agentName => {
                         html += `<option value="${agentName}">${agentName}</option>`;
                     });
@@ -2749,8 +2741,8 @@
                 id: "user-1",
                 loginId: "admin",
                 password: "admin",
-                name: "마스터 관리자",
-                agentLink: "마스터 관리자",
+                name: "김우성 대표 / 공인중개사",
+                agentLink: "김우성 대표 / 공인중개사",
                 role: "master",
                 permissions: ["properties", "guides", "reviews", "brokerage"]
             },
@@ -2978,12 +2970,53 @@
             alert("임직원 계정이 영구 삭제되었습니다.");
         };
 
-
-
         // Initialize setup
         populateFloorOptions();
         checkSession();
+
+        // 프리미엄 매물 상세 에디터 모달 제어 함수
+        window.openPremiumDetailModal = function(propId, mode) {
+            const modal = document.getElementById('premiumDetailModal');
+            const iframe = document.getElementById('premiumDetailIframe');
+            if (modal && iframe) {
+                if (mode === 'add') {
+                    iframe.src = `property-detail.html?mode=add`;
+                } else if (mode === 'edit') {
+                    iframe.src = `property-detail.html?id=${propId}&mode=edit`;
+                } else {
+                    iframe.src = `property-detail.html?id=${propId}`;
+                }
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        };
+
+        window.closePremiumDetailModal = function() {
+            const modal = document.getElementById('premiumDetailModal');
+            const iframe = document.getElementById('premiumDetailIframe');
+            if (modal && iframe) {
+                modal.style.display = 'none';
+                iframe.src = '';
+                document.body.style.overflow = '';
+            }
+        };
     </script>
+
+    <!-- 프리미엄 매물 상세 모달 팝업 컨테이너 (iframe 기반) -->
+    <div id="premiumDetailModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.65); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 20px;">
+        <div style="background: #fff; border-radius: 12px; width: 100%; max-width: 1000px; height: 85vh; display: flex; flex-direction: column; overflow: hidden; position: relative; box-shadow: 0 10px 35px rgba(0,0,0,0.3); animation: slideUp 0.3s ease-out;">
+            <span onclick="closePremiumDetailModal()" style="position: absolute; top: 15px; right: 25px; font-size: 32px; color: #64748b; cursor: pointer; z-index: 10010; transition: color 0.2s;" onmouseenter="this.style.color='var(--accent-color)'" onmouseleave="this.style.color='#64748b'">&times;</span>
+            <iframe id="premiumDetailIframe" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+        </div>
+    </div>
+    
+    <style>
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+
     <!-- Load Kakao Map SDK and Daum Postcode Library -->
     <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=3e8097eb16c9e4942d0cbb215d2da6e6&libraries=services" onerror="window.kakaoGeocoderFailed = true;"></script>

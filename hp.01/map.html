@@ -479,8 +479,8 @@
                     });
                     
                     kakao.maps.event.addListener(marker, 'click', () => {
-                        // Open sliding details panel instead of InfoWindow
-                        openPropertyDetail(group.items, 0);
+                        // 마커 클릭 시 다이렉트로 프리미엄 팝업 모달 띄우기
+                        openPremiumDetailModal(group.items[0].id);
                     });
 
                     // 그룹 구분을 위해 첫 매물 ID를 키로 사용
@@ -504,8 +504,8 @@
                     const marker = L.marker([group.lat, group.lng], { icon: leafletMarkerIcon });
                     
                     marker.on('click', () => {
-                        // Open sliding details panel instead of popup
-                        openPropertyDetail(group.items, 0);
+                        // 마커 클릭 시 다이렉트로 프리미엄 팝업 모달 띄우기
+                        openPremiumDetailModal(group.items[0].id);
                     });
 
                     const mainId = group.items[0].id;
@@ -660,8 +660,11 @@
             panelAddress.innerText = p.address || '서울특별시 강남구 인근';
             panelDesc.innerText = p.desc;
             
-            // Connect navigation query search link
-            panelPropertiesLink.href = `properties.html?search=${encodeURIComponent(p.title)}`;
+            // Connect navigation query search link (프리미엄 팝업 모달 연동)
+            panelPropertiesLink.href = "javascript:void(0)";
+            panelPropertiesLink.onclick = function() {
+                openPremiumDetailModal(p.id);
+            };
 
             // Remove existing duplicates selectors inside panel if present
             const existingSelector = document.getElementById('panelMultiSelector');
@@ -720,7 +723,43 @@
         // Run
         populateFloorOptions();
         initMap();
+
+        // 프리미엄 매물 상세 모달 제어 함수
+        window.openPremiumDetailModal = function(propId) {
+            const modal = document.getElementById('premiumDetailModal');
+            const iframe = document.getElementById('premiumDetailIframe');
+            if (modal && iframe) {
+                iframe.src = `property-detail.html?id=${propId}`;
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        };
+
+        window.closePremiumDetailModal = function() {
+            const modal = document.getElementById('premiumDetailModal');
+            const iframe = document.getElementById('premiumDetailIframe');
+            if (modal && iframe) {
+                modal.style.display = 'none';
+                iframe.src = '';
+                document.body.style.overflow = '';
+            }
+        };
     </script>
+
+    <!-- 프리미엄 매물 상세 모달 팝업 컨테이너 (iframe 기반) -->
+    <div id="premiumDetailModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.65); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 20px;">
+        <div style="background: #fff; border-radius: 12px; width: 100%; max-width: 1000px; height: 85vh; display: flex; flex-direction: column; overflow: hidden; position: relative; box-shadow: 0 10px 35px rgba(0,0,0,0.3); animation: slideUp 0.3s ease-out;">
+            <span onclick="closePremiumDetailModal()" style="position: absolute; top: 15px; right: 25px; font-size: 32px; color: #64748b; cursor: pointer; z-index: 10010; transition: color 0.2s;" onmouseenter="this.style.color='var(--accent-color)'" onmouseleave="this.style.color='#64748b'">&times;</span>
+            <iframe id="premiumDetailIframe" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+        </div>
+    </div>
+    
+    <style>
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
 </body>
 
 </html>

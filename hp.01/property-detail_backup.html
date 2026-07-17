@@ -1,0 +1,2278 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>매물 상세 정보 - 둥지부동산</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Leaflet Map CSS/JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=3e8097eb16c9e4942d0cbb215d2da6e6&libraries=services" onerror="window.kakaoGeocoderFailed = true;"></script>
+
+    <style>
+        :root {
+            --primary-color: #0f172a;
+            --accent-color: #b5954e;
+            --text-color: #334155;
+            --bg-light: #f8fafc;
+            --border-color: #e2e8f0;
+            --orange-gradient: linear-gradient(135deg, #ff7e40, #ff5200);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Sans KR', 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* Header Tabs Area */
+        .tab-bar-container {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: #fff;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .tab-bar {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 48px;
+            padding: 0 15px;
+        }
+
+        .tab-menus {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            height: 100%;
+        }
+
+        .tab-menu-item {
+            padding: 0 12px;
+            display: flex;
+            align-items: center;
+            height: 100%;
+            font-size: 13.5px;
+            font-weight: 500;
+            color: #64748b;
+            text-decoration: none;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .tab-menu-item:hover {
+            color: var(--primary-color);
+        }
+
+        .tab-menu-item.active {
+            color: var(--accent-color);
+            font-weight: 700;
+        }
+
+        .tab-menu-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--accent-color);
+        }
+
+        .tab-menu-item.prop-no-tab {
+            color: var(--accent-color);
+            font-weight: 700;
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: 4px;
+            height: 34px;
+            padding: 0 10px;
+            margin-right: 15px;
+            align-self: center;
+        }
+
+        .tab-menu-item.prop-no-tab::after {
+            display: none !important;
+        }
+
+        .tab-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .tab-action-btn {
+            cursor: pointer;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .tab-action-btn:hover {
+            color: var(--primary-color);
+        }
+
+        /* 2-Column Main Layout */
+        .detail-wrapper {
+            max-width: 1200px;
+            margin: 15px auto;
+            padding: 0 15px;
+            display: flex;
+            gap: 20px;
+        }
+
+        /* Left Content Panel */
+        .left-content {
+            flex: 2.2;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .content-card {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            scroll-margin-top: 65px;
+        }
+
+        .content-card h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 10px;
+        }
+
+        /* Image Viewer */
+        .image-viewer-container {
+            width: 100%;
+            height: 360px;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid var(--border-color);
+        }
+
+        .image-viewer-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .watermark-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.25);
+            pointer-events: none;
+            letter-spacing: 5px;
+            border: 4px solid rgba(255, 255, 255, 0.25);
+            padding: 10px 30px;
+            text-transform: uppercase;
+        }
+
+        .image-counter {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.6);
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Spec Table */
+        .spec-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .spec-item {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 12.5px;
+            min-height: 36px;
+            align-items: center;
+        }
+
+        .spec-label {
+            width: 120px;
+            background-color: #f8fafc;
+            color: #64748b;
+            padding: 6px 12px;
+            font-weight: 500;
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .spec-val {
+            flex: 1;
+            padding: 6px 12px;
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        .spec-val.badge-val {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-mini-badge {
+            background-color: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* Description Cards */
+        .desc-bullet-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .desc-bullet-item {
+            display: flex;
+            gap: 10px;
+            font-size: 14.5px;
+            color: #475569;
+            align-items: flex-start;
+        }
+
+        .desc-bullet-item i {
+            color: #10b981;
+            margin-top: 4px;
+        }
+
+        /* Option Tag Chips */
+        .option-chips-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .option-chip {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Traffic Transit Info */
+        .transit-group {
+            margin-bottom: 20px;
+        }
+
+        .transit-group h3 {
+            font-size: 14px;
+            color: var(--primary-color);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .subway-list, .bus-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .subway-chip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .bus-chip {
+            background: #fff;
+            border: 1px solid #cbd5e1;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Map Embed Leaflet */
+        .leaflet-map-wrapper {
+            width: 100%;
+            height: 350px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 15px;
+            z-index: 1;
+        }
+
+        /* Other properties carousel card slider */
+        .others-slider {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .other-card {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .other-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+        }
+
+        .other-img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+
+        .other-body {
+            padding: 12px;
+        }
+
+        .other-region {
+            font-size: 11px;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+
+        .other-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 6px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .other-price {
+            font-size: 14px;
+            font-weight: bold;
+            color: #dc2626;
+        }
+
+        /* Right Fixed Sticky Sidebar Panel */
+        .right-sidebar {
+            flex: 1;
+            position: sticky;
+            top: 70px;
+            height: fit-content;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .sidebar-card {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+
+        /* Cost Summary */
+        .side-prop-no {
+            font-size: 12px;
+            font-weight: bold;
+            background: #f1f5f9;
+            color: #475569;
+            padding: 3px 8px;
+            border-radius: 4px;
+            width: fit-content;
+            margin-bottom: 8px;
+        }
+
+        .side-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .side-price-row {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        .side-price-item {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .side-price-item span {
+            font-size: 18px;
+            font-weight: 800;
+            color: #1e293b;
+            margin-left: 5px;
+        }
+
+        .side-price-item.accent-price span {
+            color: #dc2626;
+            font-size: 20px;
+        }
+
+        .side-quick-specs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px 25px;
+            font-size: 13px;
+            color: #475569;
+            margin-bottom: 20px;
+        }
+
+        .side-quick-specs span i {
+            color: var(--accent-color);
+            margin-right: 5px;
+        }
+
+        /* Inquiry Button */
+        .btn-side-inquiry {
+            width: 100%;
+            height: 50px;
+            border: none;
+            border-radius: 8px;
+            background: var(--orange-gradient);
+            color: #fff;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 10px rgba(255, 82, 0, 0.2);
+            transition: all 0.2s;
+        }
+
+        .btn-side-inquiry:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        /* Utility button list row */
+        .side-utils {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .side-util-btn {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #64748b;
+            transition: all 0.2s;
+        }
+
+        .side-util-btn:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        /* Broker Agent Profile Card */
+        .broker-profile-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        .broker-photo {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent-color);
+        }
+
+        .broker-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .broker-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .broker-phone-text {
+            font-size: 13.5px;
+            color: #ef4444;
+            font-weight: bold;
+            margin-top: 4px;
+        }
+
+        .office-details {
+            font-size: 11.5px;
+            color: #64748b;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        /* Modal popup form styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .modal.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: #fff;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 450px;
+            padding: 30px;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 20px;
+            color: #94a3b8;
+            cursor: pointer;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12.5px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #475569;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            outline: none;
+            font-size: 13.5px;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            border-color: var(--accent-color);
+        }
+
+        .btn-submit-inquiry {
+            width: 100%;
+            height: 45px;
+            background: var(--orange-gradient);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 14.5px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(255, 82, 0, 0.15);
+        }
+
+        /* Footer Go Back Button */
+        .nav-back-bar {
+            max-width: 1200px;
+            margin: 0 auto 30px auto;
+            padding: 0 20px;
+        }
+
+        .btn-back-main {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 13.5px;
+            font-weight: bold;
+            cursor: pointer;
+            color: var(--primary-color);
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-back-main:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        /* 에딧 모드용 스타일 분기 */
+        .edit-mode-only { display: none !important; }
+        body.edit-mode .edit-mode-only { display: block !important; }
+        body.edit-mode .edit-mode-flex { display: flex !important; }
+        body.edit-mode .view-mode-only { display: none !important; }
+        
+        body.edit-mode td.view-mode-only { display: none !important; }
+        body.edit-mode div.view-mode-only { display: none !important; }
+        body.edit-mode span.view-mode-only { display: none !important; }
+        body.edit-mode h2.view-mode-only { display: none !important; }
+        body.edit-mode h3.view-mode-only { display: none !important; }
+
+        .edit-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 13px;
+            outline: none;
+            font-family: inherit;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+            background: #fff;
+            color: #1e293b;
+        }
+        .edit-input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(181, 149, 78, 0.15);
+        }
+        
+        .edit-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 13px;
+            outline: none;
+            font-family: inherit;
+            background-color: #fff;
+            box-sizing: border-box;
+            color: #1e293b;
+        }
+        .edit-select:focus {
+            border-color: var(--accent-color);
+        }
+        
+        .edit-radio-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .edit-radio-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        /* 에딧 모드용 옵션 선택 칩 스타일 */
+        .option-chip.selectable {
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+        }
+        .option-chip.selectable:hover {
+            background: #e2e8f0;
+            border-color: #94a3b8;
+        }
+        .option-chip.selectable.active {
+            background: var(--accent-color) !important;
+            color: #fff !important;
+            border-color: var(--accent-color) !important;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation Tab Panel -->
+    <div class="tab-bar-container">
+        <div class="tab-bar">
+            <div class="tab-menus">
+                <div class="tab-menu-item prop-no-tab" id="tabPropNo">매물번호 16291</div>
+                <div class="tab-menu-item active" onclick="scrollToSection('img-section', this)">매물정보</div>
+                <div class="tab-menu-item" onclick="scrollToSection('desc-section', this)">매물설명</div>
+                <div class="tab-menu-item" onclick="scrollToSection('options-section', this)">옵션 정보</div>
+                <div class="tab-menu-item" onclick="scrollToSection('traffic-section', this)">주변 교통정보</div>
+                <div class="tab-menu-item" onclick="scrollToSection('map-section', this)">위치 및 주변시설</div>
+                <div class="tab-menu-item" onclick="scrollToSection('others-section', this)">다른 매물</div>
+            </div>
+            <div class="tab-actions">
+                <div class="tab-action-btn edit-mode-only" onclick="window.parent.closePremiumDetailModal();" style="color: #dc2626; font-weight: bold;"><i class="fas fa-times"></i> 입력 취소 / 닫기</div>
+                <div class="tab-action-btn view-mode-only" onclick="toggleAreaUnit()"><i class="fas fa-exchange-alt"></i> <span id="areaUnitLabel">㎡로 변환</span></div>
+                <div class="tab-action-btn view-mode-only" onclick="window.scrollTo({top: 0, behavior: 'smooth'})"><i class="fas fa-arrow-up"></i> 맨위로 이동</div>
+                <div class="tab-action-btn view-mode-only" onclick="window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'})"><i class="fas fa-arrow-down"></i> 맨아래로 이동</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content wrapper -->
+    <div class="detail-wrapper">
+        
+        <!-- Left scrolling Content -->
+        <div class="left-content">
+            
+            <!-- Large Image Section -->
+            <div class="content-card" id="img-section" style="padding: 15px;">
+                <div class="image-viewer-container" style="position: relative;">
+                    <button onclick="prevDetailImage()" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: #fff; border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: background 0.2s;" onmouseenter="this.style.background='rgba(0,0,0,0.8)'" onmouseleave="this.style.background='rgba(0,0,0,0.5)'"><i class="fas fa-chevron-left"></i></button>
+                    
+                    <img id="mainPropertyImg" class="image-viewer-img" src="" alt="매물 대표 실사진" style="width: 100%; height: 100%; object-fit: cover;">
+                    
+                    <button onclick="nextDetailImage()" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: #fff; border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: background 0.2s;" onmouseenter="this.style.background='rgba(0,0,0,0.8)'" onmouseleave="this.style.background='rgba(0,0,0,0.5)'"><i class="fas fa-chevron-right"></i></button>
+                    
+                    <div class="watermark-overlay" style="z-index: 2;">둥지부동산</div>
+                    <div class="image-counter" style="z-index: 3;"><i class="far fa-image"></i> <span id="detailImgCounter">1/1</span></div>
+                </div>
+                <div class="edit-mode-only" style="margin-top: 15px; text-align: center; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                    <label for="editFile" class="btn-file-upload" style="padding: 8px 16px; background: var(--accent-color); color: #fff; border-radius: 6px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+                        <i class="fas fa-camera"></i> 사진 다중 첨부 (최대 20장)
+                    </label>
+                    <input type="file" id="editFile" accept="image/*" multiple style="display: none;">
+                    <p style="font-size: 11px; color: #64748b; margin-top: 8px;">선택된 사진 목록 (<span id="editPreviewCount">0</span>장)</p>
+                    <div id="editPreviewList" style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; justify-content: center; max-height: 120px; overflow-y: auto; padding: 5px; background: #f8fafc; border-radius: 4px; border: 1px solid #e2e8f0;"></div>
+                </div>
+            </div>
+
+            <!-- Spec Table Spec list Card -->
+            <div class="content-card" id="spec-section">
+                <h2 class="view-mode-only"><i class="fas fa-info-circle" style="color: var(--accent-color);"></i> 매물 정보</h2>
+                <h2 class="edit-mode-only"><i class="fas fa-edit" style="color: var(--accent-color);"></i> 매물 정보 입력</h2>
+                
+                <div class="spec-grid">
+                    <div class="spec-item">
+                        <div class="spec-label">주소 <span class="edit-mode-only" style="color:red;">*</span></div>
+                        <div class="spec-val">
+                            <span class="view-mode-only" id="specAddress">서울 송파구 잠실동</span>
+                            <div class="edit-mode-only" style="display: flex; gap: 6px; width: 100%;">
+                                <input type="text" id="editAddress" class="edit-input" placeholder="[주소 찾기] 버튼을 눌러 검색하세요" readonly style="background-color: #f8fafc; cursor: pointer;">
+                                <button type="button" onclick="execDaumPostcodeDetail()" style="padding: 6px 12px; background: var(--primary-color); border: none; color: white; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 11px; white-space: nowrap;">주소 찾기</button>
+                            </div>
+                            <div id="detailPostcodeLayer" style="display:none; border:1px solid #cbd5e1; width:100%; height:320px; margin-top:10px; position:relative; border-radius:6px; overflow:hidden; z-index:100;">
+                                <span onclick="document.getElementById('detailPostcodeLayer').style.display='none'" style="cursor:pointer; position:absolute; right:10px; top:10px; z-index:101; font-weight:bold; font-size:18px; color:#64748b;">&times;</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">거래 유형 <span class="edit-mode-only" style="color:red;">*</span></div>
+                        <div class="spec-val">
+                            <span class="view-mode-only" id="specDealType">월세</span>
+                            <div class="edit-mode-only">
+                                <select id="editDealType" class="edit-select" onchange="updateEditPriceFields()">
+                                    <option value="월세" selected>월세</option>
+                                    <option value="전세">전세</option>
+                                    <option value="매매">매매</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">매물 종류 <span class="edit-mode-only" style="color:red;">*</span></div>
+                        <div class="spec-val">
+                            <span class="view-mode-only" id="specType">사무실</span>
+                            <div class="edit-mode-only">
+                                <select id="editType" class="edit-select">
+                                    <option value="사무실">사무실</option>
+                                    <option value="상가">상가</option>
+                                    <option value="빌딩">빌딩</option>
+                                    <option value="토지">토지</option>
+                                    <option value="주거용">주거용</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label" id="labelEditDeposit">보증금 <span class="edit-mode-only" style="color:red;">*</span></div>
+                        <div class="spec-val">
+                            <span class="view-mode-only" id="specDeposit">2,500만원</span>
+                            <div class="edit-mode-only" style="display: flex; align-items: center; gap: 4px; width: 100%;">
+                                <input type="text" id="editDeposit" class="edit-input" placeholder="예: 2,500">
+                                <span style="font-size:12px; font-weight:bold; color:#64748b; white-space:nowrap;">만원</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label" id="labelEditRent">월세 <span class="edit-mode-only" style="color:red;">*</span></div>
+                        <div class="spec-val">
+                            <span class="view-mode-only" id="specMonthlyRent">120만원</span>
+                            <div class="edit-mode-only" style="display: flex; align-items: center; gap: 4px; width: 100%;">
+                                <input type="text" id="editMonthlyRent" class="edit-input" placeholder="예: 120">
+                                <span style="font-size:12px; font-weight:bold; color:#64748b; white-space:nowrap;">만원</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">관리비</div>
+                        <div class="spec-val badge-val">
+                            <span class="view-mode-only" id="specMaintText">15만원</span>
+                            <button class="btn-mini-badge view-mode-only" onclick="alert('관리비 내역: 일반관리비 및 공동청소비 포함. 수도/전기/가스는 실사용량에 의거 개별 부과.')">상세보기</button>
+                            <div class="edit-mode-only" style="display: flex; align-items: center; gap: 4px; width: 100%;">
+                                <input type="text" id="editMaintenance" class="edit-input" placeholder="예: 15">
+                                <span style="font-size:12px; font-weight:bold; color:#64748b; white-space:nowrap;">만원</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">미등기여부</div>
+                        <div class="spec-val">
+                            <span class="view-mode-only" id="specUnregistered">해당 없음</span>
+                            <div class="edit-mode-only">
+                                <input type="text" id="editUnregistered" class="edit-input" placeholder="예: 해당 없음">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">위반 여부</div>
+                        <div class="spec-val">
+                            <span class="view-mode-only" id="specViolation">해당 없음</span>
+                            <div class="edit-mode-only">
+                                <input type="text" id="editViolation" class="edit-input" placeholder="예: 해당 없음">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">면적 정보 <span class="edit-mode-only" style="color:red;">*</span></div>
+                        <div class="spec-val">
+                            <span class="view-mode-only" id="specArea">공급 115㎡ (35평) / 전용 115㎡ (35평)</span>
+                            <div class="edit-mode-only" style="display: flex; gap: 6px; width: 100%;">
+                                <input type="text" id="editSupplyArea" class="edit-input" placeholder="공급 (예: 35평)" style="flex: 1;">
+                                <input type="text" id="editExclusiveArea" class="edit-input" placeholder="전용 (예: 35평)" style="flex: 1;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">층 정보 <span class="edit-mode-only" style="color:red;">*</span></div>
+                        <div class="spec-val">
+                            <span class="view-mode-only" id="specFloor">현재 지하 1층 / 총 5층</span>
+                            <div class="edit-mode-only" style="display: flex; gap: 6px; width: 100%; align-items: center;">
+                                <input type="text" id="editFloor" class="edit-input" placeholder="해당층 (예: 3층)" style="flex: 1;">
+                                <span style="font-size:12px; color:#64748b;">/</span>
+                                <input type="text" id="editTotalFloor" class="edit-input" placeholder="총층 (예: 5층)" style="flex: 1;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">방향</div>
+                        <div class="spec-val">
+                            <span class="view-mode-only" id="specDirection">동향 (주된 출입구 기준)</span>
+                            <div class="edit-mode-only">
+                                <input type="text" id="editDirection" class="edit-input" placeholder="예: 동향 (주된 출입구 기준)">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">주차 대수</div>
+                        <div class="spec-val">
+                            <span class="view-mode-only" id="specParking">무료 1대 가능</span>
+                            <div class="edit-mode-only">
+                                <input type="text" id="editParking" class="edit-input" placeholder="예: 무료 1대 가능">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">매물 상태</div>
+                        <div class="spec-val">
+                            <span class="view-mode-only">비어있음 (즉시 협의)</span>
+                            <span class="edit-mode-only" style="font-size:12px; color:#64748b;">수정 불가 (비어있음)</span>
+                        </div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">주용도</div>
+                        <div class="spec-val">
+                            <span class="view-mode-only" id="specPurpose">업무시설 (사무실)</span>
+                            <div class="edit-mode-only">
+                                <input type="text" id="editPurpose" class="edit-input" placeholder="예: 업무시설 (사무실)">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">방 / 화장실</div>
+                        <div class="spec-val">
+                            <span class="view-mode-only" id="specRooms">0개 / 외부 화장실 1개</span>
+                            <div class="edit-mode-only">
+                                <input type="text" id="editRooms" class="edit-input" placeholder="예: 0개 / 외부 화장실 1개">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">엘리베이터</div>
+                        <div class="spec-val">
+                            <span class="view-mode-only" id="specElevator">있음 (1대)</span>
+                            <div class="edit-mode-only">
+                                <select id="editElevator" class="edit-select">
+                                    <option value="있음">있음</option>
+                                    <option value="없음">없음</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">입주 가능일</div>
+                        <div class="spec-val">
+                            <span class="view-mode-only" id="specMoveInDate">즉시 입주 협의 가능</span>
+                            <div class="edit-mode-only">
+                                <input type="text" id="editMoveInDate" class="edit-input" placeholder="예: 즉시 입주 협의 가능">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 임대인 정보 입력 카드 (에딧 모드 시 비공개 정보용으로 활성 노출) -->
+                <div class="edit-mode-only" style="margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                    <h3 style="font-size: 13px; font-weight: bold; color: var(--primary-color); margin-bottom: 10px;"><i class="fas fa-lock" style="color: #64748b;"></i> 임대인 비공개 보안 정보 (마스터/작성자 전용)</h3>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="editLessorName" class="edit-input" placeholder="임대인 이름 (예: 김둥지)" style="flex: 1;">
+                        <input type="text" id="editLessorPhone" class="edit-input" placeholder="임대인 연락처 (예: 010-1234-5678)" style="flex: 1;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description Text Bullet list -->
+            <div class="content-card" id="desc-section">
+                <h2><i class="fas fa-file-contract" style="color: var(--accent-color);"></i> 매물 설명</h2>
+                <div class="desc-bullet-list view-mode-only" id="descList">
+                    <!-- Dynamic bullets -->
+                </div>
+                <div class="edit-mode-only">
+                    <textarea id="editDesc" class="edit-input" rows="6" placeholder="매물 세부 특징을 입력하세요.&#13;엔터(줄바꿈) 단위로 체크 표시 항목이 자동으로 생성됩니다.&#13;예:&#13;대로변 코너에 위치하여 접근성 극상&#13;주차 무료 1대 가능 / 인근 공영주차장 완비&#13;최고급 화이트 인테리어 완료"></textarea>
+                </div>
+            </div>
+
+            <!-- Options tag chip checklist -->
+            <div class="content-card" id="options-section">
+                <h2><i class="fas fa-tags" style="color: var(--accent-color);"></i> 옵션 정보</h2>
+                <div class="option-chips-container" id="optionsContainer">
+                    <span class="option-chip">무권리</span>
+                    <span class="option-chip">역세권</span>
+                    <span class="option-chip">즉시·빠른입주 가능</span>
+                    <span class="option-chip">자주식 주차</span>
+                    <span class="option-chip">대로변인근</span>
+                    <span class="option-chip">엘리베이터 완비</span>
+                </div>
+            </div>
+
+            <!-- Subway/Bus Traffic info panel -->
+            <div class="content-card" id="traffic-section">
+                <h2><i class="fas fa-subway" style="color: var(--accent-color);"></i> 주변 교통정보</h2>
+                
+                <div class="transit-group">
+                    <h3><i class="fas fa-train" style="color:var(--accent-color);"></i> 인근 지하철 <span style="font-size:11px; color:#888; font-weight:normal;">(주변 1km 이내)</span></h3>
+                    <div class="subway-list" id="subwayList">
+                        <!-- subway chips -->
+                    </div>
+                </div>
+
+                <div class="transit-group" style="margin-bottom:0;">
+                    <h3><i class="fas fa-bus" style="color:var(--accent-color);"></i> 인근 버스정류장 <span style="font-size:11px; color:#888; font-weight:normal;">(도보 5분 이내)</span></h3>
+                    <div class="bus-list" id="busList">
+                        <!-- bus chips -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map Location Panel (Leaflet) -->
+            <div class="content-card" id="map-section">
+                <h2><i class="fas fa-map-marked-alt" style="color: var(--accent-color);"></i> 위치 및 주변시설</h2>
+                <div class="leaflet-map-wrapper" id="propertyDetailMiniMap"></div>
+                <p style="font-size:12px; color:#64748b;"><i class="fas fa-info-circle"></i> 정확한 매물 보안을 위해 실매물 반경 50m 이내의 안심 지역을 원(Circle)으로 안내합니다.</p>
+            </div>
+
+            <!-- Carousel Other Listings -->
+            <div class="content-card" id="others-section">
+                <h2><i class="fas fa-building" style="color: var(--accent-color);"></i> 다른 매물 목록</h2>
+                <div class="others-slider" id="othersContainer">
+                    <!-- Dynamic Other Properties -->
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Side Fixed Sidebar Info Panel -->
+        <div class="right-sidebar">
+            <div class="sidebar-card">
+                <div class="side-prop-no" id="sidePropNo">매물번호 prop-1</div>
+                
+                <div class="side-title view-mode-only" id="sideTitle">잠실새내역 도보 7분, 지하 1층 무권리 사무실 임대</div>
+                <div class="edit-mode-only" style="margin-bottom: 15px;">
+                    <label style="display:block; font-size:11px; font-weight:bold; color:#64748b; margin-bottom:5px;">매물 제목 <span style="color:red;">*</span></label>
+                    <input type="text" id="editTitle" class="edit-input" placeholder="매물 제목을 입력하세요">
+                </div>
+                
+                <div class="side-price-row view-mode-only">
+                    <div class="side-price-item" id="sidePriceDeposit">보증금 <span>2,500만원</span></div>
+                    <div class="side-price-item" id="sidePriceRent">월세 <span>120만원</span></div>
+                    <div class="side-price-item" id="sidePriceMaintenance">관리비 <span>15만원</span></div>
+                </div>
+
+                <div class="side-quick-specs view-mode-only">
+                    <span id="sideSpecType"><i class="fas fa-hotel"></i> 상가/사무실</span>
+                    <span id="sideSpecArea"><i class="fas fa-ruler-combined"></i> 전용 35평</span>
+                    <span id="sideSpecFloor"><i class="fas fa-layer-group"></i> 지하 1층/5층</span>
+                </div>
+
+                <button class="btn-side-inquiry view-mode-only" onclick="openInquiryModal()">
+                    <i class="far fa-envelope"></i> 매물 문의하기
+                </button>
+                <button class="btn-side-inquiry edit-mode-only" onclick="savePropertyFromDetail()" style="background: var(--accent-color); border: 1px solid var(--accent-color); color: #fff;">
+                    <i class="fas fa-save"></i> 💾 매물 정보 저장하기
+                </button>
+
+                <div class="side-utils view-mode-only">
+                    <button class="side-util-btn" onclick="alert('해당 매물이 찜 목록에 등록되었습니다!')" title="찜하기"><i class="far fa-heart"></i></button>
+                    <button class="side-util-btn" onclick="window.print()" title="인쇄하기"><i class="fas fa-print"></i></button>
+                    <button class="side-util-btn" onclick="shareKakao()" title="공유하기"><i class="fas fa-share-alt"></i></button>
+                    <button class="side-util-btn" onclick="copyLink()" title="링크복사"><i class="fas fa-link"></i></button>
+                </div>
+
+                <div class="edit-mode-only" style="margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                    <label style="display:block; font-size:11px; font-weight:bold; color:#64748b; margin-bottom:5px;">등록자 (담당 중개사) <span style="color:red;">*</span></label>
+                    <select id="editWriter" class="edit-select">
+                        <!-- Dynamic writer option list -->
+                    </select>
+                </div>
+            </div>
+
+            <!-- Agent Contact Info Box Card -->
+            <div class="sidebar-card" style="border-top: 4px solid var(--accent-color);">
+                <div class="broker-profile-container">
+                    <img class="broker-photo" src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=200" alt="김우성 대표">
+                    <div class="broker-info">
+                        <span class="broker-name">김우성 대표 / 공인중개사</span>
+                        <span class="broker-phone-text">010-9703-9180</span>
+                    </div>
+                </div>
+                
+                <div class="office-details">
+                    <div style="font-weight: 700; color: var(--primary-color);">(주)둥지부동산중개법인</div>
+                    <div>대표자: 김우성</div>
+                    <div>소재지: 서울특별시 강남구 테헤란로86길 14, 4층(대치동, 윤천빌딩)</div>
+                    <div>등록번호: 11680-2024-00180</div>
+                    <div>대표번호: 02-553-9489</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bottom Nav Go back main button bar -->
+    <div class="nav-back-bar">
+        <button class="btn-back-main" onclick="location.href='index.html'">
+            <i class="fas fa-arrow-left"></i> 홈으로 돌아가기
+        </button>
+        <button class="btn-back-main" onclick="location.href='properties.html'" style="margin-left:10px;">
+            <i class="fas fa-list"></i> 매물 전체보기
+        </button>
+    </div>
+
+    <!-- Quick Inquiry Modal Popup -->
+    <div class="modal" id="inquiryModal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeInquiryModal()">&times;</span>
+            <h3>✉ 매물 간편 상담문의</h3>
+            <form id="inquiryForm" onsubmit="submitInquiryForm(event)">
+                <div class="form-group">
+                    <label>매물 번호</label>
+                    <input type="text" id="inqPropNo" readonly style="background-color: #f1f5f9; color: #64748b;">
+                </div>
+                <div class="form-group">
+                    <label>고객명 *</label>
+                    <input type="text" id="inqClient" placeholder="성함 또는 법인명을 입력하세요" required>
+                </div>
+                <div class="form-group">
+                    <label>연락처 *</label>
+                    <input type="tel" id="inqPhone" placeholder="010-0000-0000" required>
+                </div>
+                <div class="form-group">
+                    <label>문의내용</label>
+                    <textarea id="inqMemo" rows="4" placeholder="상담 문의 사항을 적어주시면 신속하게 연락드리겠습니다."></textarea>
+                </div>
+                <button type="submit" class="btn-submit-inquiry">상담 신청 등록하기</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 글로벌 변수 및 데이터 매핑 정의
+        let loadedImages = [];
+        const optionList = ["무권리", "역세권", "주차가능", "즉시입주", "엘리베이터", "대로변", "신축급", "테라스", "복층형", "인테리어완비", "단독건물", "대형동력", "24시간개방", "보안완비"];
+
+        const memberProfiles = {
+            "김우성 대표 / 공인중개사": {
+                name: "김우성 대표 / 공인중개사",
+                phone: "010-9703-9180",
+                photo: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=200",
+                officeName: "(주)둥지부동산중개법인",
+                repName: "김우성",
+                address: "서울특별시 강남구 테헤란로86길 14, 4층(대치동, 윤천빌딩)",
+                regNo: "11680-2024-00180",
+                tel: "02-553-9489"
+            },
+            "박민수 과장": {
+                name: "박민수 과장 / 공인중개사",
+                phone: "010-2800-4985",
+                photo: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=200",
+                officeName: "(주)둥지부동산중개법인",
+                repName: "김우성",
+                address: "서울특별시 강남구 테헤란로86길 14, 4층(대치동, 윤천빌딩)",
+                regNo: "11680-2024-00180",
+                tel: "02-553-9489"
+            }
+        };
+
+        // 안전한 입력 필드 바인더 헬퍼 (null 오류 차단)
+        function setElValue(id, val) {
+            const el = document.getElementById(id);
+            if (el) el.value = val || '';
+        }
+
+        // 담당 중개사 카드 프로필 동적 스위칭 함수
+        function renderBrokerProfile(writerName) {
+            // 이름 매칭 (예: '김우성' 포함 시 김우성 프로필로 매핑)
+            let matchedKey = "김우성 대표 / 공인중개사";
+            if (writerName && writerName.includes("박민수")) {
+                matchedKey = "박민수 과장";
+            }
+            const prof = memberProfiles[matchedKey];
+            
+            const photoEl = document.querySelector('.broker-photo');
+            const nameEl = document.querySelector('.broker-name');
+            const phoneEl = document.querySelector('.broker-phone-text');
+            const officeDetailsEl = document.querySelector('.office-details');
+
+            if (photoEl) photoEl.src = prof.photo;
+            if (nameEl) nameEl.innerText = prof.name;
+            if (phoneEl) phoneEl.innerText = prof.phone;
+            
+            if (officeDetailsEl) {
+                officeDetailsEl.innerHTML = `
+                    <div style="font-weight: 700; color: var(--primary-color);">${prof.officeName}</div>
+                    <div>대표자: ${prof.repName}</div>
+                    <div>소재지: ${prof.address}</div>
+                    <div>등록번호: ${prof.regNo}</div>
+                    <div>대표번호: ${prof.tel}</div>
+                `;
+            }
+        }
+
+        // iframe 팝업 환경에서 불필요한 외부 컨트롤 숨김 처리
+        if (window.self !== window.top) {
+            const style = document.createElement('style');
+            style.innerHTML = `
+                .nav-back-bar { display: none !important; }
+                .tab-actions { display: none !important; }
+                body { background-color: #fff !important; }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // =========================================================================
+        // ======================= DATA PARSER LOGIC ===============================
+        // =========================================================================
+
+        function getProperties() {
+            let props = localStorage.getItem('nest_properties');
+            if (props) {
+                try {
+                    return JSON.parse(props) || [];
+                } catch (e) {
+                    console.error("Failed to parse nest_properties:", e);
+                }
+            }
+            return [];
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const propId = urlParams.get('id') || 'prop-1';
+        const mode = urlParams.get('mode') || 'view';
+
+        const list = getProperties();
+        let p;
+
+        if (mode === 'add' || mode === 'edit') {
+            document.body.classList.add('edit-mode');
+        }
+
+        if (mode === 'add') {
+            p = {
+                id: "prop-" + Date.now(),
+                tag: "서울",
+                type: "사무실",
+                floor: "지상 1층 / 총 5층",
+                title: "",
+                desc: "",
+                price: "보증금 0 / 월 0",
+                address: "",
+                imageUrl: "",
+                imageUrls: [],
+                lat: 37.4979,
+                lng: 127.0276,
+                maintenance: 0,
+                supplyArea: "",
+                exclusiveArea: "",
+                lessorName: "",
+                lessorPhone: "",
+                writer: "김우성 대표 / 공인중개사",
+                direction: "동향 (주된 출입구 기준)",
+                purpose: "업무시설 (사무실)",
+                rooms: "0개 / 외부 화장실 1개",
+                elevator: "있음",
+                moveInDate: "즉시 입주 협의 가능",
+                options: [],
+                subways: [],
+                buses: [],
+                unregistered: "해당 없음",
+                violation: "해당 없음",
+                parking: "무료 1대 가능"
+            };
+        } else {
+            p = list.find(item => item.id === propId) || list[0];
+        }
+
+        let isPyung = true;
+
+        if (!p) {
+            alert('매물 정보가 존재하지 않거나 임시 삭제된 상태입니다.');
+            location.href = 'properties.html';
+        }
+
+        document.title = mode === 'add' ? '새 매물 등록 - 둥지부동산' : (mode === 'edit' ? '매물 수정 - 둥지부동산' : `${p.title} - 매물 상세 정보 | 둥지부동산`);
+        
+        document.getElementById('tabPropNo').innerText = mode === 'add' ? '신규 매물 등록' : `매물번호 ${p.id.toUpperCase()}`;
+        document.getElementById('sidePropNo').innerText = mode === 'add' ? '신규 매물 등록' : `매물번호 ${p.id.toUpperCase()}`;
+        document.getElementById('sideTitle').innerText = p.title || '신규 등록할 매물 제목';
+
+        // 담당 브로커 정보 실시간 렌더링 호출
+        renderBrokerProfile(p.writer);
+
+        // 다중 이미지 슬라이더 전역 제어
+        let currentImgIndex = 0;
+        let detailImageUrls = [];
+
+        if (p.imageUrls && p.imageUrls.length > 0) {
+            detailImageUrls = p.imageUrls;
+        } else if (p.imageUrl) {
+            detailImageUrls = [p.imageUrl];
+        } else {
+            detailImageUrls = ['https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800'];
+        }
+
+        function renderDetailImage() {
+            const imgEl = document.getElementById('mainPropertyImg');
+            const counterEl = document.getElementById('detailImgCounter');
+            if (imgEl && detailImageUrls.length > 0) {
+                imgEl.src = detailImageUrls[currentImgIndex];
+                if (counterEl) {
+                    counterEl.innerText = `${currentImgIndex + 1}/${detailImageUrls.length}`;
+                }
+            }
+        }
+
+        window.prevDetailImage = function() {
+            if (detailImageUrls.length <= 1) return;
+            currentImgIndex--;
+            if (currentImgIndex < 0) {
+                currentImgIndex = detailImageUrls.length - 1;
+            }
+            renderDetailImage();
+        };
+
+        window.nextDetailImage = function() {
+            if (detailImageUrls.length <= 1) return;
+            currentImgIndex++;
+            if (currentImgIndex >= detailImageUrls.length) {
+                currentImgIndex = 0;
+            }
+            renderDetailImage();
+        };
+
+        renderDetailImage();
+
+        // Price parser
+        let depositStr = "가격 협의";
+        let rentStr = "";
+        let maintStr = p.maintenance ? (p.maintenance / 10000).toLocaleString() + "만원" : "15만원";
+
+        if (p.price) {
+            let tempPrice = p.price;
+            const parts = tempPrice.split('/');
+            if (parts.length === 2) {
+                let dep = parts[0].trim();
+                let rent = parts[1].trim();
+                
+                if (dep.includes("보증금")) {
+                    dep = dep.replace("보증금", "").trim();
+                }
+                if (!dep.includes("만원") && !dep.includes("억") && !isNaN(dep.replace(/,/g, ''))) {
+                    dep = parseInt(dep.replace(/,/g, '')).toLocaleString() + "만원";
+                }
+                depositStr = "보증금 " + dep;
+
+                if (rent.includes("월")) {
+                    rent = rent.replace("월", "").trim();
+                }
+                if (!rent.includes("만원") && !isNaN(rent.replace(/,/g, ''))) {
+                    rent = parseInt(rent.replace(/,/g, '')).toLocaleString() + "만원";
+                }
+                rentStr = "월 " + rent;
+            } else {
+                let mainPrice = tempPrice.trim();
+                if (mainPrice.startsWith("매매")) {
+                    let val = mainPrice.replace("매매", "").trim();
+                    if (!val.includes("만원") && !val.includes("억") && !isNaN(val.replace(/,/g, ''))) {
+                        val = parseInt(val.replace(/,/g, '')).toLocaleString() + "만원";
+                    }
+                    depositStr = "매매 " + val;
+                } else if (mainPrice.startsWith("전세")) {
+                    let val = mainPrice.replace("전세", "").trim();
+                    if (!val.includes("만원") && !val.includes("억") && !isNaN(val.replace(/,/g, ''))) {
+                        val = parseInt(val.replace(/,/g, '')).toLocaleString() + "만원";
+                    }
+                    depositStr = "전세 " + val;
+                } else {
+                    depositStr = mainPrice;
+                }
+            }
+        }
+
+        document.getElementById('specDeposit').innerText = depositStr;
+        document.getElementById('specMonthlyRent').innerText = rentStr ? rentStr : "해당 없음 (전세/매매)";
+        document.getElementById('specDealType').innerText = rentStr ? "월세" : (p.price.includes("매매") ? "매매" : "전세");
+
+        document.getElementById('sidePriceDeposit').innerHTML = `보증금 <span>${depositStr}</span>`;
+        if (rentStr) {
+            document.getElementById('sidePriceRent').innerHTML = `월세 <span>${rentStr}</span>`;
+            document.getElementById('sidePriceRent').style.display = 'block';
+        } else {
+            document.getElementById('sidePriceRent').style.display = 'none';
+        }
+        
+        document.getElementById('specMaintText').innerText = maintStr;
+        document.getElementById('sidePriceMaintenance').innerHTML = `관리비 <span>${maintStr}</span>`;
+
+        let fullAddr = p.address || (p.tag === "서울" ? "서울특별시 송파구 잠실동" : "경기도 성남시 분당구 정자동");
+        document.getElementById('specAddress').innerText = fullAddr;
+
+        // 미등기, 위반여부, 주차대수 뷰 바인딩
+        if (document.getElementById('specUnregistered')) document.getElementById('specUnregistered').innerText = p.unregistered || "해당 없음";
+        if (document.getElementById('specViolation')) document.getElementById('specViolation').innerText = p.violation || "해당 없음";
+        if (document.getElementById('specParking')) document.getElementById('specParking').innerText = p.parking || "무료 1대 가능";
+
+        document.getElementById('specType').innerText = p.type || "사무실";
+        document.getElementById('sideSpecType').innerHTML = `<i class="fas fa-hotel"></i> ${p.type || "사무실"}`;
+
+        document.getElementById('specFloor').innerText = p.floor || '해당 3층 / 총 5층';
+        document.getElementById('sideSpecFloor').innerHTML = `<i class="fas fa-layer-group"></i> ${p.floor || '지상층'}`;
+
+        let parsedAreaNum = 35;
+        if (p.desc) {
+            const match = p.desc.match(/전용\s*(\d+)평/);
+            if (match) {
+                parsedAreaNum = parseInt(match[1]);
+            }
+        }
+        
+        function updateAreaDisplay() {
+            const supplyText = p.supplyArea || (parsedAreaNum + '평');
+            const exclusiveText = p.exclusiveArea || (parsedAreaNum + '평');
+            
+            const getSqm = (txt) => {
+                if (txt.includes('㎡')) return txt;
+                const matchVal = txt.match(/(\d+)\s*평/);
+                if (matchVal) {
+                    return (parseInt(matchVal[1]) * 3.3058).toFixed(1) + '㎡';
+                }
+                return txt;
+            };
+            
+            if (isPyung) {
+                document.getElementById('specArea').innerText = `공급 ${supplyText} / 전용 ${exclusiveText}`;
+                document.getElementById('sideSpecArea').innerHTML = `<i class="fas fa-ruler-combined"></i> 전용 ${exclusiveText}`;
+            } else {
+                document.getElementById('specArea').innerText = `공급 ${getSqm(supplyText)} / 전용 ${getSqm(exclusiveText)}`;
+                document.getElementById('sideSpecArea').innerHTML = `<i class="fas fa-ruler-combined"></i> 전용 ${getSqm(exclusiveText)}`;
+            }
+        }
+        updateAreaDisplay();
+
+        window.toggleAreaUnit = function() {
+            isPyung = !isPyung;
+            document.getElementById('areaUnitLabel').innerText = isPyung ? "㎡로 변환" : "평으로 변환";
+            updateAreaDisplay();
+        };
+
+        const descList = document.getElementById('descList');
+        if (p.desc) {
+            const sentences = p.desc.split(/[\n/]/);
+            let html = '';
+            sentences.forEach(s => {
+                const trimmed = s.trim();
+                if (trimmed) {
+                    html += `
+                        <div class="desc-bullet-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>${trimmed}</span>
+                        </div>
+                    `;
+                }
+            });
+            descList.innerHTML = html;
+        } else {
+            descList.innerHTML = '<div class="desc-bullet-item"><i class="fas fa-info-circle"></i><span>둥지부동산 보증 매물입니다. 상세 스펙 문의는 전화상담 바랍니다.</span></div>';
+        }
+
+        // =========================================================================
+        // ======================= LIVE TRAFFIC CALCULATOR ==========================
+        // =========================================================================
+        const subwayList = document.getElementById('subwayList');
+        const busList = document.getElementById('busList');
+
+        // 주소 검색 성공 시 실시간으로 대중교통 정보 연산하여 칩셋 렌더링
+        window.updateLiveTraffic = function(address) {
+            if (!address) {
+                if (subwayList) subwayList.innerHTML = '<span style="color:#64748b; font-size:12px;">주소를 찾으시면 인근 지하철역 정보가 자동으로 연산됩니다.</span>';
+                if (busList) busList.innerHTML = '<span style="color:#64748b; font-size:12px;">주소를 찾으시면 인근 버스정류장 정보가 자동으로 연산됩니다.</span>';
+                return;
+            }
+
+            if (typeof daum !== 'undefined' && typeof kakao !== 'undefined' && kakao.maps && kakao.maps.services) {
+                const geocoder = new kakao.maps.services.Geocoder();
+                geocoder.addressSearch(address, function(result, status) {
+                    if (status === kakao.maps.services.Status.OK) {
+                        const lat = parseFloat(result[0].y);
+                        const lng = parseFloat(result[0].x);
+                        
+                        // 임시 객체 좌표 갱신
+                        p.lat = lat;
+                        p.lng = lng;
+
+                        queryNearbyTraffic(lat, lng, function(subwaysData, busesData) {
+                            p.subways = subwaysData;
+                            p.buses = busesData;
+
+                            // 1. 지하철역 칩 렌더링
+                            if (subwayList) {
+                                if (subwaysData.length > 0) {
+                                    let subHtml = '';
+                                    subwaysData.forEach(s => {
+                                        let bg = '#64748b';
+                                        let lineNum = '';
+                                        if (s.name.includes('2호선')) { bg = '#22c55e'; lineNum = '2'; }
+                                        else if (s.name.includes('3호선')) { bg = '#f97316'; lineNum = '3'; }
+                                        else if (s.name.includes('9호선')) { bg = '#d9b87a'; lineNum = '9'; }
+                                        else if (s.name.includes('신분당선')) { bg = '#ef4444'; lineNum = '신분'; }
+                                        else if (s.name.includes('수인분당선') || s.name.includes('분당선')) { bg = '#f59e0b'; lineNum = '수인'; }
+                                        else if (s.name.includes('8호선')) { bg = '#db2777'; lineNum = '8'; }
+                                        else if (s.name.includes('7호선')) { bg = '#4d7c0f'; lineNum = '7'; }
+                                        else if (s.name.includes('6호선')) { bg = '#b45309'; lineNum = '6'; }
+                                        else if (s.name.includes('5호선')) { bg = '#a855f7'; lineNum = '5'; }
+                                        else if (s.name.includes('4호선')) { bg = '#06b6d4'; lineNum = '4'; }
+                                        else if (s.name.includes('1호선')) { bg = '#1d4ed8'; lineNum = '1'; }
+                                        
+                                        const lineBadge = lineNum ? `<span style="background:#fff; color:${bg}; border-radius:50%; width:16px; height:16px; display:inline-flex; align-items:center; justify-content:center; font-size:10px; font-weight:bold; margin-right:4px;">${lineNum}</span>` : '';
+                                        const cleanName = s.name.split(' ')[0];
+                                        subHtml += `<span class="subway-chip" style="background:${bg};">${lineBadge}${cleanName} 도보 ${s.walk}분 (${s.distance}m)</span>`;
+                                    });
+                                    subwayList.innerHTML = subHtml;
+                                } else {
+                                    subwayList.innerHTML = '<span style="color:#ef4444; font-size:12px;">반경 1km 이내에 지하철역이 없습니다.</span>';
+                                }
+                            }
+
+                            // 2. 버스정류장 칩 렌더링
+                            if (busList) {
+                                if (busesData.length > 0) {
+                                    let busHtml = '';
+                                    busesData.forEach(b => {
+                                        busHtml += `<span class="bus-chip"><span style="color:#1d4ed8; font-weight:bold;">●</span> ${b.name} (${b.distance}m)</span>`;
+                                    });
+                                    busList.innerHTML = busHtml;
+                                } else {
+                                    busList.innerHTML = '<span style="color:#ef4444; font-size:12px;">반경 400m 이내에 버스정류장이 없습니다.</span>';
+                                }
+                            }
+
+                            // 3. Leaflet 미니맵 실시간 위치 이동
+                            if (miniMap) {
+                                try {
+                                    miniMap.setView([lat, lng], 15);
+                                    
+                                    // 기존 레이어 제거 후 골드 핀 재배치
+                                    miniMap.eachLayer((layer) => {
+                                        if (layer instanceof L.Marker || layer instanceof L.Circle) {
+                                            miniMap.removeLayer(layer);
+                                        }
+                                    });
+
+                                    const goldIcon = L.icon({
+                                        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png',
+                                        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                                        iconSize: [25, 41],
+                                        iconAnchor: [12, 41]
+                                    });
+
+                                    L.marker([lat, lng], { icon: goldIcon }).addTo(miniMap)
+                                        .bindPopup(`<b>${document.getElementById('editTitle').value || '등록 예정지'}</b>`)
+                                        .openPopup();
+
+                                    L.circle([lat, lng], {
+                                        color: '#b5954e',
+                                        fillColor: '#b5954e',
+                                        fillOpacity: 0.15,
+                                        radius: 120
+                                    }).addTo(miniMap);
+                                } catch(mapErr) {
+                                    console.error("MiniMap live fly failed:", mapErr);
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+        };
+
+        // 초기화 렌더링
+        if (subwayList) {
+            if (p.subways && p.subways.length > 0) {
+                let subHtml = '';
+                p.subways.forEach(s => {
+                    let bg = '#64748b';
+                    let lineNum = '';
+                    if (s.name.includes('2호선')) { bg = '#22c55e'; lineNum = '2'; }
+                    else if (s.name.includes('3호선')) { bg = '#f97316'; lineNum = '3'; }
+                    else if (s.name.includes('9호선')) { bg = '#d9b87a'; lineNum = '9'; }
+                    else if (s.name.includes('신분당선')) { bg = '#ef4444'; lineNum = '신분'; }
+                    else if (s.name.includes('수인분당선') || s.name.includes('분당선')) { bg = '#f59e0b'; lineNum = '수인'; }
+                    else if (s.name.includes('8호선')) { bg = '#db2777'; lineNum = '8'; }
+                    else if (s.name.includes('7호선')) { bg = '#4d7c0f'; lineNum = '7'; }
+                    
+                    const lineBadge = lineNum ? `<span style="background:#fff; color:${bg}; border-radius:50%; width:16px; height:16px; display:inline-flex; align-items:center; justify-content:center; font-size:10px; font-weight:bold; margin-right:4px;">${lineNum}</span>` : '';
+                    const cleanName = s.name.split(' ')[0];
+                    subHtml += `<span class="subway-chip" style="background:${bg};">${lineBadge}${cleanName} 도보 ${s.walk}분 (${s.distance}m)</span>`;
+                });
+                subwayList.innerHTML = subHtml;
+            } else if (p.address) {
+                // 주소는 등록되어 있으나 레거시 매물인 경우 즉각 교통망 계산 후 채움
+                setTimeout(() => { window.updateLiveTraffic(p.address); }, 600);
+            } else {
+                subwayList.innerHTML = '<span style="color:#64748b; font-size:12px;">주소를 찾으시면 인근 지하철역 정보가 자동으로 연산됩니다.</span>';
+            }
+        }
+
+        if (busList) {
+            if (p.buses && p.buses.length > 0) {
+                let busHtml = '';
+                p.buses.forEach(b => {
+                    busHtml += `<span class="bus-chip"><span style="color:#1d4ed8; font-weight:bold;">●</span> ${b.name} (${b.distance}m)</span>`;
+                });
+                busList.innerHTML = busHtml;
+            } else if (p.address) {
+                // 패스
+            } else {
+                busList.innerHTML = '<span style="color:#64748b; font-size:12px;">주소를 찾으시면 인근 버스정류장 정보가 자동으로 연산됩니다.</span>';
+            }
+        }
+
+        // Options checklist rendering
+        const optionsContainer = document.getElementById('optionsContainer');
+        if (optionsContainer) {
+            const activeOptions = p.options || ["무권리", "역세권", "주차가능", "즉시입주", "엘리베이터", "대로변"];
+            
+            if (mode === 'add' || mode === 'edit') {
+                optionsContainer.innerHTML = '';
+                optionList.forEach(opt => {
+                    const span = document.createElement('span');
+                    span.className = 'option-chip selectable';
+                    span.innerText = opt;
+                    if (activeOptions.includes(opt)) {
+                        span.classList.add('active');
+                    }
+                    span.addEventListener('click', () => {
+                        span.classList.toggle('active');
+                    });
+                    optionsContainer.appendChild(span);
+                });
+            } else {
+                optionsContainer.innerHTML = '';
+                activeOptions.forEach(opt => {
+                    const span = document.createElement('span');
+                    span.className = 'option-chip';
+                    span.innerText = opt;
+                    optionsContainer.appendChild(span);
+                });
+            }
+        }
+
+        // Mini Map initialization
+        let miniMap;
+        function initMiniMap() {
+            const latitude = p.lat || 37.4979;
+            const longitude = p.lng || 127.0276;
+            
+            try {
+                miniMap = L.map('propertyDetailMiniMap', {
+                    center: [latitude, longitude],
+                    zoom: 15,
+                    zoomControl: true,
+                    scrollWheelZoom: false
+                });
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(miniMap);
+
+                const goldIcon = L.icon({
+                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png',
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41],
+                    popupAnchor: [1, -34],
+                    shadowSize: [41, 41]
+                });
+
+                L.marker([latitude, longitude], { icon: goldIcon }).addTo(miniMap)
+                    .bindPopup(`<b>${p.title || '등록 예정지'}</b><br>${p.price}`)
+                    .openPopup();
+
+                L.circle([latitude, longitude], {
+                    color: '#b5954e',
+                    fillColor: '#b5954e',
+                    fillOpacity: 0.15,
+                    radius: 120
+                }).addTo(miniMap);
+            } catch(e) {
+                console.error("Leaflet Map init failed:", e);
+            }
+        }
+
+        setTimeout(initMiniMap, 100);
+
+        const othersContainer = document.getElementById('othersContainer');
+        const otherFiltered = list.filter(item => item.id !== p.id).slice(0, 3);
+        
+        let otherHtml = '';
+        if (otherFiltered.length > 0) {
+            otherFiltered.forEach(item => {
+                otherHtml += `
+                    <div class="other-card" onclick="location.href='property-detail.html?id=${item.id}'">
+                        <img class="other-img" src="${item.imageUrl}" alt="추천 매물">
+                        <div class="other-body">
+                            <div class="other-region">${item.tag} | ${item.floor}</div>
+                            <div class="other-title" title="${item.title}">${item.title}</div>
+                            <div class="other-price">${item.price}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            othersContainer.innerHTML = otherHtml;
+        } else {
+            othersContainer.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:#888; padding:20px;">추천할 다른 매물이 없습니다.</p>';
+        }
+
+        window.scrollToSection = function(sectionId, element) {
+            const target = document.getElementById(sectionId);
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth' });
+                
+                document.querySelectorAll('.tab-menu-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                element.classList.add('active');
+            }
+        };
+
+        const inquiryModal = document.getElementById('inquiryModal');
+        const inqPropNo = document.getElementById('inqPropNo');
+
+        window.openInquiryModal = function() {
+            inqPropNo.value = p.id.toUpperCase();
+            inquiryModal.classList.add('open');
+        };
+
+        window.closeInquiryModal = function() {
+            inquiryModal.classList.remove('open');
+        };
+
+        window.submitInquiryForm = function(e) {
+            e.preventDefault();
+            const clientVal = document.getElementById('inqClient').value;
+            const phoneVal = document.getElementById('inqPhone').value;
+            const memoVal = document.getElementById('inqMemo').value;
+
+            try {
+                const brokerageList = JSON.parse(localStorage.getItem('nest_brokerage') || '[]');
+                const now = new Date();
+                const createdDate = now.toISOString().split('T')[0];
+
+                const newRecord = {
+                    id: "broker-inq-" + Date.now(),
+                    client: clientVal,
+                    phone: phoneVal,
+                    agent: "미배정 (홈페이지 문의)",
+                    status: "접수완료",
+                    reqType: "월세",
+                    reqMoveInDate: "",
+                    reqBizType: p.type || "사무실",
+                    reqBudget: p.price,
+                    reqArea: "",
+                    reqs: `[매물상담문의] 매물번호: ${p.id.toUpperCase()} / 매물명: ${p.title} / 메모: ${memoVal}`,
+                    createdDate,
+                    notes: "홈페이지 매물 상세페이지 문의하기 폼을 통해 접수된 실시간 고객 인입 건입니다.",
+                    history: []
+                };
+
+                brokerageList.unshift(newRecord);
+                localStorage.setItem('nest_brokerage', JSON.stringify(brokerageList));
+                
+                closeInquiryModal();
+                alert(`${clientVal} 고객님, 상담 문의 신청이 성공적으로 완료되었습니다!\n둥지부동산 담당 공인중개사가 빠른 시일 내에 연락드리겠습니다.`);
+            } catch (err) {
+                console.error("Failed to save inquiry:", err);
+                alert("상담 접수 도중 오류가 발생했습니다. 대표번호 02-553-9489로 전화주시면 바로 안내를 도와드리겠습니다.");
+            }
+        };
+
+        window.copyLink = function() {
+            navigator.clipboard.writeText(window.location.href);
+            alert('상세 페이지 링크가 클립보드에 복사되었습니다! 편하게 메신저나 SNS에 공유해 보세요.');
+        };
+
+        window.shareKakao = function() {
+            alert(`[둥지부동산 매물 공유]\n\n매물번호: ${p.id.toUpperCase()}\n매물명: ${p.title}\n가격: ${p.price}\n\n상세 정보 링크가 복사되었습니다. 카카오톡이나 문자메시지에 붙여넣어 공유하세요!`);
+            copyLink();
+        };
+
+        // =========================================================================
+        // ======================= EDIT MODE CONTROLLER ============================
+        // =========================================================================
+
+        if (mode === 'add' || mode === 'edit') {
+            const writerSelect = document.getElementById('editWriter');
+            if (writerSelect) {
+                const members = JSON.parse(localStorage.getItem('nest_members')) || [
+                    { name: "김우성 대표 / 공인중개사" },
+                    { name: "박민수 과장" }
+                ];
+                writerSelect.innerHTML = '<option value="">담당자 선택</option>';
+                members.forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = m.name;
+                    opt.innerText = m.name;
+                    writerSelect.appendChild(opt);
+                });
+                
+                if (mode === 'add') {
+                    writerSelect.value = "김우성 대표 / 공인중개사";
+                } else {
+                    writerSelect.value = p.writer || "김우성 대표 / 공인중개사";
+                }
+
+                // 담당자 변경 시 실시간 브로커 카드 스위칭 리스너 연동
+                writerSelect.addEventListener('change', (e) => {
+                    renderBrokerProfile(e.target.value);
+                });
+
+                const currentUser = JSON.parse(sessionStorage.getItem('nest_currentUser')) || { role: 'staff', name: '일반직원' };
+                if (currentUser.role !== 'master') {
+                    writerSelect.disabled = true;
+                    if (mode === 'add' && currentUser.name && currentUser.name !== '일반직원') {
+                        writerSelect.value = currentUser.name;
+                        renderBrokerProfile(currentUser.name);
+                    }
+                } else {
+                    writerSelect.disabled = false;
+                }
+            }
+
+            // 에딧 인풋 안전 초기 바인딩 (null 에러 차단)
+            setElValue('editTitle', p.title);
+            setElValue('editAddress', p.address);
+            setElValue('editType', p.type);
+
+            let cleanDep = '';
+            let cleanRent = '';
+            if (p.price) {
+                if (p.price.includes("보증금") && p.price.includes("월")) {
+                    setElValue('editDealType', '월세');
+                    const pts = p.price.split('/');
+                    cleanDep = pts[0].replace("보증금", "").replace("만원", "").trim();
+                    cleanRent = pts[1].replace("월", "").replace("만원", "").trim();
+                } else if (p.price.startsWith("매매")) {
+                    setElValue('editDealType', '매매');
+                    cleanDep = p.price.replace("매매", "").replace("만원", "").trim();
+                } else if (p.price.startsWith("전세")) {
+                    setElValue('editDealType', '전세');
+                    cleanDep = p.price.replace("전세", "").replace("만원", "").trim();
+                }
+            }
+
+            setElValue('editDeposit', formatNumberWithCommas(cleanDep));
+            setElValue('editMonthlyRent', formatNumberWithCommas(cleanRent));
+            setElValue('editMaintenance', p.maintenance ? formatNumberWithCommas(String(p.maintenance / 10000)) : '');
+
+            setElValue('editUnregistered', p.unregistered || "해당 없음");
+            setElValue('editViolation', p.violation || "해당 없음");
+            setElValue('editParking', p.parking || "무료 1대 가능");
+
+            setElValue('editSupplyArea', p.supplyArea);
+            setElValue('editExclusiveArea', p.exclusiveArea);
+            
+            // 층정보 파싱 분배
+            let cleanFloor = '';
+            let cleanTotalFloor = '';
+            if (p.floor) {
+                const parts = p.floor.split('/');
+                cleanFloor = parts[0].replace("현재", "").replace("층", "").trim();
+                if (parts[1]) {
+                    cleanTotalFloor = parts[1].replace("총", "").replace("층", "").trim();
+                }
+            }
+            setElValue('editFloor', cleanFloor);
+            setElValue('editTotalFloor', cleanTotalFloor);
+
+            setElValue('editDirection', p.direction);
+            setElValue('editPurpose', p.purpose);
+            setElValue('editRooms', p.rooms);
+            setElValue('editElevator', p.elevator);
+            setElValue('editMoveInDate', p.moveInDate);
+            setElValue('editLessorName', p.lessorName);
+            setElValue('editLessorPhone', p.lessorPhone);
+            setElValue('editDesc', p.desc);
+
+            window.updateEditPriceFields = function() {
+                const dealTypeVal = document.getElementById('editDealType') ? document.getElementById('editDealType').value : '월세';
+                const rentItem = document.getElementById('labelEditRent') ? document.getElementById('labelEditRent').closest('.spec-item') : null;
+                const depLabel = document.getElementById('labelEditDeposit');
+
+                if (dealTypeVal === '매매') {
+                    if (depLabel) depLabel.innerHTML = '매매가 <span class="edit-mode-only" style="color:red;">*</span>';
+                    if (rentItem) rentItem.style.display = 'none';
+                } else if (dealTypeVal === '전세') {
+                    if (depLabel) depLabel.innerHTML = '전세 보증금 <span class="edit-mode-only" style="color:red;">*</span>';
+                    if (rentItem) rentItem.style.display = 'none';
+                } else {
+                    if (depLabel) depLabel.innerHTML = '보증금 <span class="edit-mode-only" style="color:red;">*</span>';
+                    if (rentItem) rentItem.style.display = 'flex';
+                }
+            };
+            updateEditPriceFields();
+
+            const editPreviewList = document.getElementById('editPreviewList');
+            const editPreviewCount = document.getElementById('editPreviewCount');
+            loadedImages = p.imageUrls || (p.imageUrl ? [p.imageUrl] : []);
+
+            function renderEditPreviews() {
+                if (editPreviewList) editPreviewList.innerHTML = '';
+                loadedImages.forEach((img, idx) => {
+                    const div = document.createElement('div');
+                    div.style.position = 'relative';
+                    div.innerHTML = `
+                        <img src="${img}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
+                        <span onclick="removeEditImage(${idx})" style="position: absolute; top:-5px; right:-5px; background: red; color: white; width: 15px; height: 15px; border-radius: 50%; font-size: 10px; text-align: center; line-height: 15px; cursor: pointer; font-weight: bold; box-shadow: 0 1px 3px rgba(0,0,0,0.2);">&times;</span>
+                    `;
+                    editPreviewList.appendChild(div);
+                });
+                if (editPreviewCount) editPreviewCount.innerText = loadedImages.length;
+                
+                detailImageUrls = loadedImages.length > 0 ? loadedImages : ['https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800'];
+                currentImgIndex = 0;
+                renderDetailImage();
+            }
+
+            window.removeEditImage = function(idx) {
+                loadedImages.splice(idx, 1);
+                renderEditPreviews();
+            };
+
+            renderEditPreviews();
+
+            // 지능형 이미지 리사이즈 & 압축 헬퍼 (용량 초과 에러 완전 우회 방어)
+            function compressImage(file, callback) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        const MAX_WIDTH = 800;
+                        const MAX_HEIGHT = 800;
+                        
+                        if (width > height) {
+                            if (width > MAX_WIDTH) {
+                                height *= MAX_WIDTH / width;
+                                width = MAX_WIDTH;
+                            }
+                        } else {
+                            if (height > MAX_HEIGHT) {
+                                width *= MAX_HEIGHT / height;
+                                height = MAX_HEIGHT;
+                            }
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                        callback(dataUrl);
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+
+            const editFileInput = document.getElementById('editFile');
+            if (editFileInput) {
+                editFileInput.addEventListener('change', (e) => {
+                    const files = Array.from(e.target.files);
+                    if (loadedImages.length + files.length > 20) {
+                        alert("사진은 최대 20장까지만 업로드 가능합니다.");
+                        return;
+                    }
+                    let processedCount = 0;
+                    files.forEach(file => {
+                        compressImage(file, function(compressedBase64) {
+                            loadedImages.push(compressedBase64);
+                            processedCount++;
+                            if (processedCount === files.length) {
+                                renderEditPreviews();
+                            }
+                        });
+                    });
+                });
+            }
+
+            const editInputsList = [
+                document.getElementById('editDeposit'),
+                document.getElementById('editMonthlyRent'),
+                document.getElementById('editMaintenance')
+            ];
+            editInputsList.forEach(inputEl => {
+                if (inputEl) {
+                    inputEl.addEventListener('input', (e) => {
+                        e.target.value = formatNumberWithCommas(e.target.value);
+                    });
+                }
+            });
+
+            window.execDaumPostcodeDetail = function() {
+                const postcodeLayer = document.getElementById('detailPostcodeLayer');
+                if (!postcodeLayer) return;
+                
+                new daum.Postcode({
+                    oncomplete: function(data) {
+                        let addr = '';
+                        if (data.userSelectedType === 'R') {
+                            addr = data.roadAddress;
+                        } else {
+                            addr = data.jibunAddress;
+                        }
+                        const addrInput = document.getElementById('editAddress');
+                        if (addrInput) addrInput.value = addr;
+                        postcodeLayer.style.display = 'none';
+                        
+                        // 주소 기입 완료 시 실시간 대중교통 산출 트리거!
+                        window.updateLiveTraffic(addr);
+                    },
+                    width: '100%',
+                    height: '100%'
+                }).embed(postcodeLayer);
+                postcodeLayer.style.display = 'block';
+            };
+
+            window.savePropertyFromDetail = function() {
+                const title = document.getElementById('editTitle') ? document.getElementById('editTitle').value.trim() : '';
+                const address = document.getElementById('editAddress') ? document.getElementById('editAddress').value.trim() : '';
+                const supply = document.getElementById('editSupplyArea') ? document.getElementById('editSupplyArea').value.trim() : '';
+                const exclusive = document.getElementById('editExclusiveArea') ? document.getElementById('editExclusiveArea').value.trim() : '';
+                const writer = document.getElementById('editWriter') ? document.getElementById('editWriter').value : '';
+                const dealType = document.getElementById('editDealType') ? document.getElementById('editDealType').value : '월세';
+                const type = document.getElementById('editType') ? document.getElementById('editType').value : '사무실';
+                
+                const floorVal = document.getElementById('editFloor') ? document.getElementById('editFloor').value.trim() : '';
+                const totalFloorVal = document.getElementById('editTotalFloor') ? document.getElementById('editTotalFloor').value.trim() : '';
+
+                if (!title || !address || !exclusive || !writer || !floorVal || !totalFloorVal) {
+                    alert('필수 항목(*)을 모두 채워주세요.');
+                    return;
+                }
+
+                const floor = `현재 ${floorVal} / 총 ${totalFloorVal}`;
+
+                let price = "";
+                const depVal = document.getElementById('editDeposit') ? document.getElementById('editDeposit').value.trim() : '0';
+                const rentVal = document.getElementById('editMonthlyRent') ? document.getElementById('editMonthlyRent').value.trim() : '0';
+                if (dealType === '매매') {
+                    price = `매매 ${depVal}만원`;
+                } else if (dealType === '전세') {
+                    price = `전세 ${depVal}만원`;
+                } else {
+                    price = `보증금 ${depVal}만원 / 월 ${rentVal}만원`;
+                }
+
+                const maintVal = document.getElementById('editMaintenance') ? document.getElementById('editMaintenance').value.trim() : '0';
+                const maintenance = maintVal ? parseInt(maintVal.replace(/,/g, '')) * 10000 : 0;
+
+                const selectedOptions = [];
+                document.querySelectorAll('#optionsContainer .option-chip.selectable.active').forEach(chip => {
+                    selectedOptions.push(chip.innerText.trim());
+                });
+
+                const saveExec = (lat, lng, subwaysData, busesData) => {
+                    try {
+                        const list = getProperties();
+                        const targetId = p.id;
+
+                        const newObj = {
+                            id: targetId,
+                            tag: address.includes("경기") ? "경기" : "서울",
+                            type,
+                            floor,
+                            title,
+                            desc: document.getElementById('editDesc') ? document.getElementById('editDesc').value.trim() : '',
+                            price,
+                            address,
+                            imageUrl: loadedImages[0] || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800',
+                            imageUrls: loadedImages,
+                            lat,
+                            lng,
+                            maintenance,
+                            supplyArea: supply,
+                            exclusiveArea: exclusive,
+                            lessorName: document.getElementById('editLessorName') ? document.getElementById('editLessorName').value.trim() : '',
+                            lessorPhone: document.getElementById('editLessorPhone') ? document.getElementById('editLessorPhone').value.trim() : '',
+                            writer,
+                            direction: document.getElementById('editDirection') ? document.getElementById('editDirection').value.trim() : '동향',
+                            purpose: document.getElementById('editPurpose') ? document.getElementById('editPurpose').value.trim() : '업무시설',
+                            rooms: document.getElementById('editRooms') ? document.getElementById('editRooms').value.trim() : '0개',
+                            elevator: document.getElementById('editElevator') ? document.getElementById('editElevator').value : '있음',
+                            moveInDate: document.getElementById('editMoveInDate') ? document.getElementById('editMoveInDate').value.trim() : '즉시 입주',
+                            createdDate: p.createdDate || new Date().toISOString().split('T')[0],
+                            options: selectedOptions,
+                            subways: subwaysData,
+                            buses: busesData,
+                            unregistered: document.getElementById('editUnregistered') ? document.getElementById('editUnregistered').value.trim() : '해당 없음',
+                            violation: document.getElementById('editViolation') ? document.getElementById('editViolation').value.trim() : '해당 없음',
+                            parking: document.getElementById('editParking') ? document.getElementById('editParking').value.trim() : '무료 1대 가능'
+                        };
+
+                        const idx = list.findIndex(item => item.id === targetId);
+                        if (idx !== -1) {
+                            list[idx] = newObj;
+                        } else {
+                            list.unshift(newObj);
+                        }
+
+                        localStorage.setItem('nest_properties', JSON.stringify(list));
+
+                        alert('매물 정보가 성공적으로 저장되었습니다. 주변 대중교통 정보가 함께 저장되었습니다.');
+
+                        // 크로스 오리진 및 컨텍스트 방어막 가동
+                        if (window.parent) {
+                            if (typeof window.parent.applyAdminFilters === 'function') {
+                                window.parent.applyAdminFilters();
+                            }
+                            if (typeof window.parent.closePremiumDetailModal === 'function') {
+                                window.parent.closePremiumDetailModal();
+                            }
+                        }
+                    } catch(err) {
+                        console.error("Save execution write failed:", err);
+                        alert("데이터 저장 도중 브라우저 스토리지 쓰기 오류가 발생했습니다.");
+                    }
+                };
+
+                const startGeocodeAndPlaces = () => {
+                    try {
+                        if (typeof daum !== 'undefined' && typeof kakao !== 'undefined' && kakao.maps && kakao.maps.services) {
+                            const geocoder = new kakao.maps.services.Geocoder();
+                            geocoder.addressSearch(address, function(result, status) {
+                                if (status === kakao.maps.services.Status.OK) {
+                                    const lat = parseFloat(result[0].y);
+                                    const lng = parseFloat(result[0].x);
+                                    
+                                    queryNearbyTraffic(lat, lng, function(subwaysData, busesData) {
+                                        saveExec(lat, lng, subwaysData, busesData);
+                                    });
+                                } else {
+                                    saveExec(p.lat || 37.4979, p.lng || 127.0276, p.subways || [], p.buses || []);
+                                }
+                            });
+                        } else {
+                            saveExec(p.lat || 37.4979, p.lng || 127.0276, p.subways || [], p.buses || []);
+                        }
+                    } catch(e) {
+                        console.error("Geocoding logic fail-safe trigger:", e);
+                        saveExec(37.4979, 127.0276, [], []);
+                    }
+                };
+
+                startGeocodeAndPlaces();
+            };
+        }
+
+        function queryNearbyTraffic(lat, lng, callback) {
+            try {
+                if (typeof kakao === 'undefined' || !kakao.maps || !kakao.maps.services) {
+                    callback([], []);
+                    return;
+                }
+
+                const ps = new kakao.maps.services.Places();
+                let subwaysRes = [];
+                let busesRes = [];
+                let completed = 0;
+
+                const checkComplete = () => {
+                    completed++;
+                    if (completed === 2) {
+                        callback(subwaysRes, busesRes);
+                    }
+                };
+
+                ps.categorySearch('SW8', function(data, status) {
+                    try {
+                        if (status === kakao.maps.services.Status.OK && data && data.length > 0) {
+                            subwaysRes = data.slice(0, 3).map(item => {
+                                const dist = parseInt(item.distance);
+                                const walkMin = Math.ceil(dist / 80);
+                                return {
+                                    name: item.place_name,
+                                    distance: dist,
+                                    walk: walkMin
+                                };
+                            });
+                        }
+                    } catch(e) { console.error(e); }
+                    checkComplete();
+                }, {
+                    location: new kakao.maps.LatLng(lat, lng),
+                    radius: 1000,
+                    sort: kakao.maps.services.SortBy.DISTANCE
+                });
+
+                ps.keywordSearch('버스정류장', function(data, status) {
+                    try {
+                        if (status === kakao.maps.services.Status.OK && data && data.length > 0) {
+                            busesRes = data.slice(0, 5).map(item => {
+                                return {
+                                    name: item.place_name,
+                                    distance: parseInt(item.distance)
+                                };
+                            });
+                        }
+                    } catch(e) { console.error(e); }
+                    checkComplete();
+                }, {
+                    location: new kakao.maps.LatLng(lat, lng),
+                    radius: 400,
+                    sort: kakao.maps.services.SortBy.DISTANCE
+                });
+            } catch(e) {
+                console.error("Traffic querying fail-safe trigger:", e);
+                callback([], []);
+            }
+        }
+    </script>
+</body>
+</html>
