@@ -792,6 +792,7 @@
 .detail-wrapper th,.detail-wrapper td{vertical-align:middle;line-height:1.6;box-sizing:border-box;overflow-wrap:anywhere}
 @media(max-width:760px){.tab-actions{width:100%;justify-content:flex-end}.tab-menu-item{padding:0 10px}.detail-wrapper th,.detail-wrapper td{padding:10px 8px}}
 </style><style>.broker-photo{width:72px;height:72px;min-width:72px;flex:0 0 72px;box-sizing:border-box;object-fit:contain;object-position:center;background:#f5f5f5;border-radius:50%;image-rendering:auto;}</style>
+<style>.broker-photo-frame{display:block;width:72px;height:72px;flex:0 0 72px;box-sizing:border-box;border:2px solid var(--accent-color);border-radius:50%;overflow:hidden;background:#ededed}.broker-photo-frame .broker-photo{display:block;width:100%;height:100%;min-width:0;border:0;border-radius:0;object-fit:contain;object-position:center;background:#ededed;transform:scale(1.18);transform-origin:50% 42%}.broker-phone-text{white-space:pre-line;line-height:1.65}</style>
 </head>
 <body>
 
@@ -1145,10 +1146,11 @@
             <!-- Agent Contact Info Box Card -->
             <div class="sidebar-card" style="border-top: 4px solid var(--accent-color);">
                 <div class="broker-profile-container">
-                    <img class="broker-photo" src="broker-kim-woosung.jpg?v=2" alt="김우성 대표">
+                    <span class="broker-photo-frame"><img class="broker-photo" src="broker-kim-woosung.jpg?v=3" alt="김우성 대표"></span>
                     <div class="broker-info">
-                        <span class="broker-name">김우성 대표 / 공인중개사</span>
-                        <span class="broker-phone-text">010-9703-9180</span>
+                        <span class="broker-name">김우성 / 대표 공인중개사</span>
+                        <span class="broker-phone-text" style="white-space:pre-line">010-9703-9180
+02-553-9489</span>
                     </div>
                 </div>
                 
@@ -1207,10 +1209,10 @@
         const optionList = ["무권리", "역세권", "주차가능", "즉시입주", "엘리베이터", "대로변", "신축급", "테라스", "복층형", "인테리어완비", "단독건물", "대형동력", "24시간개방", "보안완비"];
 
         const memberProfiles = {
-            "김우성 대표 / 공인중개사": {
-                name: "김우성 대표 / 공인중개사",
+            "김우성 / 대표 공인중개사": {
+                name: "김우성 / 대표 공인중개사",
                 phone: "010-9703-9180",
-                photo: "broker-kim-woosung.jpg?v=2",
+                photo: "broker-kim-woosung.jpg?v=3",
                 officeName: "(주)둥지부동산중개법인",
                 repName: "김우성",
                 address: "서울특별시 강남구 테헤란로86길 14, 4층(대치동, 윤천빌딩)",
@@ -1238,7 +1240,7 @@
         // 담당 중개사 카드 프로필 동적 스위칭 함수
         function renderBrokerProfile(writerName) {
             // 이름 매칭 (예: '김우성' 포함 시 김우성 프로필로 매핑)
-            let matchedKey = "김우성 대표 / 공인중개사";
+            let matchedKey = "김우성 / 대표 공인중개사";
             if (writerName && writerName.includes("박민수")) {
                 matchedKey = "박민수 과장";
             }
@@ -1251,7 +1253,7 @@
 
             if (photoEl) photoEl.src = prof.photo;
             if (nameEl) nameEl.innerText = prof.name;
-            if (phoneEl) phoneEl.innerText = prof.phone;
+            if (phoneEl) phoneEl.innerText = prof.phone + '\n' + prof.tel;
             
             if (officeDetailsEl) {
                 officeDetailsEl.innerHTML = `
@@ -1321,7 +1323,7 @@
                 exclusiveArea: "",
                 lessorName: "",
                 lessorPhone: "",
-                writer: "김우성 대표 / 공인중개사",
+                writer: "김우성 / 대표 공인중개사",
                 direction: "동향 (주된 출입구 기준)",
                 purpose: "업무시설 (사무실)",
                 rooms: "0개 / 외부 화장실 1개",
@@ -1807,7 +1809,7 @@
             const writerSelect = document.getElementById('editWriter');
             if (writerSelect) {
                 const members = JSON.parse(localStorage.getItem('nest_members')) || [
-                    { name: "김우성 대표 / 공인중개사" },
+                    { name: "김우성 / 대표 공인중개사" },
                     { name: "박민수 과장" }
                 ];
                 writerSelect.innerHTML = '<option value="">담당자 선택</option>';
@@ -1819,9 +1821,9 @@
                 });
                 
                 if (mode === 'add') {
-                    writerSelect.value = "김우성 대표 / 공인중개사";
+                    writerSelect.value = "김우성 / 대표 공인중개사";
                 } else {
-                    writerSelect.value = p.writer || "김우성 대표 / 공인중개사";
+                    writerSelect.value = p.writer || "김우성 / 대표 공인중개사";
                 }
 
                 // 담당자 변경 시 실시간 브로커 카드 스위칭 리스너 연동
