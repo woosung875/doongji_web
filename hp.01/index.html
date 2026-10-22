@@ -19,6 +19,7 @@
             .desktop-only { display: none !important; }
         }
     </style>
+<script src="public-display.js"></script>
 </head>
 
 <body>
@@ -642,7 +643,7 @@
                         <span class="tag" style="background: var(--accent-color);">${escapeHtml(p.tag)}</span>
                     </div>
                     <div class="card-body">
-                        <h3 style="cursor: pointer;" onclick="openPremiumDetailModal('${p.id}')">${escapeHtml(p.title)}</h3>
+                        <h3 style="cursor: pointer;" onclick="openPremiumDetailModal('${p.id}')">${escapeHtml(NestPublic.title(p))}</h3>
                         <p class="desc">${escapeHtml(p.desc)}</p>
                         <div class="card-footer">
                             <span class="price">${escapeHtml(p.price)}</span>

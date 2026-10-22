@@ -780,7 +780,18 @@
             font-weight: bold;
         }
     </style>
-</head>
+<script src="public-display.js"></script>
+<style>
+.tab-bar{height:auto;min-height:56px;gap:12px;flex-wrap:wrap;padding:8px 52px 8px 15px;box-sizing:border-box}
+.tab-menus{flex:1;min-width:0;overflow-x:auto;height:48px;gap:0}
+.tab-menu-item{flex-shrink:0;white-space:nowrap;word-break:keep-all;padding:0 14px;box-sizing:border-box}
+.tab-actions{flex-shrink:0;gap:12px;white-space:nowrap}
+#specAddress{overflow-wrap:anywhere;line-height:1.6}
+.spec-grid{grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch}.spec-item{align-items:stretch;min-width:0;min-height:44px}.spec-label{flex:0 0 100px;width:100px;height:auto;box-sizing:border-box}.spec-val{min-width:0;display:flex;align-items:center;flex-wrap:wrap;overflow-wrap:anywhere;box-sizing:border-box;line-height:1.6}
+@media(max-width:600px){.spec-grid{grid-template-columns:1fr}.spec-label{flex-basis:95px;width:95px}}
+.detail-wrapper th,.detail-wrapper td{vertical-align:middle;line-height:1.6;box-sizing:border-box;overflow-wrap:anywhere}
+@media(max-width:760px){.tab-actions{width:100%;justify-content:flex-end}.tab-menu-item{padding:0 10px}.detail-wrapper th,.detail-wrapper td{padding:10px 8px}}
+</style></head>
 <body>
 
     <!-- Header Navigation Tab Panel -->
@@ -1333,11 +1344,11 @@
             location.href = 'properties.html';
         }
 
-        document.title = mode === 'add' ? '새 매물 등록 - 둥지부동산' : (mode === 'edit' ? '매물 수정 - 둥지부동산' : `${p.title} - 매물 상세 정보 | 둥지부동산`);
+        document.title = mode === 'add' ? '새 매물 등록 - 둥지부동산' : (mode === 'edit' ? '매물 수정 - 둥지부동산' : `${NestPublic.title(p)} - 매물 상세 정보 | 둥지부동산`);
         
         document.getElementById('tabPropNo').innerText = mode === 'add' ? '신규 매물 등록' : `매물번호 ${p.id.toUpperCase()}`;
         document.getElementById('sidePropNo').innerText = mode === 'add' ? '신규 매물 등록' : `매물번호 ${p.id.toUpperCase()}`;
-        document.getElementById('sideTitle').innerText = p.title || '신규 등록할 매물 제목';
+        document.getElementById('sideTitle').innerText = NestPublic.title(p) || '신규 등록할 매물 제목';
 
         // 담당 브로커 정보 실시간 렌더링 호출
         renderBrokerProfile(p.writer);
@@ -1448,7 +1459,7 @@
         document.getElementById('sidePriceMaintenance').innerHTML = `관리비 <span>${maintStr}</span>`;
 
         let fullAddr = p.address || (p.tag === "서울" ? "서울특별시 송파구 잠실동" : "경기도 성남시 분당구 정자동");
-        document.getElementById('specAddress').innerText = fullAddr;
+        document.getElementById('specAddress').innerText = (mode === 'edit' || mode === 'add') ? fullAddr : NestPublic.address(fullAddr);
 
         // 미등기, 위반여부, 주차대수 뷰 바인딩
         if (document.getElementById('specUnregistered')) document.getElementById('specUnregistered').innerText = p.unregistered || "해당 없음";
@@ -1589,39 +1600,7 @@
                                 }
                             }
 
-                            // 3. Leaflet 미니맵 실시간 위치 이동
-                            if (miniMap) {
-                                try {
-                                    miniMap.setView([lat, lng], 15);
-                                    
-                                    // 기존 레이어 제거 후 골드 핀 재배치
-                                    miniMap.eachLayer((layer) => {
-                                        if (layer instanceof L.Marker || layer instanceof L.Circle) {
-                                            miniMap.removeLayer(layer);
-                                        }
-                                    });
-
-                                    const goldIcon = L.icon({
-                                        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png',
-                                        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-                                        iconSize: [25, 41],
-                                        iconAnchor: [12, 41]
-                                    });
-
-                                    L.marker([lat, lng], { icon: goldIcon }).addTo(miniMap)
-                                        .bindPopup(`<b>${document.getElementById('editTitle').value || '등록 예정지'}</b>`)
-                                        .openPopup();
-
-                                    L.circle([lat, lng], {
-                                        color: '#b5954e',
-                                        fillColor: '#b5954e',
-                                        fillOpacity: 0.15,
-                                        radius: 120
-                                    }).addTo(miniMap);
-                                } catch(mapErr) {
-                                    console.error("MiniMap live fly failed:", mapErr);
-                                }
-                            }
+                            initMiniMap();
                         });
                     }
                 });
@@ -1700,50 +1679,28 @@
             }
         }
 
-        // Mini Map initialization
+        // Kakao (Daum) detail map
         let miniMap;
+        let detailMarker, detailCircle;
         function initMiniMap() {
-            if (p.importKey && (!p.lat || !p.lng)) { document.getElementById("propertyDetailMiniMap").textContent = "주소 위치 확인이 필요합니다. 관리자 페이지에서 지도 위치 재검색을 실행하세요."; return; }
-            const latitude = p.lat || 37.4979;
-            const longitude = p.lng || 127.0276;
-            
-            try {
-                miniMap = L.map('propertyDetailMiniMap', {
-                    center: [latitude, longitude],
-                    zoom: 15,
-                    zoomControl: true,
-                    scrollWheelZoom: false
-                });
-
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    maxZoom: 19,
-                    attribution: '© OpenStreetMap contributors'
-                }).addTo(miniMap);
-
-                const goldIcon = L.icon({
-                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png',
-                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-                    iconSize: [25, 41],
-                    iconAnchor: [12, 41],
-                    popupAnchor: [1, -34],
-                    shadowSize: [41, 41]
-                });
-
-                L.marker([latitude, longitude], { icon: goldIcon }).addTo(miniMap)
-                    .bindPopup(`<b>${p.title || '등록 예정지'}</b><br>${p.price}`)
-                    .openPopup();
-
-                L.circle([latitude, longitude], {
-                    color: '#b5954e',
-                    fillColor: '#b5954e',
-                    fillOpacity: 0.15,
-                    radius: 120
-                }).addTo(miniMap);
-            } catch(e) {
-                console.error("Leaflet Map init failed:", e);
+            const host = document.getElementById('propertyDetailMiniMap');
+            if (!window.kakao?.maps?.Map) {
+                host.textContent = '카카오 지도를 불러오지 못했습니다. 지도 키의 허용 도메인 설정을 확인해 주세요.';
+                return;
+            }
+            if (!p.lat || !p.lng) { host.textContent = '주소 위치 확인이 필요합니다.'; return; }
+            const center = new kakao.maps.LatLng(Number(p.lat), Number(p.lng));
+            if (!miniMap) {
+                host.replaceChildren();
+                miniMap = new kakao.maps.Map(host, { center, level: 4 });
+                miniMap.addControl(new kakao.maps.ZoomControl(), kakao.maps.ControlPosition.RIGHT);
+                miniMap.setZoomable(false);
+                detailCircle = new kakao.maps.Circle({map: miniMap, center, radius: 50, strokeWeight: 2, strokeColor: '#b5954e', fillColor: '#b5954e', fillOpacity: 0.18});
+                new ResizeObserver(() => {miniMap.relayout(); miniMap.setCenter(new kakao.maps.LatLng(Number(p.lat), Number(p.lng)));}).observe(host);
+            } else {
+                miniMap.relayout(); miniMap.setCenter(center); detailCircle.setPosition(center);
             }
         }
-
         setTimeout(initMiniMap, 100);
 
         const othersContainer = document.getElementById('othersContainer');
@@ -1757,7 +1714,7 @@
                         <img class="other-img" src="${item.imageUrl}" alt="추천 매물">
                         <div class="other-body">
                             <div class="other-region">${item.tag} | ${item.floor}</div>
-                            <div class="other-title" title="${item.title}">${item.title}</div>
+                            <div class="other-title" title="${NestPublic.title(item)}">${NestPublic.title(item)}</div>
                             <div class="other-price">${item.price}</div>
                         </div>
                     </div>

@@ -11,6 +11,7 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
+<script src="public-display.js"></script>
 </head>
 
 <body>
@@ -218,7 +219,7 @@
                         <span class="tag" style="background: var(--accent-color);">${escapeHtml(p.tag)} | ${escapeHtml(p.floor && p.floor.startsWith('-') ? '지하 ' + p.floor.substring(1) : p.floor)}</span>
                     </div>
                     <div class="card-body">
-                        <h3 style="cursor: pointer;" onclick="openPremiumDetailModal('${p.id}')">${escapeHtml(p.title)}</h3>
+                        <h3 style="cursor: pointer;" onclick="openPremiumDetailModal('${p.id}')">${escapeHtml(NestPublic.title(p))}</h3>
                         <p class="desc">${escapeHtml(p.desc)}</p>
                         <div class="card-footer">
                             <span class="price">${escapeHtml(p.price)}</span>
