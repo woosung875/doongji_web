@@ -17,6 +17,23 @@
     .customer-broker .broker-profile-container{padding-bottom:10px;margin-bottom:10px}
     .customer-broker .office-details{line-height:1.7;font-size:12px}
     @media(max-width:480px){.spec-grid{grid-template-columns:1fr;column-gap:0}.spec-label{flex-basis:95px;width:95px}.content-card{padding:16px}}
+    `;
+    css.textContent += `
+    .detail-wrapper{max-width:760px;padding:0 14px;margin:10px auto}
+    .left-content{gap:10px}
+    .content-card{padding:12px 15px;border-radius:9px}
+    .content-card h2{font-size:15px;margin:0 0 5px;padding-bottom:8px}
+    .spec-grid{column-gap:16px}
+    .spec-item{min-height:29px}
+    .spec-label{flex:0 0 72px;width:72px;padding:5px 0;font-size:11.5px;line-height:1.5}
+    .spec-val{justify-content:flex-start;text-align:left;padding:5px 0 5px 8px;font-size:11.5px;line-height:1.5}
+    .customer-summary{padding:14px 16px}
+    .customer-summary h1{font-size:18px;margin:5px 0}
+    .customer-price{font-size:22px}
+    .customer-meta{margin-top:8px;gap:5px}
+    .customer-meta span{padding:2px 7px;font-size:11px}
+    .image-viewer-container{height:230px!important}
+    @media(max-width:480px){.detail-wrapper{padding:0 10px}.content-card{padding:12px}.spec-label{flex-basis:85px;width:85px}.image-viewer-container{height:190px!important}}
     `;document.head.append(css);
     const property=typeof p!=='undefined'?p:{};
     const text=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value||'확인 필요'};
