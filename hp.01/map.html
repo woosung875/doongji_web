@@ -334,7 +334,9 @@
             kakaoClusterer = new kakao.maps.MarkerClusterer({
                 map: map,
                 averageCenter: true,
-                minLevel: 6, // Start clustering from zoom level 6 upwards
+                minLevel: 3, // Start grouping after two steps out from maximum zoom
+                gridSize: 100,
+                minClusterSize: 2,
                 styles: [{
                     width: '46px',
                     height: '46px',
@@ -348,6 +350,21 @@
                     border: '2px solid #fff',
                     boxShadow: '0 4px 10px rgba(0, 0, 0, 0.2)'
                 }]
+            });
+
+            // A grouped pin can already represent multiple listings: sum listings, not pins.
+            kakao.maps.event.addListener(kakaoClusterer, 'clustered', function(clusters) {
+                clusters.forEach(cluster => {
+                    const count = cluster.getMarkers().reduce((sum, marker) => sum + (marker.nestListingCount || 1), 0);
+                    const content = cluster.getClusterMarker().getContent();
+                    if (content && typeof content !== 'string') {
+                        content.textContent = count;
+                        content.setAttribute('title', count + '개 매물 · 클릭하여 확대');
+                    }
+                });
+            });
+            kakao.maps.event.addListener(kakaoClusterer, 'clusterclick', function() {
+                if (typeof window.closePremiumDetailModal === 'function') window.closePremiumDetailModal();
             });
 
             // Add standard zoom control UI for better usability
@@ -451,8 +468,12 @@
                 }
                 // 리플렛 뭉텅이 클러스터도 커스텀 디자인
                 leafletClusterGroup = L.markerClusterGroup({
+                    maxClusterRadius: 100,
+                    disableClusteringAtZoom: 18,
+                    showCoverageOnHover: false,
+                    zoomToBoundsOnClick: true,
                     iconCreateFunction: function(cluster) {
-                        const childCount = cluster.getChildCount();
+                        const childCount = cluster.getAllChildMarkers().reduce((sum, marker) => sum + (marker.options.nestListingCount || 1), 0);
                         return new L.DivIcon({ 
                             html: `<div style="background: rgba(37, 99, 235, 0.9); width: 44px; height: 44px; border-radius: 50%; color: #fff; text-align: center; line-height: 40px; font-weight: 700; font-size: 14px; border: 2px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">${childCount}</div>`, 
                             className: 'custom-cluster-icon', 
@@ -481,6 +502,7 @@
                         title: `${count}개의 매물`
                     });
                     
+                    marker.nestListingCount = count;
                     kakao.maps.event.addListener(marker, 'click', () => {
                         // 마커 클릭 시 다이렉트로 프리미엄 팝업 모달 띄우기
                         openPropertyGroup(group.items);
@@ -504,7 +526,7 @@
                         iconAnchor: [17, 17]
                     });
                     
-                    const marker = L.marker([group.lat, group.lng], { icon: leafletMarkerIcon });
+                    const marker = L.marker([group.lat, group.lng], { icon: leafletMarkerIcon, nestListingCount: count });
                     
                     marker.on('click', () => {
                         // 마커 클릭 시 다이렉트로 프리미엄 팝업 모달 띄우기
