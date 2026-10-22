@@ -22,6 +22,7 @@
             padding: 30px 0 !important;
         }
     </style>
+<script src="area-normalize.js"></script>
 </head>
 
 <body class="admin-login-body" id="adminBody">
@@ -396,7 +397,7 @@
                         <input type="text" id="propMaintenance" placeholder="예: 30" style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
                     </div>
                     <div class="form-group" style="flex: 1; min-width: 150px;">
-                        <label>공급면적</label>
+                        <label>임대면적</label>
                         <input type="text" id="propSupplyArea" placeholder="예: 150평 (또는 495㎡)" style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
                     </div>
                     <div class="form-group" style="flex: 1; min-width: 150px;">
@@ -1092,7 +1093,7 @@
                             <span style="color: #c5a059; font-weight: bold; display: block; margin-bottom: 2px;"><i class="fas fa-lock" style="margin-right: 4px;"></i>임대인 전용 비공개 정보</span>
                             성함: ${escapeHtml(p.lessorName || '미지정')} / 연락처: ${escapeHtml(p.lessorPhone || '미지정')}<br>
                             관리비: ${p.maintenance ? parseInt(p.maintenance).toLocaleString() + '원' : '0원'}<br>
-                            면적: 공급 ${escapeHtml(p.supplyArea || '-')} / 전용 ${escapeHtml(p.exclusiveArea || '-')}
+                            면적: 임대 ${escapeHtml(p.supplyArea || '-')} / 전용 ${escapeHtml(p.exclusiveArea || '-')} ${p.areaNeedsReview ? '(자동 보완 · 실면적 확인 필요)' : ''}
                         </div>
                     </td>
                     <td style="font-size: 13px; color: #64748b;">${escapeHtml(p.desc)}</td>
@@ -1209,7 +1210,7 @@
             // 관리비 파싱 (오토콤마가 박혀있으므로 콤마 제거 후 만원 단위 곱하기 만원)
             const maintenance = inputMaintenance.value ? parseInt(inputMaintenance.value.replace(/,/g, '')) * 10000 : 0;
             const supplyArea = inputSupplyArea.value.trim();
-            const exclusiveArea = inputExclusiveArea.value.trim();
+            const exclusiveArea = inputExclusiveArea.value.trim() || supplyArea;
             const lessorName = inputLessorName.value.trim();
             const lessorPhone = inputLessorPhone.value.trim();
 

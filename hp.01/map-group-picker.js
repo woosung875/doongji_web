@@ -38,6 +38,16 @@
       #premiumDetailModal{top:calc(64px + 32vh)!important;right:0!important;bottom:0!important;width:100%!important}
     }
     `;
+    style.textContent += `
+    #groupPickerList button{padding:16px 18px;border-radius:10px}
+    #groupPickerList button.selected{background:#fffcf5;border-left:4px solid #b5954e;padding-left:15px}
+    #groupPickerList .picker-kind{background:none;color:#64768b;padding:0;margin:0 0 4px;font-size:11px}
+    #groupPickerList .picker-title{font-size:13px;font-weight:500;color:#54677c;margin-bottom:2px}
+    #groupPickerList .picker-price{font-size:19px;letter-spacing:-.5px;line-height:1.5;margin-bottom:5px}
+    #groupPickerList .picker-meta{font-size:12px;color:#687b90}
+    #groupPickerList .picker-address{font-size:11px;margin-top:4px}
+    #groupPickerList .picker-link{padding-top:9px;margin-top:9px;font-size:11px}
+    `;
     document.head.append(style);
     const panel = document.createElement('aside');panel.id='groupPicker';panel.setAttribute('aria-label','선택 위치 매물 목록');panel.setAttribute('aria-hidden','true');panel.inert=true;
     const header=document.createElement('header'), heading=document.createElement('strong'), close=document.createElement('button'), list=document.createElement('div');list.id='groupPickerList';close.textContent='닫기 ×';header.append(heading,close);panel.append(header,list);document.body.append(panel);

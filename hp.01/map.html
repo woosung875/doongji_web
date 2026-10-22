@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 <script src="public-display.js"></script>
+<script src="area-normalize.js"></script>
 </head>
 
 <body style="overflow: hidden;"> <!-- Lock scroll for full screen map feel -->
@@ -98,7 +99,7 @@
                         </div>
                         <div class="spec-item">
                             <span class="label"><i class="fas fa-ruler-combined"></i> 면적</span>
-                            <span id="panelArea" class="val">공급 150평 / 전용 100평</span>
+                            <span id="panelArea" class="val">임대 150평 / 전용 100평</span>
                         </div>
                         <div class="spec-item">
                             <span class="label"><i class="fas fa-coins"></i> 관리비</span>
@@ -651,7 +652,7 @@
             const displayFloor = p.floor && p.floor.startsWith('-') ? '지하 ' + p.floor.substring(1) : (p.floor || '지상층');
             panelTypeFloor.innerText = `${p.type || '사무실'} / ${displayFloor}`;
             
-            const supply = p.supplyArea ? `공급 ${p.supplyArea}` : '공급 -';
+            const supply = p.supplyArea ? `임대 ${p.supplyArea}` : '임대 -';
             const exclusive = p.exclusiveArea ? `전용 ${p.exclusiveArea}` : `전용 ${p.desc.split('/')[0] || '-'}`;
             panelArea.innerText = `${supply} / ${exclusive}`;
             

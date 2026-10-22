@@ -793,6 +793,7 @@
 @media(max-width:760px){.tab-actions{width:100%;justify-content:flex-end}.tab-menu-item{padding:0 10px}.detail-wrapper th,.detail-wrapper td{padding:10px 8px}}
 </style><style>.broker-photo{width:72px;height:72px;min-width:72px;flex:0 0 72px;box-sizing:border-box;object-fit:contain;object-position:center;background:#f5f5f5;border-radius:50%;image-rendering:auto;}</style>
 <style>.broker-photo-frame{display:block;width:72px;height:72px;flex:0 0 72px;box-sizing:border-box;border:2px solid var(--accent-color);border-radius:50%;overflow:hidden;background:#ededed}.broker-photo-frame .broker-photo{display:block;width:100%;height:100%;min-width:0;border:0;border-radius:0;object-fit:contain;object-position:center;background:#ededed;transform:scale(1.18);transform-origin:50% 42%}.broker-phone-text{white-space:pre-line;line-height:1.65}</style>
+<script src="area-normalize.js"></script>
 </head>
 <body>
 
@@ -944,9 +945,9 @@
                     <div class="spec-item">
                         <div class="spec-label">면적 정보 <span class="edit-mode-only" style="color:red;">*</span></div>
                         <div class="spec-val">
-                            <span class="view-mode-only" id="specArea">공급 115㎡ (35평) / 전용 115㎡ (35평)</span>
+                            <span class="view-mode-only" id="specArea">임대 115㎡ (35평) / 전용 115㎡ (35평)</span>
                             <div class="edit-mode-only" style="display: flex; gap: 6px; width: 100%;">
-                                <input type="text" id="editSupplyArea" class="edit-input" placeholder="공급 (예: 35평)" style="flex: 1;">
+                                <input type="text" id="editSupplyArea" class="edit-input" placeholder="임대 (예: 35평)" style="flex: 1;">
                                 <input type="text" id="editExclusiveArea" class="edit-input" placeholder="전용 (예: 35평)" style="flex: 1;">
                             </div>
                         </div>
@@ -1485,7 +1486,7 @@
         
         function updateAreaDisplay() {
             const supplyText = p.supplyArea || (p.importKey ? '미기재' : parsedAreaNum + '평');
-            const exclusiveText = p.exclusiveArea || (p.importKey ? '미기재' : parsedAreaNum + '평');
+            const exclusiveText = p.exclusiveArea || p.supplyArea || (p.importKey ? '미기재' : parsedAreaNum + '평');
             
             const getSqm = (txt) => {
                 if (txt.includes('㎡')) return txt;
@@ -1497,10 +1498,10 @@
             };
             
             if (isPyung) {
-                document.getElementById('specArea').innerText = `공급 ${supplyText} / 전용 ${exclusiveText}`;
+                document.getElementById('specArea').innerText = `임대 ${supplyText} / 전용 ${exclusiveText}`;
                 document.getElementById('sideSpecArea').innerHTML = `<i class="fas fa-ruler-combined"></i> 전용 ${exclusiveText}`;
             } else {
-                document.getElementById('specArea').innerText = `공급 ${getSqm(supplyText)} / 전용 ${getSqm(exclusiveText)}`;
+                document.getElementById('specArea').innerText = `임대 ${getSqm(supplyText)} / 전용 ${getSqm(exclusiveText)}`;
                 document.getElementById('sideSpecArea').innerHTML = `<i class="fas fa-ruler-combined"></i> 전용 ${getSqm(exclusiveText)}`;
             }
         }
@@ -1874,7 +1875,7 @@
             setElValue('editParking', p.parking || "무료 1대 가능");
 
             setElValue('editSupplyArea', p.supplyArea);
-            setElValue('editExclusiveArea', p.exclusiveArea);
+            setElValue('editExclusiveArea', p.exclusiveArea || p.supplyArea);
             
             // 층정보 파싱 분배
             let cleanFloor = '';
@@ -2045,7 +2046,7 @@
                 const title = document.getElementById('editTitle') ? document.getElementById('editTitle').value.trim() : '';
                 const address = document.getElementById('editAddress') ? document.getElementById('editAddress').value.trim() : '';
                 const supply = document.getElementById('editSupplyArea') ? document.getElementById('editSupplyArea').value.trim() : '';
-                const exclusive = document.getElementById('editExclusiveArea') ? document.getElementById('editExclusiveArea').value.trim() : '';
+                const exclusive = (document.getElementById('editExclusiveArea') ? document.getElementById('editExclusiveArea').value.trim() : '') || document.getElementById('editSupplyArea').value.trim();
                 const writer = document.getElementById('editWriter') ? document.getElementById('editWriter').value : '';
                 const dealType = document.getElementById('editDealType') ? document.getElementById('editDealType').value : '월세';
                 const type = document.getElementById('editType') ? document.getElementById('editType').value : '사무실';
@@ -2236,5 +2237,6 @@
             }
         }
     </script>
+<script src="detail-customer-ui.js"></script>
 </body>
 </html>

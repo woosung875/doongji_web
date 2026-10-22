@@ -31,12 +31,12 @@
             type, sourceCategory: text(row['매물분류']), dealType: deal,
             tag: address.startsWith('서울') ? '서울' : address.startsWith('경기') ? '경기' : address.split(/\s/)[0],
             address, title: address + ' ' + type, desc,
-            supplyArea: Number(parts[0]) + '㎡', exclusiveArea: parts[1] ? Number(parts[1]) + '㎡' : '',
+            supplyArea: Number(parts[0]) + '㎡', exclusiveArea: Number(parts[1] || parts[0]) + '㎡',
             price: deal === '월세' ? `보증금 ${fmt(a)} / 월 ${fmt(b)}` : `${deal} ${fmt(a)}`,
             salePrice: deal === '매매' ? a : null, deposit: deal === '매매' ? null : a, monthlyRent: b,
             moveInDate: text(row['입주정보']), adminMemo: text(row['관리자메모']),
             floor: floor ? floor[0] : '', imageUrl: '', imageUrls: [], maintenance: '',
-            importRow: rowNumber, areaNeedsReview: parts.length === 1,
+            importRow: rowNumber, areaNeedsReview: parts.length === 1, exclusiveAreaSource: parts.length === 1 ? 'copied-from-rental' : 'excel',
             importKey: JSON.stringify([type, deal, address, parts, a, b, desc]),
             lat: null, lng: null, geocodeStatus: 'pending'
         };
@@ -52,7 +52,7 @@
     if (!host) return;
     const box = document.createElement('section');
     box.style.cssText = 'padding:20px;margin:16px 0;background:#f8fafc;border:1px solid #cbd5e1;border-radius:8px';
-    box.innerHTML = '<h3>엑셀로 매물 일괄 등록</h3><p>등록리스트 양식 · 가격: 만원 · 면적: ㎡ (임대/전용). 단일 면적은 임대면적에 저장하고 전용면적은 확인 대상으로 남깁니다.</p><input id="excelFile" type="file" accept=".xlsx,.xls"><button type="button" id="excelSave" disabled>미리보기 확인 후 일괄 등록</button> <button type="button" id="excelRetry">지도 위치 재검색</button><p id="excelStatus" role="status" aria-live="polite"></p><div id="excelPreview" style="overflow:auto;max-height:420px"></div>';
+    box.innerHTML = '<h3>엑셀로 매물 일괄 등록</h3><p>등록리스트 양식 · 가격: 만원 · 면적: ㎡ (임대/전용). 전용면적이 없으면 임대면적과 동일하게 채웁니다. 자동 보완된 전용면적은 실제 면적 확인이 필요합니다.</p><input id="excelFile" type="file" accept=".xlsx,.xls"><button type="button" id="excelSave" disabled>미리보기 확인 후 일괄 등록</button> <button type="button" id="excelRetry">지도 위치 재검색</button><p id="excelStatus" role="status" aria-live="polite"></p><div id="excelPreview" style="overflow:auto;max-height:420px"></div>';
     host.prepend(box);
     const file = box.querySelector('#excelFile'), save = box.querySelector('#excelSave'), retry = box.querySelector('#excelRetry'), status = box.querySelector('#excelStatus'), preview = box.querySelector('#excelPreview');
     let pending = [], busy = false;
