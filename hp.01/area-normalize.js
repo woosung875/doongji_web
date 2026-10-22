@@ -14,6 +14,8 @@
         const rows = JSON.parse(raw);
         if (!Array.isArray(rows)) return;
         let changed = false;
+        // This legacy pair was explicitly confirmed by the owner to be in pyeong.
+        rows.forEach(p=>{if(String(p.supplyArea).trim()==='77'&&String(p.exclusiveArea).trim()==='65'){p.supplyArea='77평';p.exclusiveArea='65평';changed=true;}});
         rows.forEach(p => { if (!String(p.exclusiveArea ?? '').trim() && String(p.supplyArea ?? '').trim()) { normalize(p); changed = true; } });
         if (changed) {
             localStorage.setItem('nest_properties_backup_area_' + Date.now(), raw);

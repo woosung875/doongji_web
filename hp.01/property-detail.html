@@ -1491,16 +1491,16 @@
             
             const getSqm = (txt) => {
                 if (txt.includes('㎡')) return txt;
-                const matchVal = txt.match(/(\d+)\s*평/);
+                const matchVal = txt.match(/([\d.]+)\s*평/);
                 if (matchVal) {
-                    return (parseInt(matchVal[1]) * 3.3058).toFixed(1) + '㎡';
+                    return (parseFloat(matchVal[1]) * 3.305785).toFixed(2) + '㎡';
                 }
                 return txt;
             };
             
             if (isPyung) {
-                document.getElementById('specArea').innerText = `임대 ${supplyText} / 전용 ${exclusiveText}`;
-                document.getElementById('sideSpecArea').innerHTML = `<i class="fas fa-ruler-combined"></i> 전용 ${exclusiveText}`;
+                document.getElementById('specArea').innerText = `임대 ${NestPublic.area(supplyText)} / 전용 ${NestPublic.area(exclusiveText)}`;
+                document.getElementById('sideSpecArea').innerHTML = `<i class="fas fa-ruler-combined"></i> 전용 ${NestPublic.area(exclusiveText)}`;
             } else {
                 document.getElementById('specArea').innerText = `임대 ${getSqm(supplyText)} / 전용 ${getSqm(exclusiveText)}`;
                 document.getElementById('sideSpecArea').innerHTML = `<i class="fas fa-ruler-combined"></i> 전용 ${getSqm(exclusiveText)}`;

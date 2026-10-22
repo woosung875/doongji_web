@@ -59,16 +59,26 @@
     const header=document.createElement('header'), heading=document.createElement('strong'), close=document.createElement('button'), list=document.createElement('div');list.id='groupPickerList';close.textContent='닫기 ×';header.append(heading,close);panel.append(header,list);document.body.append(panel);
     close.onclick=()=>{window.closePremiumDetailModal?.();panel.classList.remove('open');panel.setAttribute('aria-hidden','true');panel.inert=true};
     document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!document.getElementById('premiumDetailModal')?.classList.contains('drawer-open'))close.click()});
+    let selectedGroupIds=[];
     window.openPropertyGroup=function(items){
+        selectedGroupIds=items.map(p=>p.id);
+        try { const latest=JSON.parse(localStorage.getItem('nest_properties')||'null');if(Array.isArray(latest))items=items.map(p=>latest.find(row=>row.id===p.id)).filter(Boolean); } catch(e) {}
         // A new map selection resets the previous detail while keeping the list available.
         const detail=document.getElementById('premiumDetailModal');
         if(detail?.classList.contains('drawer-open'))window.closePremiumDetailModal?.();
         heading.textContent=`이 위치의 매물 ${items.length}개`;list.replaceChildren();
         items.forEach(p=>{const b=document.createElement('button');b.type='button';
-            [['picker-kind',`${p.type||'매물'} · ${p.floor||'층수 미기재'}`],['picker-title',NestPublic.title(p)],['picker-price',p.price||'가격 문의'],['picker-meta',`임대 ${p.supplyArea||'-'} / 전용 ${p.exclusiveArea||'-'}`],['picker-address',NestPublic.address(p.address)],['picker-link','매물 상세 보기 →']].forEach(([cls,value])=>{const span=document.createElement('span');span.className=cls;span.textContent=value;b.append(span)});
+            [['picker-kind',`${p.type||'매물'} · ${p.floor||'층수 미기재'}`],['picker-title',NestPublic.title(p)],['picker-price',p.price||'가격 문의'],['picker-meta',`임대 ${NestPublic.area(p.supplyArea)} / 전용 ${NestPublic.area(p.exclusiveArea)}`],['picker-address',NestPublic.address(p.address)],['picker-link','매물 상세 보기 →']].forEach(([cls,value])=>{const span=document.createElement('span');span.className=cls;span.textContent=value;b.append(span)});
             b.onclick=()=>{for(const card of list.children){card.classList.remove('selected');card.setAttribute('aria-pressed','false')}b.classList.add('selected');b.setAttribute('aria-pressed','true');openPremiumDetailModal(p.id)};list.append(b)});
         panel.inert=false;panel.setAttribute('aria-hidden','false');panel.classList.add('open');close.focus();
     };
+    window.addEventListener('storage',event=>{
+        if(event.key!=='nest_properties')return;
+        if(typeof applyFilters==='function')applyFilters();
+        if(panel.classList.contains('open')){
+            try { const latest=JSON.parse(event.newValue||'[]');window.openPropertyGroup(latest.filter(p=>selectedGroupIds.includes(p.id))); } catch(e) {}
+        }
+    });
     const modal=document.getElementById('premiumDetailModal'),iframe=document.getElementById('premiumDetailIframe');
     let previousFocus,clearTimer;
     if(modal&&iframe){
