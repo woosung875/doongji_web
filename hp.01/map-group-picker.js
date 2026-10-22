@@ -60,6 +60,9 @@
     close.onclick=()=>{window.closePremiumDetailModal?.();panel.classList.remove('open');panel.setAttribute('aria-hidden','true');panel.inert=true};
     document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!document.getElementById('premiumDetailModal')?.classList.contains('drawer-open'))close.click()});
     window.openPropertyGroup=function(items){
+        // A new map selection resets the previous detail while keeping the list available.
+        const detail=document.getElementById('premiumDetailModal');
+        if(detail?.classList.contains('drawer-open'))window.closePremiumDetailModal?.();
         heading.textContent=`이 위치의 매물 ${items.length}개`;list.replaceChildren();
         items.forEach(p=>{const b=document.createElement('button');b.type='button';
             [['picker-kind',`${p.type||'매물'} · ${p.floor||'층수 미기재'}`],['picker-title',NestPublic.title(p)],['picker-price',p.price||'가격 문의'],['picker-meta',`임대 ${p.supplyArea||'-'} / 전용 ${p.exclusiveArea||'-'}`],['picker-address',NestPublic.address(p.address)],['picker-link','매물 상세 보기 →']].forEach(([cls,value])=>{const span=document.createElement('span');span.className=cls;span.textContent=value;b.append(span)});
