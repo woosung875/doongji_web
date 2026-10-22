@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>매물 엑셀 등록 테스트</title>
+<style>body{font-family:system-ui,sans-serif;background:#eef2f6;color:#182c3f;margin:0}main{max-width:1250px;margin:36px auto;padding:24px}h1{font-size:28px}button,input,select{font:inherit;padding:10px;margin:5px;border:1px solid #bccbd7;border-radius:6px}button{cursor:pointer;background:#fff}button:disabled{opacity:.5}section,.card{background:white;padding:20px;border-radius:12px;margin:18px 0}table{border-collapse:collapse;width:100%;font-size:13px}td,th{padding:10px;text-align:left;border-bottom:1px solid #ddd}#saved{overflow:auto;max-height:500px}.badge{background:#dcece5;padding:8px;border-radius:6px}#map{height:350px;background:#e3eaf0;padding:12px;box-sizing:border-box}</style>
+<main><span class="badge">테스트 전용 · 실제 매물과 분리 저장</span><h1>엑셀로 매물 등록해 보기</h1><p>파일 선택 → 담당자·가격·면적 확인 → 일괄 등록 → 아래 결과 확인 순서로 테스트하세요.</p>
+<section><h2>1. 테스트 준비</h2><p>테스트 담당자: 조건희 · 배기열 · 배우리 · 김우성. 실제 홈페이지의 임직원 계정은 변경하지 않습니다.</p><label>추가 담당자 <input id="name" placeholder="3글자 실명"></label><button id="add">테스트 담당자 추가</button><button id="sample">예제 6건 불러오기</button><button id="clear">테스트 매물 초기화</button><p id="notice" role="status"></p></section>
+<div id="propertiesTabArea"></div>
+<section><h2>등록 결과 <span id="count">0건</span></h2><p>동일한 파일을 다시 올려 중복 제외도 확인할 수 있습니다. 이름이 불명확한 행은 등록되지 않습니다.</p><div id="saved"></div></section>
+<section><h2>주소 지도 확인</h2><p>좌표 검색이 성공한 매물만 표시합니다. 카카오 SDK가 차단되면 주소는 저장되지만 지도는 표시되지 않습니다.</p><div id="map">지도 연결 대기 중</div></section></main>
+<script>
+const prefix='nest_excel_test_v1_';
+const storage={getItem:k=>localStorage.getItem(prefix+k),setItem:(k,v)=>localStorage.setItem(prefix+k,v)};
+window.NestExcelConfig={storage,session:{getItem:()=>JSON.stringify({role:'master',name:'테스트관리자'})}};
+let testUsers=['조건희','배기열','배우리','김우성'].map(name=>({name}));
+function getUsers(){return testUsers;}
+function applyAdminFilters(){
+ const list=JSON.parse(storage.getItem('nest_properties')||'[]');document.getElementById('count').textContent=list.length+'건';
+ const host=document.getElementById('saved');host.replaceChildren();const table=document.createElement('table');
+ const header=table.insertRow();['담당자','분류','거래','주소','임대/전용','가격','매물특징','지도'].forEach(t=>{let th=document.createElement('th');th.textContent=t;header.append(th)});
+ list.forEach(p=>{let r=table.insertRow();[p.writer,p.type,p.dealType,p.address,p.supplyArea+' / '+(p.exclusiveArea||'미기재'),p.price,p.desc,p.lat&&p.lng?'위치 확인':'재확인 필요'].forEach(v=>{r.insertCell().textContent=v})});host.append(table);
+ const target=document.getElementById('map');
+ if(!window.kakao?.maps?.Map){target.textContent='지도 SDK를 불러오지 못했습니다. 카카오 키의 localhost 허용 도메인과 인터넷 연결을 확인하세요.';return;}
+ const points=list.filter(p=>p.lat&&p.lng);if(!points.length){target.textContent='위치 검색에 성공한 매물이 아직 없습니다.';return;}
+ target.replaceChildren();const map=new kakao.maps.Map(target,{center:new kakao.maps.LatLng(points[0].lat,points[0].lng),level:6});const bounds=new kakao.maps.LatLngBounds();
+ points.forEach(p=>{const pos=new kakao.maps.LatLng(p.lat,p.lng);new kakao.maps.Marker({map,position:pos,title:p.address+' · '+p.writer});bounds.extend(pos)});map.setBounds(bounds);
+}
+document.getElementById('add').onclick=()=>{let name=document.getElementById('name').value.trim();if(!/^[가-힣]{3}$/.test(name)){document.getElementById('notice').textContent='한글 3글자 이름을 입력하세요.';return}if(!testUsers.some(u=>u.name===name))testUsers.push({name});document.getElementById('notice').textContent=name+' 추가 완료. 엑셀을 다시 선택하세요.'};
+document.getElementById('clear').onclick=()=>{if(document.getElementById('excelFile').disabled)return;storage.setItem('nest_properties','[]');applyAdminFilters();document.getElementById('notice').textContent='테스트 매물을 초기화했습니다. 파일을 다시 선택하세요.'};
+</script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=3e8097eb16c9e4942d0cbb215d2da6e6&libraries=services"></script>
+<script src="excel-import.js"></script><script>
+document.getElementById('sample').onclick=async()=>{try{if(!window.XLSX)throw Error('엑셀 라이브러리 연결을 확인하세요.');if(document.getElementById('excelFile').disabled)return;const rows=[
+['매물분류','거래종류','면적','소재지','매물특징','입주정보','매물가(만원)','관리자메모'],
+['사무실','월세','189.39 / 150.00(㎡)','서울특별시 강남구 테헤란로 152','테스트 사무실','즉시입주','8,000 / 700','배기열_테스트'],
+['상가점포','매매','355.67(㎡)','서울특별시 중구 세종대로 110','테스트 상가','협의','220,000','조건희_테스트'],
+['주택','전세','85.37 / 60.00(㎡)','서울특별시 송파구 올림픽로 300','테스트 주택','즉시입주','8,400','배우리_테스트'],
+['오피스텔','월세','45 / 30(㎡)','서울특별시 영등포구 국제금융로 10','테스트 오피스텔','협의','1,000 / 100','김우성_테스트'],
+['상가점포','월세','70 / 50(㎡)','서울특별시 강남구 테헤란로 152','이름 오류 확인용','즉시입주','2,000 / 200','*김우_확인'],
+['사무실','월세','100 / 80(㎡)','서울특별시 중구 세종대로 110','가격 오류 확인용','즉시입주','확인필요','배기열_테스트']];
+const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'테스트');await NestExcel.loadTestFile(new File([XLSX.write(wb,{type:'array',bookType:'xlsx'})],'테스트.xlsx'));document.getElementById('notice').textContent='예제 기대 결과: 등록 가능 4건 / 담당자 오류 1건 / 가격 오류 1건.';}catch(e){document.getElementById('notice').textContent=e.message}};
+applyAdminFilters();
+</script></html>

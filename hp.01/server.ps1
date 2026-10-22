@@ -1,4 +1,4 @@
-$listener = New-Object System.Net.HttpListener
+﻿$listener = New-Object System.Net.HttpListener
 $listener.Prefixes.Add("http://localhost:8000/")
 $listener.Start()
 Write-Host "Nest Real Estate local web server is running on http://localhost:8000/ ..."
@@ -14,7 +14,7 @@ while ($listener.IsListening) {
             $path = "/index.html"
         }
         
-        $filePath = Join-Path "c:\ag\hp.01" $path.TrimStart('/')
+        $filePath = Join-Path $PSScriptRoot $path.TrimStart('/')
         
         if (Test-Path $filePath -PathType Leaf) {
             $bytes = [System.IO.File]::ReadAllBytes($filePath)

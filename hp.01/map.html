@@ -60,7 +60,7 @@
             <option value="상가">상가</option>
             <option value="빌딩">빌딩</option>
             <option value="토지">토지</option>
-            <option value="주거용">주거용</option>
+            <option value="주거용">주거용</option><option value="주택">주택</option><option value="오피스텔">오피스텔</option><option value="아파트">아파트</option>
         </select>
         <select id="filterFloor" onchange="applyFilters()">
             <option value="">층수</option>
@@ -409,42 +409,6 @@
             return new kakao.maps.MarkerImage(dataUrl, imageSize, imageOption);
         }
 
-        function guessCoordinatesFromAddress(address) {
-            const text = String(address || '').replace(/\s+/g, '');
-            const points = [
-                { keys: ['테헤란로86길14', '윤천빌딩', '대치동943-13'], lat: 37.5064553, lng: 127.0591354 },
-                { keys: ['대치동', '테헤란로86길', '삼성역'], lat: 37.5064553, lng: 127.0591354 },
-                { keys: ['역삼동', '테헤란로', '강남역'], lat: 37.5008, lng: 127.0369 },
-                { keys: ['논현동'], lat: 37.5110, lng: 127.0287 },
-                { keys: ['삼성동', '코엑스'], lat: 37.5118, lng: 127.0592 },
-                { keys: ['청담동'], lat: 37.5250, lng: 127.0493 },
-                { keys: ['신사동', '가로수길'], lat: 37.5210, lng: 127.0233 },
-                { keys: ['서초동'], lat: 37.4919, lng: 127.0079 },
-                { keys: ['방배동'], lat: 37.4815, lng: 126.9977 },
-                { keys: ['잠실동'], lat: 37.5112, lng: 127.0982 },
-                { keys: ['강남구'], lat: 37.5172, lng: 127.0473 },
-                { keys: ['서초구'], lat: 37.4836, lng: 127.0327 },
-                { keys: ['송파구'], lat: 37.5145, lng: 127.1059 },
-                { keys: ['서울'], lat: 37.5665, lng: 126.9780 }
-            ];
-            for (const point of points) {
-                if (point.keys.some(function(key) { return text.includes(key); })) {
-                    return { lat: point.lat, lng: point.lng };
-                }
-            }
-            return null;
-        }
-
-        function normalizePropertyPoint(p) {
-            const lat = parseFloat(p.lat);
-            const lng = parseFloat(p.lng);
-            const isDefaultGangnam = Math.abs(lat - 37.4979) < 0.0002 && Math.abs(lng - 127.0276) < 0.0002;
-            const guessed = guessCoordinatesFromAddress(p.address);
-            if ((!p.lat || !p.lng || isDefaultGangnam) && guessed) return guessed;
-            if (p.lat && p.lng) return { lat: lat, lng: lng };
-            return guessed;
-        }
-
         function renderAllProperties(customProps) {
             const props = customProps || getProperties();
             
@@ -453,14 +417,13 @@
             // 1. 위도 경도 좌표 기준으로 매물 그룹화 (동일 좌표 중첩 방지)
             const coordsMap = {};
             props.forEach(p => {
-                const point = normalizePropertyPoint(p);
-                if (point && point.lat && point.lng) {
+                if (p.lat && p.lng) {
                     // 소수점 6자리까지 고정하여 동일 좌표 묶기
-                    const key = `${parseFloat(point.lat).toFixed(6)}_${parseFloat(point.lng).toFixed(6)}`;
+                    const key = `${parseFloat(p.lat).toFixed(6)}_${parseFloat(p.lng).toFixed(6)}`;
                     if (!coordsMap[key]) {
                         coordsMap[key] = {
-                            lat: parseFloat(point.lat),
-                            lng: parseFloat(point.lng),
+                            lat: parseFloat(p.lat),
+                            lng: parseFloat(p.lng),
                             items: []
                         };
                     }
@@ -586,13 +549,12 @@
             // Relocate map center to the first matched property if exists
             if (filtered.length > 0) {
                 const first = filtered[0];
-                const firstPoint = normalizePropertyPoint(first);
-                if (firstPoint && firstPoint.lat && firstPoint.lng) {
+                if (first.lat && first.lng) {
                     if (map) {
-                        map.panTo(new kakao.maps.LatLng(parseFloat(firstPoint.lat), parseFloat(firstPoint.lng)));
+                        map.panTo(new kakao.maps.LatLng(parseFloat(first.lat), parseFloat(first.lng)));
                         map.setLevel(4);
                     } else if (leafletMap) {
-                        leafletMap.panTo([parseFloat(firstPoint.lat), parseFloat(firstPoint.lng)]);
+                        leafletMap.panTo([parseFloat(first.lat), parseFloat(first.lng)]);
                     }
                 }
             }
@@ -680,13 +642,7 @@
             const panelPropertiesLink = document.getElementById('panelPropertiesLink');
             
             // Populate basic details
-            if (p.imageUrl) {
-                panelImg.src = p.imageUrl;
-                panelImg.style.display = 'block';
-            } else {
-                panelImg.removeAttribute('src');
-                panelImg.style.display = 'none';
-            }
+            panelImg.src = p.imageUrl || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800';
             panelTag.innerText = p.tag || '서울';
             panelTitle.innerText = p.title;
             panelPrice.innerText = p.price;

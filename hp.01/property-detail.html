@@ -190,31 +190,6 @@
             object-fit: cover;
         }
 
-        .image-empty-state {
-            width: 100%;
-            height: 100%;
-            min-height: 260px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            background: linear-gradient(135deg, #f8fafc 0%, #eef2f7 100%);
-            border: 1px dashed #cbd5e1;
-            color: #64748b;
-            text-align: center;
-        }
-
-        .image-empty-state i {
-            font-size: 34px;
-            color: var(--accent-color);
-        }
-
-        .image-empty-state strong {
-            color: #334155;
-            font-size: 16px;
-        }
-
         .watermark-overlay {
             position: absolute;
             top: 50%;
@@ -839,12 +814,8 @@
             <div class="content-card" id="img-section" style="padding: 15px;">
                 <div class="image-viewer-container" style="position: relative;">
                     <button onclick="prevDetailImage()" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: #fff; border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: background 0.2s;" onmouseenter="this.style.background='rgba(0,0,0,0.8)'" onmouseleave="this.style.background='rgba(0,0,0,0.5)'"><i class="fas fa-chevron-left"></i></button>
-                    <img id="mainPropertyImg" class="image-viewer-img" src="" alt="매물 대표 사진" style="width: 100%; height: 100%; object-fit: cover;">
-                    <div id="mainPropertyEmpty" class="image-empty-state" style="display: none;">
-                        <i class="far fa-images"></i>
-                        <strong>등록된 사진이 없습니다</strong>
-                        <span>아래 사진 다중 첨부 버튼으로 매물 사진을 추가해 주세요.</span>
-                    </div>
+                    
+                    <img id="mainPropertyImg" class="image-viewer-img" src="" alt="매물 대표 실사진" style="width: 100%; height: 100%; object-fit: cover;">
                     
                     <button onclick="nextDetailImage()" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: #fff; border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: background 0.2s;" onmouseenter="this.style.background='rgba(0,0,0,0.8)'" onmouseleave="this.style.background='rgba(0,0,0,0.5)'"><i class="fas fa-chevron-right"></i></button>
                     
@@ -852,8 +823,10 @@
                     <div class="image-counter" style="z-index: 3;"><i class="far fa-image"></i> <span id="detailImgCounter">1/1</span></div>
                 </div>
                 <div class="edit-mode-only" style="margin-top: 15px; text-align: center; border-top: 1px solid var(--border-color); padding-top: 15px;">
-                    <button type="button" id="btnEditFile" onclick="document.getElementById('editFile').click()" style="padding: 8px 16px; background: var(--accent-color); color: #fff; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); font-family: inherit;"><i class="fas fa-camera"></i> 사진 다중 첨부 (최대 20장)</button>
-                    <input type="file" id="editFile" accept="image/*" multiple onchange="window.handleEditFileChange && window.handleEditFileChange(event)" style="display: block; width: min(360px, 100%); margin: 10px auto 0; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; font-family: inherit;">
+                    <label for="editFile" class="btn-file-upload" style="padding: 8px 16px; background: var(--accent-color); color: #fff; border-radius: 6px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+                        <i class="fas fa-camera"></i> 사진 다중 첨부 (최대 20장)
+                    </label>
+                    <input type="file" id="editFile" accept="image/*" multiple style="display: none;">
                     <p style="font-size: 11px; color: #64748b; margin-top: 8px;">선택된 사진 목록 (<span id="editPreviewCount">0</span>장)</p>
                     <div id="editPreviewList" style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; justify-content: center; max-height: 120px; overflow-y: auto; padding: 5px; background: #f8fafc; border-radius: 4px; border: 1px solid #e2e8f0;"></div>
                 </div>
@@ -870,7 +843,7 @@
                         <div class="spec-val">
                             <span class="view-mode-only" id="specAddress">서울 송파구 잠실동</span>
                             <div class="edit-mode-only" style="display: flex; gap: 6px; width: 100%;">
-                                <input type="text" id="editAddress" class="edit-input" placeholder="주소찾기 또는 직접 입력" style="background-color: #fff; cursor: text;">
+                                <input type="text" id="editAddress" class="edit-input" placeholder="[주소 찾기] 버튼을 눌러 검색하세요" readonly style="background-color: #f8fafc; cursor: pointer;">
                                 <button type="button" onclick="execDaumPostcodeDetail()" style="padding: 6px 12px; background: var(--primary-color); border: none; color: white; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 11px; white-space: nowrap;">주소 찾기</button>
                             </div>
                             <div id="detailPostcodeLayer" style="display:none; border:1px solid #cbd5e1; width:100%; height:320px; margin-top:10px; position:relative; border-radius:6px; overflow:hidden; z-index:100;">
@@ -901,7 +874,7 @@
                                     <option value="상가">상가</option>
                                     <option value="빌딩">빌딩</option>
                                     <option value="토지">토지</option>
-                                    <option value="주거용">주거용</option>
+                                    <option value="주거용">주거용</option><option value="주택">주택</option><option value="오피스텔">오피스텔</option><option value="아파트">아파트</option>
                                 </select>
                             </div>
                         </div>
@@ -1088,7 +1061,7 @@
                 </div>
 
                 <div class="transit-group" style="margin-bottom:0;">
-                    <h3><i class="fas fa-bus" style="color:var(--accent-color);"></i> 인근 버스안내 <span style="font-size:11px; color:#888; font-weight:normal;">(주요 경유 버스번호)</span></h3>
+                    <h3><i class="fas fa-bus" style="color:var(--accent-color);"></i> 인근 버스정류장 <span style="font-size:11px; color:#888; font-weight:normal;">(도보 5분 이내)</span></h3>
                     <div class="bus-list" id="busList">
                         <!-- bus chips -->
                     </div>
@@ -1138,7 +1111,7 @@
                 <button class="btn-side-inquiry view-mode-only" onclick="openInquiryModal()">
                     <i class="far fa-envelope"></i> 매물 문의하기
                 </button>
-                <button class="btn-side-inquiry edit-mode-only" id="btnSavePropertyDetail" onclick="savePropertyFromDetail()" style="background: var(--accent-color); border: 1px solid var(--accent-color); color: #fff;">
+                <button class="btn-side-inquiry edit-mode-only" onclick="savePropertyFromDetail()" style="background: var(--accent-color); border: 1px solid var(--accent-color); color: #fff;">
                     <i class="fas fa-save"></i> 💾 매물 정보 저장하기
                 </button>
 
@@ -1378,40 +1351,16 @@
         } else if (p.imageUrl) {
             detailImageUrls = [p.imageUrl];
         } else {
-            detailImageUrls = [];
+            detailImageUrls = ['https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800'];
         }
 
         function renderDetailImage() {
             const imgEl = document.getElementById('mainPropertyImg');
             const counterEl = document.getElementById('detailImgCounter');
-            const emptyEl = document.getElementById('mainPropertyEmpty');
-            const watermarkEl = document.querySelector('.watermark-overlay');
-            const navButtons = document.querySelectorAll('button[onclick="prevDetailImage()"], button[onclick="nextDetailImage()"]');
             if (imgEl && detailImageUrls.length > 0) {
-                imgEl.style.display = 'block';
                 imgEl.src = detailImageUrls[currentImgIndex];
-                if (emptyEl) emptyEl.style.display = 'none';
-                if (watermarkEl) watermarkEl.style.display = 'block';
-                navButtons.forEach(btn => {
-                    btn.style.display = detailImageUrls.length > 1 ? 'flex' : 'none';
-                });
                 if (counterEl) {
                     counterEl.innerText = `${currentImgIndex + 1}/${detailImageUrls.length}`;
-                    counterEl.parentElement.style.display = 'flex';
-                }
-            } else {
-                if (imgEl) {
-                    imgEl.removeAttribute('src');
-                    imgEl.style.display = 'none';
-                }
-                if (emptyEl) emptyEl.style.display = 'flex';
-                if (watermarkEl) watermarkEl.style.display = 'none';
-                navButtons.forEach(btn => {
-                    btn.style.display = 'none';
-                });
-                if (counterEl) {
-                    counterEl.innerText = '0/0';
-                    counterEl.parentElement.style.display = 'none';
                 }
             }
         }
@@ -1521,8 +1470,8 @@
         }
         
         function updateAreaDisplay() {
-            const supplyText = p.supplyArea || (parsedAreaNum + '평');
-            const exclusiveText = p.exclusiveArea || (parsedAreaNum + '평');
+            const supplyText = p.supplyArea || (p.importKey ? '미기재' : parsedAreaNum + '평');
+            const exclusiveText = p.exclusiveArea || (p.importKey ? '미기재' : parsedAreaNum + '평');
             
             const getSqm = (txt) => {
                 if (txt.includes('㎡')) return txt;
@@ -1559,7 +1508,7 @@
                     html += `
                         <div class="desc-bullet-item">
                             <i class="fas fa-check-circle"></i>
-                            <span>${trimmed}</span>
+                            <span>${trimmed.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}</span>
                         </div>
                     `;
                 }
@@ -1632,13 +1581,11 @@
                                 if (busesData.length > 0) {
                                     let busHtml = '';
                                     busesData.forEach(b => {
-                                        const routeText = Array.isArray(b.routes) && b.routes.length ? b.routes.join(', ') : (b.route || b.name || '노선 확인');
-                                        const stopText = b.stop ? ` <small style="color:#64748b;">${b.stop}</small>` : '';
-                                        busHtml += `<span class="bus-chip"><span style="color:#1d4ed8; font-weight:bold;">BUS</span> ${routeText}${stopText}</span>`;
+                                        busHtml += `<span class="bus-chip"><span style="color:#1d4ed8; font-weight:bold;">●</span> ${b.name} (${b.distance}m)</span>`;
                                     });
                                     busList.innerHTML = busHtml;
                                 } else {
-                                    busList.innerHTML = '<span style="color:#ef4444; font-size:12px;">인근 버스번호 정보를 찾지 못했습니다.</span>';
+                                    busList.innerHTML = '<span style="color:#ef4444; font-size:12px;">반경 400m 이내에 버스정류장이 없습니다.</span>';
                                 }
                             }
 
@@ -1713,15 +1660,13 @@
             if (p.buses && p.buses.length > 0) {
                 let busHtml = '';
                 p.buses.forEach(b => {
-                    const routeText = Array.isArray(b.routes) && b.routes.length ? b.routes.join(', ') : (b.route || b.name || '노선 확인');
-                    const stopText = b.stop ? ` <small style="color:#64748b;">${b.stop}</small>` : '';
-                    busHtml += `<span class="bus-chip"><span style="color:#1d4ed8; font-weight:bold;">BUS</span> ${routeText}${stopText}</span>`;
+                    busHtml += `<span class="bus-chip"><span style="color:#1d4ed8; font-weight:bold;">●</span> ${b.name} (${b.distance}m)</span>`;
                 });
                 busList.innerHTML = busHtml;
             } else if (p.address) {
                 // 패스
             } else {
-                busList.innerHTML = '<span style="color:#64748b; font-size:12px;">주소를 찾으시면 인근 버스번호 정보가 자동으로 연산됩니다.</span>';
+                busList.innerHTML = '<span style="color:#64748b; font-size:12px;">주소를 찾으시면 인근 버스정류장 정보가 자동으로 연산됩니다.</span>';
             }
         }
 
@@ -1758,29 +1703,11 @@
         // Mini Map initialization
         let miniMap;
         function initMiniMap() {
+            if (p.importKey && (!p.lat || !p.lng)) { document.getElementById("propertyDetailMiniMap").textContent = "주소 위치 확인이 필요합니다. 관리자 페이지에서 지도 위치 재검색을 실행하세요."; return; }
             const latitude = p.lat || 37.4979;
             const longitude = p.lng || 127.0276;
-            const mapBox = document.getElementById('propertyDetailMiniMap');
             
             try {
-                if (window.kakao && kakao.maps && mapBox) {
-                    const center = new kakao.maps.LatLng(latitude, longitude);
-                    window.__kakaoDetailMap = new kakao.maps.Map(mapBox, {
-                        center: center,
-                        level: 3
-                    });
-                    window.__kakaoDetailMarker = new kakao.maps.Marker({
-                        position: center,
-                        map: window.__kakaoDetailMap
-                    });
-                    const info = new kakao.maps.InfoWindow({
-                        content: '<div style="padding:8px 12px;font-size:13px;white-space:nowrap;"><b>' + (p.title || '등록 예정지') + '</b><br>' + (p.price || '') + '</div>'
-                    });
-                    info.open(window.__kakaoDetailMap, window.__kakaoDetailMarker);
-                    return;
-                }
-
-                if (!window.L) return;
                 miniMap = L.map('propertyDetailMiniMap', {
                     center: [latitude, longitude],
                     zoom: 15,
@@ -2031,81 +1958,25 @@
 
             const editPreviewList = document.getElementById('editPreviewList');
             const editPreviewCount = document.getElementById('editPreviewCount');
-            loadedImages = (p.imageUrls && p.imageUrls.length > 0) ? p.imageUrls : (p.imageUrl ? [p.imageUrl] : []);
+            loadedImages = p.imageUrls || (p.imageUrl ? [p.imageUrl] : []);
 
             function renderEditPreviews() {
                 if (editPreviewList) editPreviewList.innerHTML = '';
                 loadedImages.forEach((img, idx) => {
                     const div = document.createElement('div');
                     div.style.position = 'relative';
-                    div.draggable = true;
-                    div.dataset.index = idx;
-                    div.style.cursor = 'grab';
-                    div.style.padding = '2px';
-                    div.style.borderRadius = '6px';
-                    div.title = '드래그해서 사진 순서를 바꿀 수 있습니다';
                     div.innerHTML = `
-                        <img src="${img}" style="width: 58px; height: 58px; object-fit: cover; border-radius: 4px; border: ${idx === 0 ? '2px solid #c5a059' : '1px solid #ddd'};">
-                        <button type="button" class="edit-image-delete" data-index="${idx}" style="position: absolute; top:-7px; right:-7px; background: #ef4444; color: white; width: 18px; height: 18px; border-radius: 50%; font-size: 12px; text-align: center; line-height: 18px; cursor: pointer; font-weight: bold; box-shadow: 0 1px 3px rgba(0,0,0,0.2); border:0; padding:0;">&times;</button>
-                        <span style="position:absolute; left:3px; bottom:3px; background:${idx === 0 ? '#c5a059' : 'rgba(15,23,42,0.78)'}; color:#fff; border-radius:3px; padding:2px 5px; font-size:10px; font-weight:700;">${idx === 0 ? '대표' : '순서'}</span>
+                        <img src="${img}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
+                        <span onclick="removeEditImage(${idx})" style="position: absolute; top:-5px; right:-5px; background: red; color: white; width: 15px; height: 15px; border-radius: 50%; font-size: 10px; text-align: center; line-height: 15px; cursor: pointer; font-weight: bold; box-shadow: 0 1px 3px rgba(0,0,0,0.2);">&times;</span>
                     `;
-                    div.addEventListener('dragstart', function(event) {
-                        event.dataTransfer.setData('text/plain', String(idx));
-                        event.dataTransfer.effectAllowed = 'move';
-                        div.style.opacity = '0.45';
-                    });
-                    div.addEventListener('dragend', function() {
-                        div.style.opacity = '1';
-                    });
-                    div.addEventListener('dragover', function(event) {
-                        event.preventDefault();
-                        div.style.outline = '2px dashed #c5a059';
-                    });
-                    div.addEventListener('dragleave', function() {
-                        div.style.outline = '';
-                    });
-                    div.addEventListener('drop', function(event) {
-                        event.preventDefault();
-                        div.style.outline = '';
-                        const from = parseInt(event.dataTransfer.getData('text/plain'), 10);
-                        const to = idx;
-                        if (!Number.isNaN(from) && from !== to && loadedImages[from]) {
-                            const moved = loadedImages.splice(from, 1)[0];
-                            loadedImages.splice(to, 0, moved);
-                            renderEditPreviews();
-                        }
-                    });
                     editPreviewList.appendChild(div);
                 });
-                if (editPreviewList) {
-                    editPreviewList.querySelectorAll('.edit-image-delete').forEach(function(btn) {
-                        btn.addEventListener('click', function(event) {
-                            event.preventDefault();
-                            event.stopPropagation();
-                            const removeIndex = parseInt(btn.dataset.index, 10);
-                            if (!Number.isNaN(removeIndex)) {
-                                loadedImages.splice(removeIndex, 1);
-                                renderEditPreviews();
-                            }
-                        });
-                    });
-                }
                 if (editPreviewCount) editPreviewCount.innerText = loadedImages.length;
                 
-                detailImageUrls = loadedImages.length > 0 ? loadedImages : [];
+                detailImageUrls = loadedImages.length > 0 ? loadedImages : ['https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800'];
                 currentImgIndex = 0;
                 renderDetailImage();
             }
-
-            window.__detailImageBridge = {
-                get: function() {
-                    return loadedImages;
-                },
-                set: function(images) {
-                    loadedImages = Array.isArray(images) ? images : [];
-                    renderEditPreviews();
-                }
-            };
 
             window.removeEditImage = function(idx) {
                 loadedImages.splice(idx, 1);
@@ -2150,44 +2021,28 @@
                 };
                 reader.readAsDataURL(file);
             }
+
             const editFileInput = document.getElementById('editFile');
-            const editFileButton = document.getElementById('btnEditFile');
-            window.handleEditFileChange = function(event) {
-                const files = Array.from((event && event.target && event.target.files) || []);
-                if (files.length === 0) return;
-                if (loadedImages.length + files.length > 20) {
-                    alert('사진은 최대 20장까지만 첨부할 수 있습니다.');
-                    if (editFileInput) editFileInput.value = '';
-                    return;
-                }
-                let processedCount = 0;
-                files.forEach(file => {
-                    if (!file.type || !file.type.startsWith('image/')) {
-                        processedCount++;
-                        if (processedCount === files.length) {
-                            renderEditPreviews();
-                            if (editFileInput) editFileInput.value = '';
-                        }
+            if (editFileInput) {
+                editFileInput.addEventListener('change', (e) => {
+                    const files = Array.from(e.target.files);
+                    if (loadedImages.length + files.length > 20) {
+                        alert("사진은 최대 20장까지만 업로드 가능합니다.");
                         return;
                     }
-                    compressImage(file, function(compressedBase64) {
-                        loadedImages.push(compressedBase64);
-                        processedCount++;
-                        if (processedCount === files.length) {
-                            renderEditPreviews();
-                            if (editFileInput) editFileInput.value = '';
-                        }
+                    let processedCount = 0;
+                    files.forEach(file => {
+                        compressImage(file, function(compressedBase64) {
+                            loadedImages.push(compressedBase64);
+                            processedCount++;
+                            if (processedCount === files.length) {
+                                renderEditPreviews();
+                            }
+                        });
                     });
                 });
-            };
-            if (editFileButton && editFileInput) {
-                editFileButton.onclick = function() {
-                    editFileInput.click();
-                };
             }
-            if (editFileInput) {
-                editFileInput.onchange = window.handleEditFileChange;
-            }
+
             const editInputsList = [
                 document.getElementById('editDeposit'),
                 document.getElementById('editMonthlyRent'),
@@ -2200,36 +2055,32 @@
                     });
                 }
             });
+
             window.execDaumPostcodeDetail = function() {
                 const postcodeLayer = document.getElementById('detailPostcodeLayer');
-                const addrInput = document.getElementById('editAddress');
-                if (!addrInput) return;
-
-                if (typeof window.daum === 'undefined' || !window.daum.Postcode) {
-                    addrInput.removeAttribute('readonly');
-                    addrInput.placeholder = '주소찾기가 열리지 않으면 주소를 직접 입력해 주세요';
-                    addrInput.style.backgroundColor = '#fff';
-                    addrInput.style.cursor = 'text';
-                    addrInput.focus();
-                    alert('주소찾기 창을 불러오지 못했습니다. 주소를 직접 입력해 주세요.');
-                    return;
-                }
-
                 if (!postcodeLayer) return;
-                new window.daum.Postcode({
+                
+                new daum.Postcode({
                     oncomplete: function(data) {
-                        let addr = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
-                        addrInput.value = addr;
-                        postcodeLayer.style.display = 'none';
-                        if (typeof window.updateLiveTraffic === 'function') {
-                            window.updateLiveTraffic(addr);
+                        let addr = '';
+                        if (data.userSelectedType === 'R') {
+                            addr = data.roadAddress;
+                        } else {
+                            addr = data.jibunAddress;
                         }
+                        const addrInput = document.getElementById('editAddress');
+                        if (addrInput) addrInput.value = addr;
+                        postcodeLayer.style.display = 'none';
+                        
+                        // 주소 기입 완료 시 실시간 대중교통 산출 트리거!
+                        window.updateLiveTraffic(addr);
                     },
                     width: '100%',
                     height: '100%'
                 }).embed(postcodeLayer);
                 postcodeLayer.style.display = 'block';
             };
+
             window.savePropertyFromDetail = function() {
                 const title = document.getElementById('editTitle') ? document.getElementById('editTitle').value.trim() : '';
                 const address = document.getElementById('editAddress') ? document.getElementById('editAddress').value.trim() : '';
@@ -2274,6 +2125,7 @@
                         const targetId = p.id;
 
                         const newObj = {
+                            ...p,
                             id: targetId,
                             tag: address.includes("경기") ? "경기" : "서울",
                             type,
@@ -2282,7 +2134,7 @@
                             desc: document.getElementById('editDesc') ? document.getElementById('editDesc').value.trim() : '',
                             price,
                             address,
-                            imageUrl: loadedImages[0] || '',
+                            imageUrl: loadedImages[0] || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800',
                             imageUrls: loadedImages,
                             lat,
                             lng,
@@ -2423,1369 +2275,6 @@
                 callback([], []);
             }
         }
-    </script>
-    <script>
-        (function() {
-            function valueOf(id, fallback) {
-                const el = document.getElementById(id);
-                if (!el) return fallback || '';
-                return (el.value || '').trim() || (fallback || '');
-            }
-
-            function selectedValueOf(id, fallback) {
-                const el = document.getElementById(id);
-                return el ? el.value : (fallback || '');
-            }
-
-            function normalizeNumberText(value) {
-                return String(value || '').replace(/,/g, '').trim();
-            }
-
-            function getCurrentImages() {
-                if (window.__detailImageBridge && typeof window.__detailImageBridge.get === 'function') {
-                    return window.__detailImageBridge.get().slice();
-                }
-                return (window.__safeLoadedImages || []).slice();
-            }
-
-            function setImages(images) {
-                window.__safeLoadedImages = Array.isArray(images) ? images : [];
-                if (window.__detailImageBridge && typeof window.__detailImageBridge.set === 'function') {
-                    window.__detailImageBridge.set(window.__safeLoadedImages);
-                } else {
-                    renderFallbackImages(window.__safeLoadedImages);
-                }
-                decorateRepresentativeButtons();
-            }
-
-            function readImageFile(file) {
-                return new Promise(function(resolve) {
-                    if (!file || !file.type || !file.type.startsWith('image/')) {
-                        resolve(null);
-                        return;
-                    }
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        const img = new Image();
-                        img.onload = function() {
-                            const canvas = document.createElement('canvas');
-                            let width = img.width;
-                            let height = img.height;
-                            const maxSize = 760;
-                            if (width > height && width > maxSize) {
-                                height = Math.round(height * maxSize / width);
-                                width = maxSize;
-                            } else if (height > maxSize) {
-                                width = Math.round(width * maxSize / height);
-                                height = maxSize;
-                            }
-                            canvas.width = width;
-                            canvas.height = height;
-                            canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-                            resolve(canvas.toDataURL('image/jpeg', 0.62));
-                        };
-                        img.onerror = function() { resolve(event.target.result); };
-                        img.src = event.target.result;
-                    };
-                    reader.onerror = function() { resolve(null); };
-                    reader.readAsDataURL(file);
-                });
-            }
-
-            function renderFallbackImages(images) {
-                const previewList = document.getElementById('editPreviewList');
-                const previewCount = document.getElementById('editPreviewCount');
-                const mainImg = document.getElementById('mainPropertyImg');
-                const empty = document.getElementById('mainPropertyEmpty');
-                const counter = document.getElementById('detailImgCounter');
-
-                if (previewList) {
-                    previewList.innerHTML = '';
-                    images.forEach(function(src) {
-                        const wrap = document.createElement('div');
-                        wrap.style.position = 'relative';
-                        const img = document.createElement('img');
-                        img.src = src;
-                        img.style.width = '50px';
-                        img.style.height = '50px';
-                        img.style.objectFit = 'cover';
-                        img.style.borderRadius = '4px';
-                        img.style.border = '1px solid #ddd';
-                        wrap.appendChild(img);
-                        previewList.appendChild(wrap);
-                    });
-                }
-                if (previewCount) previewCount.innerText = images.length;
-                if (mainImg && images.length > 0) {
-                    mainImg.src = images[0];
-                    mainImg.style.display = 'block';
-                }
-                if (empty) empty.style.display = images.length > 0 ? 'none' : 'flex';
-                if (counter) counter.innerText = images.length > 0 ? '1/' + images.length : '0/0';
-            }
-
-            function decorateRepresentativeButtons() {
-                const previewList = document.getElementById('editPreviewList');
-                const images = getCurrentImages();
-                if (!previewList || images.length === 0) return;
-                Array.from(previewList.children).forEach(function(item, index) {
-                    item.style.position = 'relative';
-                    const old = item.querySelector('.rep-image-btn');
-                    if (old) old.remove();
-                    const btn = document.createElement('button');
-                    btn.type = 'button';
-                    btn.className = 'rep-image-btn';
-                    btn.textContent = index === 0 ? '대표' : '대표로';
-                    btn.style.position = 'absolute';
-                    btn.style.left = '2px';
-                    btn.style.bottom = '2px';
-                    btn.style.border = '0';
-                    btn.style.borderRadius = '3px';
-                    btn.style.padding = '2px 5px';
-                    btn.style.fontSize = '10px';
-                    btn.style.fontWeight = '700';
-                    btn.style.cursor = 'pointer';
-                    btn.style.background = index === 0 ? '#c5a059' : 'rgba(15,23,42,0.78)';
-                    btn.style.color = '#fff';
-                    btn.onclick = function(event) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        const next = getCurrentImages();
-                        if (index > 0 && index < next.length) {
-                            const selected = next.splice(index, 1)[0];
-                            next.unshift(selected);
-                            setImages(next);
-                        }
-                    };
-                    item.appendChild(btn);
-                });
-            }
-
-            async function handleSafeFiles(event) {
-                const input = event.target;
-                const files = Array.from(input.files || []);
-                if (files.length === 0) return;
-                if (files.length > 20) {
-                    alert('사진은 최대 20장까지만 첨부할 수 있습니다.');
-                    input.value = '';
-                    return;
-                }
-                const images = (await Promise.all(files.map(readImageFile))).filter(Boolean);
-                setImages(images);
-                input.value = '';
-            }
-
-            function openSafePostcode() {
-                const addrInput = document.getElementById('editAddress');
-                const postcodeLayer = document.getElementById('detailPostcodeLayer');
-                if (!addrInput) return;
-                addrInput.removeAttribute('readonly');
-                addrInput.style.backgroundColor = '#fff';
-                addrInput.style.cursor = 'text';
-
-                if (!window.daum || !window.daum.Postcode) {
-                    addrInput.focus();
-                    alert('주소찾기 창을 불러오지 못했습니다. 주소를 직접 입력해 주세요.');
-                    return;
-                }
-
-                new window.daum.Postcode({
-                    oncomplete: function(data) {
-                        const addr = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
-                        addrInput.value = addr;
-                        if (postcodeLayer) postcodeLayer.style.display = 'none';
-                        if (typeof window.updateLiveTraffic === 'function') window.updateLiveTraffic(addr);
-                    },
-                    width: '100%',
-                    height: '100%'
-                }).embed(postcodeLayer || document.body);
-                if (postcodeLayer) postcodeLayer.style.display = 'block';
-            }
-
-            function buildSafePrice(dealType) {
-                const deposit = normalizeNumberText(valueOf('editDeposit', '0')) || '0';
-                const rent = normalizeNumberText(valueOf('editMonthlyRent', '0')) || '0';
-                if (dealType === '매매') return '매매 ' + deposit + '만원';
-                if (dealType === '전세') return '전세 ' + deposit + '만원';
-                return '보증금 ' + deposit + '만원 / 월 ' + rent + '만원';
-            }
-
-            function setFieldValue(id, value) {
-                const el = document.getElementById(id);
-                if (el) el.value = value || '';
-            }
-
-            function formatWonText(value) {
-                const clean = String(value || '').replace(/[^0-9]/g, '');
-                return clean ? parseInt(clean, 10).toLocaleString() : '';
-            }
-
-            function parsePriceToForm(price) {
-                const text = String(price || '');
-                if (text.includes('매매')) {
-                    setFieldValue('editDealType', '매매');
-                    setFieldValue('editDeposit', formatWonText(text));
-                    setFieldValue('editMonthlyRent', '');
-                    return;
-                }
-                if (text.includes('전세')) {
-                    setFieldValue('editDealType', '전세');
-                    setFieldValue('editDeposit', formatWonText(text));
-                    setFieldValue('editMonthlyRent', '');
-                    return;
-                }
-                setFieldValue('editDealType', '월세');
-                const depositMatch = text.match(/보증금\s*([0-9,]+)/);
-                const rentMatch = text.match(/월\s*([0-9,]+)/);
-                setFieldValue('editDeposit', depositMatch ? formatWonText(depositMatch[1]) : '');
-                setFieldValue('editMonthlyRent', rentMatch ? formatWonText(rentMatch[1]) : '');
-            }
-
-            function parseFloorToForm(floor) {
-                const text = String(floor || '');
-                const currentMatch = text.match(/현재\s*([^/]+)/);
-                const totalMatch = text.match(/총\s*([^/]+)/);
-                setFieldValue('editFloor', currentMatch ? currentMatch[1].trim() : text.split('/')[0].replace('현재', '').trim());
-                setFieldValue('editTotalFloor', totalMatch ? totalMatch[1].trim() : (text.split('/')[1] || '').replace('총', '').trim());
-            }
-
-            function hydrateEditFormFromStorage() {
-                const params = new URLSearchParams(window.location.search);
-                if (params.get('mode') !== 'edit') return;
-                const id = params.get('id');
-                if (!id) return;
-                const list = (typeof getProperties === 'function') ? getProperties() : JSON.parse(localStorage.getItem('nest_properties') || '[]');
-                const item = list.find(function(entry) { return entry.id === id; });
-                if (!item) return;
-
-                setFieldValue('editTitle', item.title);
-                setFieldValue('editAddress', item.address);
-                setFieldValue('editType', item.type || '사무실');
-                setFieldValue('editSupplyArea', item.supplyArea);
-                setFieldValue('editExclusiveArea', item.exclusiveArea);
-                setFieldValue('editMaintenance', item.maintenance ? String(parseInt(item.maintenance, 10) / 10000) : '');
-                setFieldValue('editLessorName', item.lessorName);
-                setFieldValue('editLessorPhone', item.lessorPhone);
-                setFieldValue('editDirection', item.direction);
-                setFieldValue('editPurpose', item.purpose);
-                setFieldValue('editRooms', item.rooms);
-                setFieldValue('editElevator', item.elevator);
-                setFieldValue('editMoveInDate', item.moveInDate);
-                setFieldValue('editUnregistered', item.unregistered);
-                setFieldValue('editViolation', item.violation);
-                setFieldValue('editParking', item.parking);
-                setFieldValue('editDesc', item.desc);
-                setFieldValue('editWriter', item.writer);
-                parsePriceToForm(item.price);
-                parseFloorToForm(item.floor);
-
-                const images = (item.imageUrls && item.imageUrls.length > 0) ? item.imageUrls : (item.imageUrl ? [item.imageUrl] : []);
-                if (images.length > 0) {
-                    if (window.__detailImageBridge && typeof window.__detailImageBridge.set === 'function') {
-                        window.__detailImageBridge.set(images);
-                    } else {
-                        window.__safeLoadedImages = images;
-                    }
-                }
-            }
-
-            function saveSafeProperty() {
-                const title = valueOf('editTitle');
-                const address = valueOf('editAddress');
-                const writer = selectedValueOf('editWriter', '김우성 대표 / 공인중개사');
-                const dealType = selectedValueOf('editDealType', '월세');
-                const type = selectedValueOf('editType', '사무실');
-                const floorVal = valueOf('editFloor');
-                const totalFloorVal = valueOf('editTotalFloor');
-                const exclusive = valueOf('editExclusiveArea');
-                const supply = valueOf('editSupplyArea') || exclusive;
-                const missing = [];
-                if (!title) missing.push('매물 제목');
-                if (!address) missing.push('주소');
-                if (!exclusive) missing.push('전용 면적');
-                if (!floorVal) missing.push('해당층');
-                if (!totalFloorVal) missing.push('총층');
-                if (missing.length > 0) {
-                    alert('필수 항목을 입력해 주세요: ' + missing.join(', '));
-                    return;
-                }
-
-                const params = new URLSearchParams(window.location.search);
-                const existing = (typeof p !== 'undefined' && p) ? p : {};
-                const targetId = params.get('id') || existing.id || ('prop-' + Date.now());
-                const list = (typeof getProperties === 'function') ? getProperties() : JSON.parse(localStorage.getItem('nest_properties') || '[]');
-                const images = getCurrentImages();
-                const maintenanceVal = normalizeNumberText(valueOf('editMaintenance', '0'));
-                const newObj = {
-                    id: targetId,
-                    tag: address.includes('경기') ? '경기' : '서울',
-                    type: type,
-                    floor: '현재 ' + floorVal + ' / 총 ' + totalFloorVal,
-                    title: title,
-                    desc: valueOf('editDesc'),
-                    price: buildSafePrice(dealType),
-                    address: address,
-                    imageUrl: images[0] || '',
-                    imageUrls: images,
-                    lat: existing.lat || 37.4979,
-                    lng: existing.lng || 127.0276,
-                    maintenance: maintenanceVal ? parseInt(maintenanceVal, 10) * 10000 : 0,
-                    supplyArea: supply,
-                    exclusiveArea: exclusive,
-                    lessorName: valueOf('editLessorName'),
-                    lessorPhone: valueOf('editLessorPhone'),
-                    writer: writer,
-                    direction: valueOf('editDirection', '동향'),
-                    purpose: valueOf('editPurpose', '업무시설'),
-                    rooms: valueOf('editRooms', '0개'),
-                    elevator: selectedValueOf('editElevator', '있음'),
-                    moveInDate: valueOf('editMoveInDate', '즉시 입주'),
-                    createdDate: existing.createdDate || new Date().toISOString().split('T')[0],
-                    options: Array.from(document.querySelectorAll('#optionsContainer .option-chip.selectable.active')).map(function(chip) { return chip.innerText.trim(); }),
-                    subways: existing.subways || [],
-                    buses: existing.buses || [],
-                    unregistered: valueOf('editUnregistered', '해당 없음'),
-                    violation: valueOf('editViolation', '해당 없음'),
-                    parking: valueOf('editParking', '무료 1대 가능')
-                };
-
-                const idx = list.findIndex(function(item) { return item.id === targetId; });
-                if (idx >= 0) list[idx] = newObj;
-                else list.unshift(newObj);
-
-                try {
-                    localStorage.setItem('nest_properties', JSON.stringify(list));
-                } catch (error) {
-                    alert('사진 용량이 커서 저장하지 못했습니다. 사진 수를 줄이거나 더 작은 사진으로 다시 시도해 주세요.');
-                    return;
-                }
-
-                alert('매물 정보가 저장되었습니다.');
-                if (window.parent && typeof window.parent.applyAdminFilters === 'function') window.parent.applyAdminFilters();
-                if (window.parent && typeof window.parent.closePremiumDetailModal === 'function') window.parent.closePremiumDetailModal();
-            }
-
-            function bindSafeControls() {
-                const fileInput = document.getElementById('editFile');
-                const fileButton = document.getElementById('btnEditFile');
-                const addrInput = document.getElementById('editAddress');
-                const addrButton = document.querySelector('button[onclick="execDaumPostcodeDetail()"]');
-                if (fileInput) fileInput.onchange = handleSafeFiles;
-                if (fileButton && fileInput) fileButton.onclick = function() { fileInput.click(); };
-                if (addrInput) {
-                    addrInput.removeAttribute('readonly');
-                    addrInput.style.backgroundColor = '#fff';
-                    addrInput.style.cursor = 'text';
-                }
-                if (addrButton) addrButton.onclick = openSafePostcode;
-                window.execDaumPostcodeDetail = openSafePostcode;
-                window.savePropertyFromDetail = saveSafeProperty;
-                const saveBtn = document.getElementById('btnSavePropertyDetail');
-                if (saveBtn) saveBtn.onclick = saveSafeProperty;
-                decorateRepresentativeButtons();
-            }
-
-            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindSafeControls);
-            else bindSafeControls();
-        })();
-    </script>
-    <script>
-        (function() {
-            function getFieldValue(id, fallback) {
-                const el = document.getElementById(id);
-                if (!el) return fallback || '';
-                return (el.value || '').trim() || (fallback || '');
-            }
-
-            function getSelectValue(id, fallback) {
-                const el = document.getElementById(id);
-                return el ? el.value : (fallback || '');
-            }
-
-            function getImagesForSave() {
-                if (window.__detailImageBridge && typeof window.__detailImageBridge.get === 'function') {
-                    return window.__detailImageBridge.get().slice();
-                }
-                return (window.__safeLoadedImages || []).slice();
-            }
-
-            function cleanNumber(value) {
-                return String(value || '').replace(/,/g, '').trim();
-            }
-
-            function makePrice(dealType) {
-                const deposit = cleanNumber(getFieldValue('editDeposit', '0')) || '0';
-                const rent = cleanNumber(getFieldValue('editMonthlyRent', '0')) || '0';
-                if (dealType === '매매') return '매매 ' + deposit + '만원';
-                if (dealType === '전세') return '전세 ' + deposit + '만원';
-                return '보증금 ' + deposit + '만원 / 월 ' + rent + '만원';
-            }
-
-            function guessCoordinatesFromAddress(address) {
-                const text = String(address || '').replace(/\s+/g, '');
-                const points = [
-                    { keys: ['테헤란로86길14', '윤천빌딩', '대치동943-13'], lat: 37.5064553, lng: 127.0591354 },
-                    { keys: ['대치동', '테헤란로86길', '삼성역'], lat: 37.5064553, lng: 127.0591354 },
-                    { keys: ['역삼동', '테헤란로', '강남역'], lat: 37.5008, lng: 127.0369 },
-                    { keys: ['논현동'], lat: 37.5110, lng: 127.0287 },
-                    { keys: ['삼성동', '코엑스'], lat: 37.5118, lng: 127.0592 },
-                    { keys: ['청담동'], lat: 37.5250, lng: 127.0493 },
-                    { keys: ['신사동', '가로수길'], lat: 37.5210, lng: 127.0233 },
-                    { keys: ['서초동'], lat: 37.4919, lng: 127.0079 },
-                    { keys: ['방배동'], lat: 37.4815, lng: 126.9977 },
-                    { keys: ['잠실동'], lat: 37.5112, lng: 127.0982 },
-                    { keys: ['강남구'], lat: 37.5172, lng: 127.0473 },
-                    { keys: ['서초구'], lat: 37.4836, lng: 127.0327 },
-                    { keys: ['송파구'], lat: 37.5145, lng: 127.1059 },
-                    { keys: ['서울'], lat: 37.5665, lng: 126.9780 }
-                ];
-                for (const point of points) {
-                    if (point.keys.some(function(key) { return text.includes(key); })) {
-                        return { lat: point.lat, lng: point.lng };
-                    }
-                }
-                return null;
-            }
-
-            function geocodeAddress(address) {
-                return new Promise(function(resolve) {
-                    const guessed = guessCoordinatesFromAddress(address);
-                    const fallback = guessed || {
-                        lat: (typeof p !== 'undefined' && p && p.lat) ? p.lat : 37.4979,
-                        lng: (typeof p !== 'undefined' && p && p.lng) ? p.lng : 127.0276
-                    };
-
-                    if (!address) {
-                        resolve(fallback);
-                        return;
-                    }
-
-                    if (!window.kakao || !kakao.maps || !kakao.maps.services) {
-                        resolveWithOsm(address, fallback, resolve);
-                        return;
-                    }
-
-                    try {
-                        const geocoder = new kakao.maps.services.Geocoder();
-                        geocoder.addressSearch(address, function(result, status) {
-                            if (status === kakao.maps.services.Status.OK && result && result[0]) {
-                                resolve({
-                                    lat: parseFloat(result[0].y),
-                                    lng: parseFloat(result[0].x)
-                                });
-                            } else {
-                                resolveWithOsm(address, fallback, resolve);
-                            }
-                        });
-                    } catch (error) {
-                        resolveWithOsm(address, fallback, resolve);
-                    }
-                });
-            }
-
-            function resolveWithOsm(address, fallback, resolve) {
-                if (!window.fetch || !address) {
-                    resolve(fallback);
-                    return;
-                }
-                const url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=kr&q=' + encodeURIComponent(address);
-                fetch(url)
-                    .then(function(response) { return response.json(); })
-                    .then(function(data) {
-                        if (Array.isArray(data) && data[0] && data[0].lat && data[0].lon) {
-                            resolve({ lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) });
-                        } else {
-                            resolve(fallback);
-                        }
-                    })
-                    .catch(function() {
-                        resolve(fallback);
-                    });
-            }
-
-            function getNearbyTraffic(lat, lng) {
-                return new Promise(function(resolve) {
-                    if (typeof queryNearbyTraffic !== 'function') {
-                        resolveWithOsmTraffic(lat, lng, resolve);
-                        return;
-                    }
-                    try {
-                        queryNearbyTraffic(lat, lng, function(subways, buses) {
-                            const safeSubways = Array.isArray(subways) ? subways : [];
-                            const safeBuses = Array.isArray(buses) ? buses : [];
-                            if (safeSubways.length > 0 || safeBuses.length > 0) {
-                                resolve({ subways: safeSubways, buses: safeBuses });
-                            } else {
-                                resolveWithOsmTraffic(lat, lng, resolve);
-                            }
-                        });
-                    } catch (error) {
-                        resolveWithOsmTraffic(lat, lng, resolve);
-                    }
-                });
-            }
-
-            function distanceMeters(lat1, lng1, lat2, lng2) {
-                const rad = Math.PI / 180;
-                const dLat = (lat2 - lat1) * rad;
-                const dLng = (lng2 - lng1) * rad;
-                const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                    Math.cos(lat1 * rad) * Math.cos(lat2 * rad) *
-                    Math.sin(dLng / 2) * Math.sin(dLng / 2);
-                return Math.round(6371000 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
-            }
-
-            function resolveWithOsmTraffic(lat, lng, resolve) {
-                if (!window.fetch || !lat || !lng) {
-                    resolve({ subways: [], buses: [] });
-                    return;
-                }
-                const query = '[out:json][timeout:8];(' +
-                    'node(around:1000,' + lat + ',' + lng + ')[railway=station];' +
-                    'node(around:500,' + lat + ',' + lng + ')[highway=bus_stop];' +
-                    ');out body;';
-                fetch('https://overpass-api.de/api/interpreter', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-                    body: 'data=' + encodeURIComponent(query)
-                })
-                    .then(function(response) { return response.json(); })
-                    .then(function(data) {
-                        const elements = Array.isArray(data.elements) ? data.elements : [];
-                        const subways = [];
-                        const buses = [];
-                        elements.forEach(function(item) {
-                            const tags = item.tags || {};
-                            const name = tags.name || tags['name:ko'] || tags['name:en'] || '이름 미상';
-                            const dist = distanceMeters(lat, lng, item.lat, item.lon);
-                            if (tags.railway === 'station') {
-                                subways.push({ name: name, distance: dist, walk: Math.max(1, Math.ceil(dist / 80)) });
-                            }
-                            if (tags.highway === 'bus_stop') {
-                                buses.push({ name: name, distance: dist });
-                            }
-                        });
-                        subways.sort(function(a, b) { return a.distance - b.distance; });
-                        buses.sort(function(a, b) { return a.distance - b.distance; });
-                        resolve({ subways: subways.slice(0, 3), buses: buses.slice(0, 5) });
-                    })
-                    .catch(function() {
-                        resolve({ subways: [], buses: [] });
-                    });
-            }
-
-            function fallbackTrafficForAddress(address) {
-                const text = String(address || '').replace(/\s+/g, '');
-                if (!text.includes('테헤란로86길14') && !text.includes('윤천빌딩') && !text.includes('대치동943-13')) {
-                    return { subways: [], buses: [] };
-                }
-                return {
-                    subways: [
-                        { name: '2호선 삼성역', distance: 450, walk: 6 },
-                        { name: '2호선/수인분당선 선릉역', distance: 900, walk: 12 },
-                        { name: '9호선 봉은사역', distance: 950, walk: 13 }
-                    ],
-                    buses: [
-                        { stop: '포스코빌딩/포스코사거리', routes: ['146', '333', '341', '360', '740'], distance: 120 },
-                        { stop: '포스코사거리', routes: ['2415', '3011', '3411', '강남07', '강남08'], distance: 250 },
-                        { stop: '공항/광역', routes: ['6000', '6703', '1100', '1700', '2000', '7007', '8001'], distance: 300 }
-                    ]
-                };
-            }
-
-            async function savePropertyWithLocation() {
-                const title = getFieldValue('editTitle');
-                const address = getFieldValue('editAddress');
-                const exclusive = getFieldValue('editExclusiveArea');
-                const floorVal = getFieldValue('editFloor');
-                const totalFloorVal = getFieldValue('editTotalFloor');
-                const missing = [];
-
-                if (!title) missing.push('매물 제목');
-                if (!address) missing.push('주소');
-                if (!exclusive) missing.push('전용 면적');
-                if (!floorVal) missing.push('해당층');
-                if (!totalFloorVal) missing.push('총층');
-
-                if (missing.length > 0) {
-                    alert('필수 항목을 입력해 주세요: ' + missing.join(', '));
-                    return;
-                }
-
-                const dealType = getSelectValue('editDealType', '월세');
-                const type = getSelectValue('editType', '사무실');
-                const images = getImagesForSave();
-                const coordinates = await geocodeAddress(address);
-                let traffic = await getNearbyTraffic(coordinates.lat, coordinates.lng);
-                if ((!traffic.subways || traffic.subways.length === 0) && (!traffic.buses || traffic.buses.length === 0)) {
-                    traffic = fallbackTrafficForAddress(address);
-                }
-                const params = new URLSearchParams(window.location.search);
-                const existing = (typeof p !== 'undefined' && p) ? p : {};
-                const targetId = params.get('id') || existing.id || ('prop-' + Date.now());
-                const list = (typeof getProperties === 'function') ? getProperties() : JSON.parse(localStorage.getItem('nest_properties') || '[]');
-                const maintenanceVal = cleanNumber(getFieldValue('editMaintenance', '0'));
-
-                const newObj = {
-                    id: targetId,
-                    tag: address.includes('경기') ? '경기' : '서울',
-                    type: type,
-                    floor: '현재 ' + floorVal + ' / 총 ' + totalFloorVal,
-                    title: title,
-                    desc: getFieldValue('editDesc'),
-                    price: makePrice(dealType),
-                    address: address,
-                    imageUrl: images[0] || '',
-                    imageUrls: images,
-                    lat: coordinates.lat,
-                    lng: coordinates.lng,
-                    maintenance: maintenanceVal ? parseInt(maintenanceVal, 10) * 10000 : 0,
-                    supplyArea: getFieldValue('editSupplyArea') || exclusive,
-                    exclusiveArea: exclusive,
-                    lessorName: getFieldValue('editLessorName'),
-                    lessorPhone: getFieldValue('editLessorPhone'),
-                    writer: getSelectValue('editWriter', '김우성 대표 / 공인중개사'),
-                    direction: getFieldValue('editDirection', '동향'),
-                    purpose: getFieldValue('editPurpose', '업무시설'),
-                    rooms: getFieldValue('editRooms', '0개'),
-                    elevator: getSelectValue('editElevator', '있음'),
-                    moveInDate: getFieldValue('editMoveInDate', '즉시 입주'),
-                    createdDate: existing.createdDate || new Date().toISOString().split('T')[0],
-                    options: Array.from(document.querySelectorAll('#optionsContainer .option-chip.selectable.active')).map(function(chip) {
-                        return chip.innerText.trim();
-                    }),
-                    subways: traffic.subways,
-                    buses: traffic.buses,
-                    unregistered: getFieldValue('editUnregistered', '해당 없음'),
-                    violation: getFieldValue('editViolation', '해당 없음'),
-                    parking: getFieldValue('editParking', '무료 1대 가능')
-                };
-
-                const index = list.findIndex(function(item) {
-                    return item.id === targetId;
-                });
-                if (index >= 0) list[index] = newObj;
-                else list.unshift(newObj);
-
-                try {
-                    localStorage.setItem('nest_properties', JSON.stringify(list));
-                } catch (error) {
-                    alert('사진 용량이 커서 저장하지 못했습니다. 사진 수를 줄이거나 더 작은 사진으로 다시 시도해 주세요.');
-                    return;
-                }
-
-                alert('매물 정보가 저장되었습니다. 지도와 주변 교통정보도 함께 반영했습니다.');
-                if (window.parent && typeof window.parent.applyAdminFilters === 'function') {
-                    window.parent.applyAdminFilters();
-                }
-                if (window.parent && typeof window.parent.closePremiumDetailModal === 'function') {
-                    window.parent.closePremiumDetailModal();
-                }
-            }
-
-            function bindLocationSave() {
-                hydrateEditFormFromStorage();
-                window.savePropertyFromDetail = savePropertyWithLocation;
-                const saveButton = document.getElementById('btnSavePropertyDetail');
-                if (saveButton) saveButton.onclick = savePropertyWithLocation;
-                setTimeout(function() {
-                    if (typeof decorateRepresentativeButtons === 'function') decorateRepresentativeButtons();
-                }, 0);
-            }
-
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', bindLocationSave);
-            } else {
-                bindLocationSave();
-            }
-        })();
-    </script>
-    <script>
-        // Final edit-mode hydrator: keep existing property values/photos when opening from admin edit.
-        (function() {
-            function qs(name) {
-                return new URLSearchParams(window.location.search).get(name);
-            }
-
-            function readProperties() {
-                try {
-                    if (typeof getProperties === 'function') return getProperties();
-                    return JSON.parse(localStorage.getItem('nest_properties') || '[]');
-                } catch (error) {
-                    return [];
-                }
-            }
-
-            function readEditPayload(id) {
-                let payload = null;
-                try {
-                    payload = JSON.parse(sessionStorage.getItem('nest_edit_property_payload') || 'null');
-                } catch (error) {
-                    payload = null;
-                }
-
-                if (payload && (!id || payload.id === id)) return payload;
-                return readProperties().find(function(item) { return item && item.id === id; }) || null;
-            }
-
-            function setField(id, value) {
-                const el = document.getElementById(id);
-                if (!el || value === undefined || value === null) return;
-                el.value = value;
-                el.dispatchEvent(new Event('change', { bubbles: true }));
-                el.dispatchEvent(new Event('input', { bubbles: true }));
-            }
-
-            function cleanNumberText(value) {
-                return String(value || '').replace(/[^0-9]/g, '');
-            }
-
-            function formatComma(value) {
-                const num = cleanNumberText(value);
-                return num ? Number(num).toLocaleString() : '';
-            }
-
-            function parsePrice(price) {
-                const text = String(price || '');
-                if (!text) return;
-
-                if (text.includes('매매')) {
-                    setField('editDealType', '매매');
-                    setField('editDeposit', formatComma(text));
-                    setField('editMonthlyRent', '');
-                } else if (text.includes('전세')) {
-                    setField('editDealType', '전세');
-                    setField('editDeposit', formatComma(text));
-                    setField('editMonthlyRent', '');
-                } else {
-                    setField('editDealType', '월세');
-                    const parts = text.split('/');
-                    setField('editDeposit', formatComma(parts[0] || text));
-                    setField('editMonthlyRent', formatComma(parts[1] || ''));
-                }
-
-                if (typeof window.updateEditPriceFields === 'function') {
-                    window.updateEditPriceFields();
-                }
-            }
-
-            function parseFloor(floor) {
-                const text = String(floor || '');
-                if (!text) return;
-
-                const nums = text.match(/\d+/g) || [];
-                if (nums[0]) setField('editFloor', nums[0]);
-                if (nums[1]) setField('editTotalFloor', nums[1]);
-            }
-
-            function setImages(item) {
-                const images = Array.isArray(item.imageUrls) && item.imageUrls.length
-                    ? item.imageUrls
-                    : (item.imageUrl ? [item.imageUrl] : []);
-
-                window.__safeLoadedImages = images.slice();
-
-                if (window.__detailImageBridge && typeof window.__detailImageBridge.set === 'function') {
-                    window.__detailImageBridge.set(images);
-                }
-
-                if (typeof renderFallbackImages === 'function') {
-                    renderFallbackImages(images);
-                } else {
-                    const previewList = document.getElementById('editPreviewList');
-                    const previewCount = document.getElementById('editPreviewCount');
-                    const mainImg = document.getElementById('mainPropertyImg');
-                    const empty = document.getElementById('mainPropertyEmpty');
-                    const counter = document.getElementById('detailImgCounter');
-                    if (previewList) {
-                        previewList.innerHTML = '';
-                        images.forEach(function(src) {
-                            const wrap = document.createElement('div');
-                            wrap.style.position = 'relative';
-                            const img = document.createElement('img');
-                            img.src = src;
-                            img.style.width = '50px';
-                            img.style.height = '50px';
-                            img.style.objectFit = 'cover';
-                            img.style.borderRadius = '4px';
-                            img.style.border = '1px solid #ddd';
-                            wrap.appendChild(img);
-                            previewList.appendChild(wrap);
-                        });
-                    }
-                    if (previewCount) previewCount.innerText = images.length;
-                    if (mainImg && images[0]) {
-                        mainImg.src = images[0];
-                        mainImg.style.display = 'block';
-                    }
-                    if (empty) empty.style.display = images.length ? 'none' : 'flex';
-                    if (counter) counter.innerText = images.length ? '1/' + images.length : '0/0';
-                }
-
-                if (typeof decorateRepresentativeButtons === 'function') {
-                    decorateRepresentativeButtons();
-                }
-
-                return images.length > 0;
-            }
-
-            function refreshLocationWidgets(item) {
-                if (item && item.lat && item.lng) {
-                    try {
-                        if (typeof miniMap !== 'undefined' && miniMap && typeof L !== 'undefined') {
-                            const lat = parseFloat(item.lat);
-                            const lng = parseFloat(item.lng);
-                            miniMap.setView([lat, lng], 15);
-                            miniMap.eachLayer(function(layer) {
-                                if (layer instanceof L.Marker || layer instanceof L.Circle) {
-                                    miniMap.removeLayer(layer);
-                                }
-                            });
-                            const goldIcon = L.icon({
-                                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png',
-                                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-                                iconSize: [25, 41],
-                                iconAnchor: [12, 41]
-                            });
-                            L.marker([lat, lng], { icon: goldIcon }).addTo(miniMap)
-                                .bindPopup('<b>' + (item.title || '등록 예정지') + '</b><br>' + (item.price || ''))
-                                .openPopup();
-                            L.circle([lat, lng], {
-                                color: '#b5954e',
-                                fillColor: '#b5954e',
-                                fillOpacity: 0.15,
-                                radius: 120
-                            }).addTo(miniMap);
-                        }
-                    } catch (error) {}
-                }
-
-                if (item && item.address && typeof window.updateLiveTraffic === 'function') {
-                    window.updateLiveTraffic(item.address);
-                }
-            }
-
-            function hydrate() {
-                if (qs('mode') !== 'edit') return;
-
-                const id = qs('id');
-                const item = readEditPayload(id);
-                if (!item) return;
-
-                try {
-                    if (typeof p !== 'undefined' && p) Object.assign(p, item);
-                } catch (error) {}
-
-                setField('editTitle', item.title);
-                setField('editAddress', item.address);
-                setField('editType', item.type || '사무실');
-                setField('editSupplyArea', item.supplyArea);
-                setField('editExclusiveArea', item.exclusiveArea);
-                setField('editMaintenance', item.maintenance ? String(parseInt(item.maintenance, 10) / 10000) : '');
-                setField('editLessorName', item.lessorName);
-                setField('editLessorPhone', item.lessorPhone);
-                setField('editDirection', item.direction);
-                setField('editPurpose', item.purpose);
-                setField('editRooms', item.rooms);
-                setField('editElevator', item.elevator);
-                setField('editMoveInDate', item.moveInDate);
-                setField('editUnregistered', item.unregistered);
-                setField('editViolation', item.violation);
-                setField('editParking', item.parking);
-                setField('editDesc', item.desc);
-                setField('editWriter', item.writer);
-
-                parsePrice(item.price);
-                parseFloor(item.floor);
-
-                if (!setImages(item)) {
-                    setTimeout(function() { setImages(item); }, 100);
-                    setTimeout(function() { setImages(item); }, 400);
-                }
-
-                refreshLocationWidgets(item);
-                setTimeout(function() { refreshLocationWidgets(item); }, 500);
-            }
-
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', hydrate);
-            } else {
-                hydrate();
-            }
-            setTimeout(hydrate, 250);
-        })();
-    </script>
-    <script>
-        // Final visual sync: restore saved photos and refresh map/traffic from saved address.
-        (function() {
-            function getParam(name) {
-                return new URLSearchParams(window.location.search).get(name);
-            }
-
-            function getEditItem() {
-                const id = getParam('id');
-                let payload = null;
-                try {
-                    payload = JSON.parse(sessionStorage.getItem('nest_edit_property_payload') || 'null');
-                } catch (error) {
-                    payload = null;
-                }
-                if (payload && (!id || payload.id === id)) return payload;
-
-                try {
-                    const list = JSON.parse(localStorage.getItem('nest_properties') || '[]');
-                    return list.find(function(item) { return item && item.id === id; }) || null;
-                } catch (error) {
-                    return null;
-                }
-            }
-
-            function getImages(item) {
-                if (!item) return [];
-                if (Array.isArray(item.imageUrls) && item.imageUrls.length) return item.imageUrls.slice();
-                if (item.imageUrl) return [item.imageUrl];
-                return [];
-            }
-
-            function renderPhotos(images) {
-                images = Array.isArray(images) ? images : [];
-                window.__safeLoadedImages = images.slice();
-
-                if (window.__detailImageBridge && typeof window.__detailImageBridge.set === 'function') {
-                    window.__detailImageBridge.set(images);
-                }
-
-                const previewList = document.getElementById('editPreviewList');
-                const previewCount = document.getElementById('editPreviewCount');
-                const mainImg = document.getElementById('mainPropertyImg');
-                const empty = document.getElementById('mainPropertyEmpty');
-                const counter = document.getElementById('detailImgCounter');
-
-                if (previewList) {
-                    previewList.innerHTML = '';
-                    images.forEach(function(src, index) {
-                        const wrap = document.createElement('div');
-                        wrap.style.position = 'relative';
-                        wrap.draggable = true;
-                        wrap.dataset.index = index;
-                        wrap.style.cursor = 'grab';
-                        wrap.style.padding = '2px';
-                        wrap.style.borderRadius = '6px';
-                        wrap.title = '드래그해서 사진 순서를 바꿀 수 있습니다';
-
-                        const img = document.createElement('img');
-                        img.src = src;
-                        img.style.width = '58px';
-                        img.style.height = '58px';
-                        img.style.objectFit = 'cover';
-                        img.style.borderRadius = '4px';
-                        img.style.border = index === 0 ? '2px solid #c5a059' : '1px solid #ddd';
-                        wrap.appendChild(img);
-
-                        const deleteBtn = document.createElement('button');
-                        deleteBtn.type = 'button';
-                        deleteBtn.textContent = '×';
-                        deleteBtn.title = '사진 삭제';
-                        deleteBtn.style.position = 'absolute';
-                        deleteBtn.style.top = '-7px';
-                        deleteBtn.style.right = '-7px';
-                        deleteBtn.style.background = '#ef4444';
-                        deleteBtn.style.color = '#fff';
-                        deleteBtn.style.width = '18px';
-                        deleteBtn.style.height = '18px';
-                        deleteBtn.style.borderRadius = '50%';
-                        deleteBtn.style.fontSize = '12px';
-                        deleteBtn.style.lineHeight = '18px';
-                        deleteBtn.style.cursor = 'pointer';
-                        deleteBtn.style.fontWeight = '700';
-                        deleteBtn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.2)';
-                        deleteBtn.style.border = '0';
-                        deleteBtn.style.padding = '0';
-                        deleteBtn.onclick = function(event) {
-                            event.preventDefault();
-                            event.stopPropagation();
-                            const next = window.__safeLoadedImages.slice();
-                            next.splice(index, 1);
-                            renderPhotos(next);
-                        };
-                        wrap.appendChild(deleteBtn);
-
-                        const btn = document.createElement('button');
-                        btn.type = 'button';
-                        btn.textContent = index === 0 ? '대표' : '대표로';
-                        btn.style.position = 'absolute';
-                        btn.style.left = '2px';
-                        btn.style.bottom = '2px';
-                        btn.style.border = '0';
-                        btn.style.borderRadius = '3px';
-                        btn.style.padding = '2px 5px';
-                        btn.style.fontSize = '10px';
-                        btn.style.fontWeight = '700';
-                        btn.style.cursor = 'pointer';
-                        btn.style.background = index === 0 ? '#c5a059' : 'rgba(15,23,42,0.78)';
-                        btn.style.color = '#fff';
-                        btn.onclick = function(event) {
-                            event.preventDefault();
-                            event.stopPropagation();
-                            const next = window.__safeLoadedImages.slice();
-                            if (index > 0 && index < next.length) {
-                                const picked = next.splice(index, 1)[0];
-                                next.unshift(picked);
-                                renderPhotos(next);
-                            }
-                        };
-                        wrap.appendChild(btn);
-
-                        wrap.addEventListener('dragstart', function(event) {
-                            event.dataTransfer.setData('text/plain', String(index));
-                            event.dataTransfer.effectAllowed = 'move';
-                            wrap.style.opacity = '0.45';
-                        });
-                        wrap.addEventListener('dragend', function() {
-                            wrap.style.opacity = '1';
-                        });
-                        wrap.addEventListener('dragover', function(event) {
-                            event.preventDefault();
-                            wrap.style.outline = '2px dashed #c5a059';
-                        });
-                        wrap.addEventListener('dragleave', function() {
-                            wrap.style.outline = '';
-                        });
-                        wrap.addEventListener('drop', function(event) {
-                            event.preventDefault();
-                            wrap.style.outline = '';
-                            const from = parseInt(event.dataTransfer.getData('text/plain'), 10);
-                            const to = index;
-                            const next = window.__safeLoadedImages.slice();
-                            if (!Number.isNaN(from) && from !== to && next[from]) {
-                                const moved = next.splice(from, 1)[0];
-                                next.splice(to, 0, moved);
-                                renderPhotos(next);
-                            }
-                        });
-                        previewList.appendChild(wrap);
-                    });
-                }
-
-                if (previewCount) previewCount.innerText = images.length;
-                if (mainImg && images[0]) {
-                    mainImg.src = images[0];
-                    mainImg.style.display = 'block';
-                }
-                if (empty) empty.style.display = images.length ? 'none' : 'flex';
-                if (counter) counter.innerText = images.length ? '1/' + images.length : '0/0';
-            }
-
-            function drawMap(lat, lng, item) {
-                try {
-                    lat = parseFloat(lat);
-                    lng = parseFloat(lng);
-                    if (window.kakao && kakao.maps) {
-                        const box = document.getElementById('propertyDetailMiniMap');
-                        const center = new kakao.maps.LatLng(lat, lng);
-                        if (!window.__kakaoDetailMap && box) {
-                            box.innerHTML = '';
-                            window.__kakaoDetailMap = new kakao.maps.Map(box, {
-                                center: center,
-                                level: 3
-                            });
-                        }
-                        if (window.__kakaoDetailMap) {
-                            window.__kakaoDetailMap.setCenter(center);
-                            if (window.__kakaoDetailMarker) {
-                                window.__kakaoDetailMarker.setMap(null);
-                            }
-                            window.__kakaoDetailMarker = new kakao.maps.Marker({
-                                position: center,
-                                map: window.__kakaoDetailMap
-                            });
-                            const info = new kakao.maps.InfoWindow({
-                                content: '<div style="padding:8px 12px;font-size:13px;white-space:nowrap;"><b>' + ((item && item.title) || '등록 예정지') + '</b><br>' + ((item && item.price) || '') + '</div>'
-                            });
-                            info.open(window.__kakaoDetailMap, window.__kakaoDetailMarker);
-                            setTimeout(function() {
-                                try { window.__kakaoDetailMap.relayout(); window.__kakaoDetailMap.setCenter(center); } catch (error) {}
-                            }, 100);
-                            return;
-                        }
-                    }
-
-                    if (typeof L === 'undefined') return;
-                    const box = document.getElementById('propertyDetailMiniMap');
-                    let targetMap = null;
-                    try {
-                        if (typeof miniMap !== 'undefined' && miniMap) targetMap = miniMap;
-                    } catch (error) {}
-                    if (!targetMap) targetMap = window.__finalDetailMap || null;
-                    if (!targetMap && box) {
-                        box.innerHTML = '';
-                        try { delete box._leaflet_id; } catch (error) {}
-                        targetMap = L.map(box, {
-                            center: [lat, lng],
-                            zoom: 15,
-                            zoomControl: true,
-                            scrollWheelZoom: false
-                        });
-                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                            maxZoom: 19,
-                            attribution: '© OpenStreetMap contributors'
-                        }).addTo(targetMap);
-                        window.__finalDetailMap = targetMap;
-                    }
-                    if (!targetMap) return;
-                    targetMap.setView([lat, lng], 15);
-                    targetMap.eachLayer(function(layer) {
-                        if (layer instanceof L.Marker || layer instanceof L.Circle) targetMap.removeLayer(layer);
-                    });
-                    const goldIcon = L.icon({
-                        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png',
-                        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-                        iconSize: [25, 41],
-                        iconAnchor: [12, 41]
-                    });
-                    L.marker([lat, lng], { icon: goldIcon }).addTo(targetMap)
-                        .bindPopup('<b>' + ((item && item.title) || '등록 예정지') + '</b><br>' + ((item && item.price) || ''))
-                        .openPopup();
-                    L.circle([lat, lng], {
-                        color: '#b5954e',
-                        fillColor: '#b5954e',
-                        fillOpacity: 0.15,
-                        radius: 120
-                    }).addTo(targetMap);
-                    setTimeout(function() {
-                        try { targetMap.invalidateSize(); } catch (error) {}
-                    }, 100);
-                } catch (error) {}
-            }
-
-            function renderTraffic(subways, buses) {
-                const subwayBox = document.getElementById('subwayList');
-                const busBox = document.getElementById('busList');
-                subways = Array.isArray(subways) ? subways : [];
-                buses = Array.isArray(buses) ? buses : [];
-
-                if (subwayBox) {
-                    subwayBox.innerHTML = subways.length
-                        ? subways.map(function(s) {
-                            return '<span class="subway-chip" style="background:#64748b;">' +
-                                (s.name || '역명 미상') + ' 도보 ' + (s.walk || Math.max(1, Math.ceil((s.distance || 0) / 80))) + '분 (' + (s.distance || '-') + 'm)</span>';
-                        }).join('')
-                        : '<span style="color:#ef4444; font-size:12px;">반경 1km 이내 지하철역을 찾지 못했습니다.</span>';
-                }
-                if (busBox) {
-                    busBox.innerHTML = buses.length
-                        ? buses.map(function(b) {
-                            const routeText = Array.isArray(b.routes) && b.routes.length ? b.routes.join(', ') : (b.route || b.name || '노선 확인');
-                            const stopText = b.stop ? ' <small style="color:#64748b;">' + b.stop + '</small>' : '';
-                            return '<span class="bus-chip"><span style="color:#1d4ed8; font-weight:bold;">BUS</span> ' +
-                                routeText + stopText + '</span>';
-                        }).join('')
-                        : '<span style="color:#ef4444; font-size:12px;">인근 버스번호 정보를 찾지 못했습니다.</span>';
-                }
-            }
-
-            function fallbackTraffic(address) {
-                const text = String(address || '').replace(/\s+/g, '');
-                if (!text.includes('테헤란로86길14') && !text.includes('윤천빌딩') && !text.includes('대치동943-13')) {
-                    return { subways: [], buses: [] };
-                }
-                return {
-                    subways: [
-                        { name: '2호선 삼성역', distance: 450, walk: 6 },
-                        { name: '2호선/수인분당선 선릉역', distance: 900, walk: 12 },
-                        { name: '9호선 봉은사역', distance: 950, walk: 13 }
-                    ],
-                    buses: [
-                        { stop: '포스코빌딩/포스코사거리', routes: ['146', '333', '341', '360', '740'], distance: 120 },
-                        { stop: '포스코사거리', routes: ['2415', '3011', '3411', '강남07', '강남08'], distance: 250 },
-                        { stop: '공항/광역', routes: ['6000', '6703', '1100', '1700', '2000', '7007', '8001'], distance: 300 }
-                    ]
-                };
-            }
-
-            function guessMapPoint(address) {
-                const text = String(address || '').replace(/\s+/g, '');
-                const points = [
-                    { keys: ['테헤란로86길14', '윤천빌딩', '대치동943-13'], lat: 37.5064553, lng: 127.0591354 },
-                    { keys: ['대치동', '테헤란로86길', '삼성역'], lat: 37.5064553, lng: 127.0591354 },
-                    { keys: ['역삼동', '테헤란로', '강남역'], lat: 37.5008, lng: 127.0369 },
-                    { keys: ['논현동'], lat: 37.5110, lng: 127.0287 },
-                    { keys: ['삼성동', '코엑스'], lat: 37.5118, lng: 127.0592 },
-                    { keys: ['청담동'], lat: 37.5250, lng: 127.0493 },
-                    { keys: ['신사동', '가로수길'], lat: 37.5210, lng: 127.0233 },
-                    { keys: ['서초동'], lat: 37.4919, lng: 127.0079 },
-                    { keys: ['방배동'], lat: 37.4815, lng: 126.9977 },
-                    { keys: ['잠실동'], lat: 37.5112, lng: 127.0982 },
-                    { keys: ['강남구'], lat: 37.5172, lng: 127.0473 },
-                    { keys: ['서초구'], lat: 37.4836, lng: 127.0327 },
-                    { keys: ['송파구'], lat: 37.5145, lng: 127.1059 },
-                    { keys: ['서울'], lat: 37.5665, lng: 126.9780 }
-                ];
-                for (const point of points) {
-                    if (point.keys.some(function(key) { return text.includes(key); })) {
-                        return { lat: point.lat, lng: point.lng };
-                    }
-                }
-                return null;
-            }
-
-            function geocodeOsm(address) {
-                if (!window.fetch || !address) return Promise.resolve(null);
-                const url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=kr&q=' + encodeURIComponent(address);
-                return fetch(url)
-                    .then(function(response) { return response.json(); })
-                    .then(function(data) {
-                        if (Array.isArray(data) && data[0] && data[0].lat && data[0].lon) {
-                            return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
-                        }
-                        return guessMapPoint(address);
-                    })
-                    .catch(function() { return guessMapPoint(address); });
-            }
-
-            function geocode(address) {
-                return new Promise(function(resolve) {
-                    if (!address) return resolve(null);
-                    if (window.kakao && kakao.maps && kakao.maps.services) {
-                        try {
-                            const geocoder = new kakao.maps.services.Geocoder();
-                            geocoder.addressSearch(address, function(result, status) {
-                                if (status === kakao.maps.services.Status.OK && result && result[0]) {
-                                    resolve({ lat: parseFloat(result[0].y), lng: parseFloat(result[0].x) });
-                                } else {
-                                    geocodeOsm(address).then(resolve);
-                                }
-                            });
-                            return;
-                        } catch (error) {}
-                    }
-                    geocodeOsm(address).then(function(point) {
-                        resolve(point || guessMapPoint(address));
-                    });
-                });
-            }
-
-            function dist(lat1, lng1, lat2, lng2) {
-                const rad = Math.PI / 180;
-                const dLat = (lat2 - lat1) * rad;
-                const dLng = (lng2 - lng1) * rad;
-                const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                    Math.cos(lat1 * rad) * Math.cos(lat2 * rad) *
-                    Math.sin(dLng / 2) * Math.sin(dLng / 2);
-                return Math.round(6371000 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
-            }
-
-            function trafficOsm(lat, lng) {
-                if (!window.fetch || !lat || !lng) return Promise.resolve({ subways: [], buses: [] });
-                const query = '[out:json][timeout:8];(' +
-                    'node(around:1000,' + lat + ',' + lng + ')[railway=station];' +
-                    'node(around:500,' + lat + ',' + lng + ')[highway=bus_stop];' +
-                    ');out body;';
-                return fetch('https://overpass-api.de/api/interpreter', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-                    body: 'data=' + encodeURIComponent(query)
-                })
-                    .then(function(response) { return response.json(); })
-                    .then(function(data) {
-                        const subways = [];
-                        const buses = [];
-                        (Array.isArray(data.elements) ? data.elements : []).forEach(function(entry) {
-                            const tags = entry.tags || {};
-                            const name = tags.name || tags['name:ko'] || tags['name:en'] || '이름 미상';
-                            const distance = dist(lat, lng, entry.lat, entry.lon);
-                            if (tags.railway === 'station') subways.push({ name: name, distance: distance, walk: Math.max(1, Math.ceil(distance / 80)) });
-                            if (tags.highway === 'bus_stop') buses.push({ name: name, distance: distance });
-                        });
-                        subways.sort(function(a, b) { return a.distance - b.distance; });
-                        buses.sort(function(a, b) { return a.distance - b.distance; });
-                        return { subways: subways.slice(0, 3), buses: buses.slice(0, 5) };
-                    })
-                    .catch(function() { return { subways: [], buses: [] }; });
-            }
-
-            function traffic(lat, lng) {
-                return new Promise(function(resolve) {
-                    if (typeof queryNearbyTraffic === 'function') {
-                        try {
-                            queryNearbyTraffic(lat, lng, function(subways, buses) {
-                                if ((subways && subways.length) || (buses && buses.length)) {
-                                    resolve({ subways: subways || [], buses: buses || [] });
-                                } else {
-                                    trafficOsm(lat, lng).then(resolve);
-                                }
-                            });
-                            return;
-                        } catch (error) {}
-                    }
-                    trafficOsm(lat, lng).then(resolve);
-                });
-            }
-
-            function sync() {
-                if (getParam('mode') !== 'edit') return;
-                const item = getEditItem();
-                if (!item) return;
-
-                const images = getImages(item);
-                renderPhotos(images);
-                setTimeout(function() { renderPhotos(images); }, 400);
-
-                if (item.subways || item.buses) renderTraffic(item.subways, item.buses);
-                if (item.address) {
-                    const fixedTraffic = fallbackTraffic(item.address);
-                    if (fixedTraffic.buses && fixedTraffic.buses.length && (!item.buses || item.buses.length === 0)) {
-                        item.buses = fixedTraffic.buses;
-                        try {
-                            if (typeof p !== 'undefined' && p) p.buses = fixedTraffic.buses;
-                        } catch (error) {}
-                        renderTraffic(item.subways || fixedTraffic.subways || [], item.buses);
-                    }
-                }
-                if (item.lat && item.lng) drawMap(item.lat, item.lng, item);
-
-                if (!item.address) return;
-                const subwayBox = document.getElementById('subwayList');
-                const busBox = document.getElementById('busList');
-                if (subwayBox && !(item.subways && item.subways.length)) subwayBox.innerHTML = '<span style="color:#64748b; font-size:12px;">주소 기준으로 인근 지하철역을 다시 찾는 중입니다...</span>';
-                if (busBox && !(item.buses && item.buses.length)) busBox.innerHTML = '<span style="color:#64748b; font-size:12px;">주소 기준으로 인근 버스정류장을 다시 찾는 중입니다...</span>';
-
-                geocode(item.address).then(function(point) {
-                    if (!point) return;
-                    item.lat = point.lat;
-                    item.lng = point.lng;
-                    try {
-                        if (typeof p !== 'undefined' && p) {
-                            p.lat = point.lat;
-                            p.lng = point.lng;
-                        }
-                    } catch (error) {}
-                    drawMap(point.lat, point.lng, item);
-                    return traffic(point.lat, point.lng).then(function(info) {
-                        if ((!info.subways || info.subways.length === 0) && (!info.buses || info.buses.length === 0)) {
-                            info = fallbackTraffic(item.address);
-                        }
-                        item.subways = info.subways;
-                        item.buses = info.buses;
-                        try {
-                            if (typeof p !== 'undefined' && p) {
-                                p.subways = info.subways;
-                                p.buses = info.buses;
-                            }
-                        } catch (error) {}
-                        renderTraffic(info.subways, info.buses);
-                    });
-                });
-            }
-
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', sync);
-            } else {
-                sync();
-            }
-            setTimeout(sync, 700);
-            setTimeout(sync, 1600);
-        })();
     </script>
 </body>
 </html>
