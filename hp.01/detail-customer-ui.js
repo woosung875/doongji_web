@@ -34,6 +34,20 @@
     .customer-meta span{padding:2px 7px;font-size:11px}
     .image-viewer-container{height:230px!important}
     @media(max-width:480px){.detail-wrapper{padding:0 10px}.content-card{padding:12px}.spec-label{flex-basis:85px;width:85px}.image-viewer-container{height:190px!important}}
+    `;
+    css.textContent += `
+    .detail-wrapper{max-width:620px;padding:0 10px;margin:8px auto}
+    .tab-menu-item.prop-no-tab,.customer-id,#sidePropNo{display:none!important}
+    .tab-bar{max-width:640px;padding:4px 42px 4px 10px;min-height:40px}
+    .tab-menus{height:38px}.tab-menu-item{padding:0 8px;font-size:11px}
+    .content-card{padding:10px 12px}.left-content{gap:8px}
+    .image-viewer-container{height:175px!important}
+    .customer-summary{padding:10px 13px}.customer-summary h1{font-size:16px;margin:0 0 4px}
+    .customer-price{font-size:20px}.customer-meta{margin-top:6px}
+    .content-card h2{font-size:14px;padding-bottom:6px;margin-bottom:3px}
+    .spec-grid{column-gap:12px}.spec-item{min-height:26px}
+    .spec-label{flex-basis:66px;width:66px;padding:4px 0;font-size:11px}
+    .spec-val{padding:4px 0 4px 6px;font-size:11px}
     `;document.head.append(css);
     const property=typeof p!=='undefined'?p:{};
     const text=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value||'확인 필요'};

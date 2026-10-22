@@ -48,6 +48,12 @@
     #groupPickerList .picker-address{font-size:11px;margin-top:4px}
     #groupPickerList .picker-link{padding-top:9px;margin-top:9px;font-size:11px}
     `;
+    style.textContent += `
+    #groupPicker{width:min(330px,32vw)}
+    #premiumDetailModal{right:min(330px,32vw)!important;width:min(650px,68vw)!important}
+    #premiumDetailModal>div{border-radius:12px 0 0 0!important}
+    @media(max-width:700px){#groupPicker{width:100%}#premiumDetailModal{right:0!important;width:100%!important}}
+    `;
     document.head.append(style);
     const panel = document.createElement('aside');panel.id='groupPicker';panel.setAttribute('aria-label','선택 위치 매물 목록');panel.setAttribute('aria-hidden','true');panel.inert=true;
     const header=document.createElement('header'), heading=document.createElement('strong'), close=document.createElement('button'), list=document.createElement('div');list.id='groupPickerList';close.textContent='닫기 ×';header.append(heading,close);panel.append(header,list);document.body.append(panel);
