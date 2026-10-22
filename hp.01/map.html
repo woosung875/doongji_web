@@ -13,6 +13,7 @@
 
 <script src="public-display.js"></script>
 <script src="area-normalize.js"></script>
+<script src="photo-fallback.js"></script>
 </head>
 
 <body style="overflow: hidden;"> <!-- Lock scroll for full screen map feel -->
@@ -644,7 +645,7 @@
             const panelPropertiesLink = document.getElementById('panelPropertiesLink');
             
             // Populate basic details
-            panelImg.src = p.imageUrl || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800';
+            panelImg.src = p.imageUrl || (p.imageUrls || [])[0] || 'photo-pending.svg';
             panelTag.innerText = p.tag || '서울';
             panelTitle.innerText = NestPublic.title(p);
             panelPrice.innerText = p.price;

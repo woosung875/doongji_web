@@ -21,6 +21,7 @@
     </style>
 <script src="public-display.js"></script>
 <script src="area-normalize.js"></script>
+<script src="photo-fallback.js"></script>
 </head>
 
 <body>
@@ -640,7 +641,7 @@
                 }
                 
                 card.innerHTML = `
-                    <div class="card-image" style="background-image: url('${p.imageUrl}'); cursor: pointer;" onclick="openPremiumDetailModal('${p.id}')">
+                    <div class="card-image ${!p.imageUrl && !(p.imageUrls || []).length ? 'photo-pending' : ''}" style="background-image: url('${p.imageUrl || (p.imageUrls || [])[0] || 'photo-pending.svg'}'); cursor: pointer;" onclick="openPremiumDetailModal('${p.id}')">
                         <span class="tag" style="background: var(--accent-color);">${escapeHtml(p.tag)}</span>
                     </div>
                     <div class="card-body">

@@ -794,6 +794,7 @@
 </style><style>.broker-photo{width:72px;height:72px;min-width:72px;flex:0 0 72px;box-sizing:border-box;object-fit:contain;object-position:center;background:#f5f5f5;border-radius:50%;image-rendering:auto;}</style>
 <style>.broker-photo-frame{display:block;width:72px;height:72px;flex:0 0 72px;box-sizing:border-box;border:2px solid var(--accent-color);border-radius:50%;overflow:hidden;background:#ededed}.broker-photo-frame .broker-photo{display:block;width:100%;height:100%;min-width:0;border:0;border-radius:0;object-fit:contain;object-position:center;background:#ededed;transform:scale(1.18);transform-origin:50% 42%}.broker-phone-text{white-space:pre-line;line-height:1.65}</style>
 <script src="area-normalize.js"></script>
+<script src="photo-fallback.js"></script>
 </head>
 <body>
 
@@ -1366,7 +1367,7 @@
         } else if (p.imageUrl) {
             detailImageUrls = [p.imageUrl];
         } else {
-            detailImageUrls = ['https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800'];
+            detailImageUrls = ['photo-pending.svg'];
         }
 
         function renderDetailImage() {
@@ -1715,7 +1716,7 @@
             otherFiltered.forEach(item => {
                 otherHtml += `
                     <div class="other-card" onclick="location.href='property-detail.html?id=${item.id}'">
-                        <img class="other-img" src="${item.imageUrl}" alt="추천 매물">
+                        <img class="other-img" src="${item.imageUrl || (item.imageUrls || [])[0] || 'photo-pending.svg'}" alt="추천 매물">
                         <div class="other-body">
                             <div class="other-region">${item.tag} | ${item.floor}</div>
                             <div class="other-title" title="${NestPublic.title(item)}">${NestPublic.title(item)}</div>
@@ -1934,7 +1935,7 @@
                 });
                 if (editPreviewCount) editPreviewCount.innerText = loadedImages.length;
                 
-                detailImageUrls = loadedImages.length > 0 ? loadedImages : ['https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800'];
+                detailImageUrls = loadedImages.length > 0 ? loadedImages : ['photo-pending.svg'];
                 currentImgIndex = 0;
                 renderDetailImage();
             }
@@ -2095,7 +2096,7 @@
                             desc: document.getElementById('editDesc') ? document.getElementById('editDesc').value.trim() : '',
                             price,
                             address,
-                            imageUrl: loadedImages[0] || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800',
+                            imageUrl: loadedImages[0] || '',
                             imageUrls: loadedImages,
                             lat,
                             lng,

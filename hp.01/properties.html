@@ -13,6 +13,7 @@
 
 <script src="public-display.js"></script>
 <script src="area-normalize.js"></script>
+<script src="photo-fallback.js"></script>
 </head>
 
 <body>
@@ -216,7 +217,7 @@
                 card.className = 'property-card';
                 card.id = `card-${p.id}`;
                 card.innerHTML = `
-                    <div class="card-image" style="background-image: url('${p.imageUrl}'); cursor: pointer;" onclick="openPremiumDetailModal('${p.id}')">
+                    <div class="card-image ${!p.imageUrl && !(p.imageUrls || []).length ? 'photo-pending' : ''}" style="background-image: url('${p.imageUrl || (p.imageUrls || [])[0] || 'photo-pending.svg'}'); cursor: pointer;" onclick="openPremiumDetailModal('${p.id}')">
                         <span class="tag" style="background: var(--accent-color);">${escapeHtml(p.tag)} | ${escapeHtml(p.floor && p.floor.startsWith('-') ? '지하 ' + p.floor.substring(1) : p.floor)}</span>
                     </div>
                     <div class="card-body">
