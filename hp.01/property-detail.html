@@ -1715,7 +1715,29 @@
         setTimeout(initMiniMap, 100);
 
         const othersContainer = document.getElementById('othersContainer');
-        const otherFiltered = list.filter(item => item.id !== p.id).slice(0, 3);
+        function selectNearbyProperties(current, properties, radiusKm = 2) {
+            const hasCoords = item => item.lat != null && item.lng != null && String(item.lat).trim() !== '' && String(item.lng).trim() !== '' && Number.isFinite(Number(item.lat)) && Number.isFinite(Number(item.lng)) && Number(item.lat) !== 0 && Number(item.lng) !== 0;
+            const regionKey = item => {
+                const address = String(item.address || item.sourceAddress || '').replace(/^서울시?\s/, '서울특별시 ').replace(/^경기\s/, '경기도 ');
+                const match = address.match(/(?:서울특별시|경기도|부산광역시|인천광역시|대구광역시|대전광역시|광주광역시|울산광역시|세종특별자치시|강원특별자치도|전북특별자치도|제주특별자치도|충청남도|충청북도|전라남도|경상남도|경상북도)\s+.+?(?:동|읍|면|리|가)(?=\s|$)/);
+                return match ? match[0].replace(/\s+/g, '') : '';
+            };
+            const distance = (a, b) => {
+                const rad = n => Number(n) * Math.PI / 180;
+                const dLat = rad(Number(b.lat) - Number(a.lat)), dLng = rad(Number(b.lng) - Number(a.lng));
+                const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2;
+                return 6371 * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(Math.max(0, 1 - h)));
+            };
+            const centerKnown = hasCoords(current), region = regionKey(current);
+            return properties.filter(item => item.id !== current.id).map(item => {
+                if (centerKnown && hasCoords(item)) {
+                    const distanceKm = distance(current, item);
+                    return distanceKm <= radiusKm ? {...item, nearbyDistanceKm: distanceKm} : null;
+                }
+                return region && regionKey(item) === region ? {...item, nearbyDistanceKm: null} : null;
+            }).filter(Boolean).sort((a,b) => (a.nearbyDistanceKm ?? Infinity) - (b.nearbyDistanceKm ?? Infinity)).slice(0, 3);
+        }
+        const otherFiltered = selectNearbyProperties(p, list);
         
         let otherHtml = '';
         if (otherFiltered.length > 0) {
@@ -1724,7 +1746,7 @@
                     <div class="other-card" onclick="location.href='property-detail.html?id=${item.id}'">
                         <img class="other-img" src="${item.imageUrl || (item.imageUrls || [])[0] || 'photo-pending.svg'}" alt="추천 매물">
                         <div class="other-body">
-                            <div class="other-region">${item.tag} | ${item.floor}</div>
+                            <div class="other-region">${item.tag} | ${item.floor || ''} · ${item.nearbyDistanceKm == null ? '같은 동·읍·면' : item.nearbyDistanceKm < 1 ? Math.round(item.nearbyDistanceKm * 1000) + 'm' : item.nearbyDistanceKm.toFixed(1) + 'km'}</div>
                             <div class="other-title" title="${NestPublic.title(item)}">${NestPublic.title(item)}</div>
                             <div class="other-price">${item.price}</div>
                         </div>
@@ -1733,7 +1755,7 @@
             });
             othersContainer.innerHTML = otherHtml;
         } else {
-            othersContainer.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:#888; padding:20px;">추천할 다른 매물이 없습니다.</p>';
+            othersContainer.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:#888; padding:20px;">인근에 표시할 다른 매물이 없습니다.</p>';
         }
 
         window.scrollToSection = function(sectionId, element) {
