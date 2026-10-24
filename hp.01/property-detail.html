@@ -1548,7 +1548,7 @@
                 return;
             }
 
-            if (typeof daum !== 'undefined' && typeof kakao !== 'undefined' && kakao.maps && kakao.maps.services) {
+            if (typeof kakao !== 'undefined' && kakao.maps && kakao.maps.services) {
                 const geocoder = new kakao.maps.services.Geocoder();
                 geocoder.addressSearch(address, function(result, status) {
                     if (status === kakao.maps.services.Status.OK) {
@@ -2100,6 +2100,7 @@
                             imageUrls: loadedImages,
                             lat,
                             lng,
+                            geocodeStatus: lat && lng ? 'resolved' : 'pending',
                             maintenance,
                             supplyArea: supply,
                             exclusiveArea: exclusive,
@@ -2129,7 +2130,7 @@
 
                         localStorage.setItem('nest_properties', JSON.stringify(list));
 
-                        alert('매물 정보가 성공적으로 저장되었습니다. 주변 대중교통 정보가 함께 저장되었습니다.');
+                        alert(lat && lng ? '매물 정보가 저장되어 지도에 반영됩니다.' : '매물은 저장되었습니다. 주소 좌표 검색이 완료되지 않아 지도 위치 확인이 필요합니다. 카카오 지도 연결 상태를 확인하세요.');
 
                         // 크로스 오리진 및 컨텍스트 방어막 가동
                         if (window.parent) {
@@ -2147,28 +2148,28 @@
                 };
 
                 const startGeocodeAndPlaces = () => {
+                    let saved = false;
+                    const finish = (lat, lng, subways = [], buses = []) => {
+                        if (saved) return;
+                        saved = true;
+                        clearTimeout(safetyTimer);
+                        saveExec(lat, lng, subways, buses);
+                    };
+                    const oldLat = p.address === address ? p.lat || null : null;
+                    const oldLng = p.address === address ? p.lng || null : null;
+                    const safetyTimer = setTimeout(() => finish(oldLat, oldLng), 12000);
                     try {
-                        if (typeof daum !== 'undefined' && typeof kakao !== 'undefined' && kakao.maps && kakao.maps.services) {
-                            const geocoder = new kakao.maps.services.Geocoder();
-                            geocoder.addressSearch(address, function(result, status) {
-                                if (status === kakao.maps.services.Status.OK) {
-                                    const lat = parseFloat(result[0].y);
-                                    const lng = parseFloat(result[0].x);
-                                    
-                                    queryNearbyTraffic(lat, lng, function(subwaysData, busesData) {
-                                        saveExec(lat, lng, subwaysData, busesData);
-                                    });
-                                } else {
-                                    saveExec(p.lat || 37.4979, p.lng || 127.0276, p.subways || [], p.buses || []);
-                                }
-                            });
-                        } else {
-                            saveExec(p.lat || 37.4979, p.lng || 127.0276, p.subways || [], p.buses || []);
-                        }
-                    } catch(e) {
-                        console.error("Geocoding logic fail-safe trigger:", e);
-                        saveExec(37.4979, 127.0276, [], []);
-                    }
+                        if (!window.kakao?.maps?.services) { finish(oldLat, oldLng); return; }
+                        const query = address.replace(/\s+(?:지하\s*)?\d+층.*$/, '');
+                        new kakao.maps.services.Geocoder().addressSearch(query, (result, status) => {
+                            if (saved) return;
+                            if (status !== kakao.maps.services.Status.OK || !result.length) { finish(oldLat, oldLng); return; }
+                            const lat = Number(result[0].y), lng = Number(result[0].x);
+                            const trafficTimer = setTimeout(() => finish(lat, lng), 2500);
+                            try { queryNearbyTraffic(lat, lng, (subways, buses) => { clearTimeout(trafficTimer); finish(lat, lng, subways, buses); }); }
+                            catch (e) { clearTimeout(trafficTimer); finish(lat, lng); }
+                        });
+                    } catch (e) { finish(oldLat, oldLng); }
                 };
 
                 startGeocodeAndPlaces();
@@ -2239,5 +2240,6 @@
         }
     </script>
 <script src="detail-customer-ui.js"></script>
+<script src="admin-property-tools.js"></script>
 </body>
 </html>

@@ -1048,7 +1048,8 @@
 
             const filtered = allProps.filter(p => {
                 // 로그인 계정 작성자 격리 필터
-                const writerMatch = user.role === 'master' || p.writer === user.name;
+                const selectedWriter = document.getElementById('adminFilterWriter')?.value || '';
+                const writerMatch = (user.role === 'master' || p.writer === user.name) && (!selectedWriter || p.writer === selectedWriter);
                 
                 const regionMatch = !region || p.tag === region;
                 const typeMatch = !type || p.type === type;
@@ -1276,12 +1277,12 @@
                 } else {
                     // Fail-safe fallback to standard Gangnam Station coordinates
                     console.warn("OSM Nominatim failed to decode. Saving with default Gangnam coordinates.");
-                    callback(37.4979, 127.0276);
+                    callback(null, null);
                 }
             })
             .catch(err => {
                 console.error("OSM Nominatim fetch error:", err);
-                callback(37.4979, 127.0276); // Fallback to Gangnam Station
+                callback(null, null); // Fallback to Gangnam Station
             });
         }
 
@@ -3023,6 +3024,7 @@
     <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=3e8097eb16c9e4942d0cbb215d2da6e6&libraries=services" onerror="window.kakaoGeocoderFailed = true;"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script src="excel-import.js"></script>
+<script src="admin-property-tools.js"></script>
 </body>
 
 </html>
