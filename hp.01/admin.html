@@ -23,6 +23,7 @@
         }
     </style>
 <script src="area-normalize.js"></script>
+<style>.admin-photo{width:96px;text-align:center}.admin-photo img{width:70px;height:50px;object-fit:cover;border-radius:4px}.admin-photo span{display:none}.admin-photo.missing-photo img{object-fit:contain;background:#f7f8fa;padding:3px}.admin-photo.missing-photo span{display:block;font-size:10px;white-space:nowrap;line-height:1.5;color:#9a7b3d;margin-top:4px}</style>
 </head>
 
 <body class="admin-login-body" id="adminBody">
@@ -1083,7 +1084,7 @@
                 const displayFloor = p.floor && p.floor.startsWith('-') ? '지하 ' + p.floor.substring(1) : p.floor;
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td><img src="${p.imageUrl}" style="width: 70px; height: 50px; object-fit: cover; border-radius: 4px;"></td>
+                    <td><div class="admin-photo ${!p.imageUrl && !(p.imageUrls || []).filter(Boolean).length ? 'missing-photo' : ''}"><img src="${escapeHtml(p.imageUrl || (p.imageUrls || []).filter(Boolean)[0] || 'doongji-logo.png')}" alt="매물 사진" onerror="this.onerror=null;this.src='doongji-logo.png';this.alt='사진 업데이트 필요';this.parentElement.classList.add('missing-photo')"><span>사진 업데이트 필요</span></div></td>
                     <td>
                         <span style="background: #e2e8f0; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; color: #475569; display: inline-block; margin-bottom: 4px;">${escapeHtml(p.tag)}</span>
                         <div style="font-size: 12px; color: #64748b;">${escapeHtml(displayFloor)}</div>
