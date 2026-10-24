@@ -48,15 +48,13 @@
     .spec-grid{column-gap:12px}.spec-item{min-height:26px}
     .spec-label{flex-basis:66px;width:66px;padding:4px 0;font-size:11px}
     .spec-val{padding:4px 0 4px 6px;font-size:11px}
+    `;
+    css.textContent += `
+    .customer-summary .customer-id{font-size:13px;font-weight:550;color:#8d7440;margin:6px 0 7px;line-height:1.5}
+    .spec-label,.spec-val{font-size:13px;line-height:1.55}
     `;document.head.append(css);
     const property=typeof p!=='undefined'?p:{};
     const publicNumber=property.propertyNo||property.naverPropertyNo;
-    const numberTab=document.getElementById('tabPropNo');
-    if(numberTab&&publicNumber){
-        numberTab.textContent='매물번호 '+String(publicNumber);
-        numberTab.style.setProperty('display','flex','important');
-        numberTab.style.cssText+=';font-size:11px;height:28px;padding:0 8px;margin-right:8px;flex-shrink:0;white-space:nowrap;';
-    }
     const text=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value||'확인 필요'};
     // Show only recorded values rather than static sample details.
     text('specDirection',property.direction);text('specPurpose',property.purpose);text('specRooms',property.rooms);text('specElevator',property.elevator);text('specMoveInDate',property.moveInDate);text('specParking',property.parking);text('specFloor',property.floor);text('specUnregistered',property.unregistered);text('specViolation',property.violation);
@@ -64,7 +62,7 @@
     document.querySelector('#specMaintText')?.parentElement.querySelector('button')?.remove();
     const statusLabel=Array.from(document.querySelectorAll('.spec-label')).find(el=>el.textContent.trim()==='매물 상태');if(statusLabel)statusLabel.parentElement.style.display='none';
     const grid=document.querySelector('.spec-grid');if(grid){const row=document.createElement('div');row.className='spec-item';const label=document.createElement('div'),value=document.createElement('div');label.className='spec-label';value.className='spec-val';label.textContent='사용승인일';value.textContent=property.approvalDate||property.useApprovalDate||'확인 필요';row.append(label,value);grid.append(row)}
-    const summary=document.createElement('section');summary.className='content-card customer-summary';const id=document.createElement('div'),title=document.createElement('h1'),price=document.createElement('div'),meta=document.createElement('div');id.className='customer-id';id.textContent=publicNumber?'매물번호 '+publicNumber:'';if(publicNumber)id.style.setProperty('display','block','important');title.textContent=window.NestPublic?NestPublic.title(property):property.title;price.className='customer-price';price.textContent=property.price||'가격 확인 필요';meta.className='customer-meta';[property.type,property.floor,property.exclusiveArea?'전용 '+NestPublic.area(property.exclusiveArea):'전용면적 확인 필요'].filter(Boolean).forEach(t=>{const s=document.createElement('span');s.textContent=t;meta.append(s)});summary.append(id,title,price,meta);document.getElementById('img-section')?.after(summary);
+    const summary=document.createElement('section');summary.className='content-card customer-summary';const id=document.createElement('div'),title=document.createElement('h1'),price=document.createElement('div'),meta=document.createElement('div');id.className='customer-id';id.textContent=publicNumber?'매물번호 '+publicNumber:'';if(publicNumber)id.style.setProperty('display','block','important');title.textContent=window.NestPublic?NestPublic.title(property):property.title;price.className='customer-price';price.textContent=property.price||'가격 확인 필요';meta.className='customer-meta';[property.type,property.floor,property.exclusiveArea?'전용 '+NestPublic.area(property.exclusiveArea):'전용면적 확인 필요'].filter(Boolean).forEach(t=>{const s=document.createElement('span');s.textContent=t;meta.append(s)});summary.append(title,price,id,meta);document.getElementById('img-section')?.after(summary);
     const broker=document.createElement('section');broker.className='content-card customer-broker';broker.id='broker-section';const heading=document.createElement('h2');heading.textContent='담당자 및 중개사무소';broker.append(heading);const originalBroker=sidebar.querySelector('.broker-profile-container')?.closest('.sidebar-card');if(originalBroker)broker.append(originalBroker);const specSection=document.getElementById('spec-section');if(specSection)specSection.after(broker);else left.append(broker);
     const bar=document.createElement('div');bar.className='customer-contact';const info=document.createElement('div');info.innerHTML='<small>둥지부동산중개법인</small><strong>매물 상담을 도와드립니다</strong>';const actions=document.createElement('div');actions.className='actions';const phone=document.createElement('a');phone.href='tel:025539489';phone.textContent='전화 상담';const inquiry=document.createElement('button');inquiry.type='button';inquiry.textContent='매물 문의하기';inquiry.onclick=()=>window.openInquiryModal();actions.append(phone,inquiry);bar.append(info,actions);document.body.append(bar);
     const menus=document.querySelector('.tab-menus');if(menus){const tab=document.createElement('a');tab.className='tab-menu-item';tab.href='#broker-section';tab.textContent='담당자';menus.append(tab)}
