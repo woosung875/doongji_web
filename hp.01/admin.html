@@ -24,6 +24,19 @@
     </style>
 <script src="area-normalize.js"></script>
 <style>.admin-photo{width:96px;text-align:center}.admin-photo img{width:70px;height:50px;object-fit:cover;border-radius:4px}.admin-photo span{display:none}.admin-photo.missing-photo img{object-fit:contain;background:#f7f8fa;padding:3px}.admin-photo.missing-photo span{display:block;font-size:10px;white-space:nowrap;line-height:1.5;color:#9a7b3d;margin-top:4px}</style>
+<style>
+#propertiesTabArea .admin-table{min-width:960px;width:100%;table-layout:auto}
+#propertiesTabArea .admin-table th,#propertiesTabArea .admin-table td{vertical-align:middle}
+#propertiesTabArea .admin-table th:nth-child(4){width:230px}
+#propertiesTabArea .admin-table td:nth-child(3){min-width:280px;overflow-wrap:anywhere}
+#propertiesTabArea .admin-table td:last-child{min-width:110px}
+#propertiesTabArea .admin-table td:last-child button{white-space:nowrap}
+.admin-price-block{min-width:205px;display:grid;gap:5px;font-size:13px}
+.admin-price-line{display:grid;grid-template-columns:52px 1fr;gap:12px;align-items:baseline;white-space:nowrap}
+.admin-price-line span{font-size:11px;color:#8490a0;font-weight:400}
+.admin-price-line strong{text-align:right;color:#b29453;font-variant-numeric:tabular-nums;font-weight:650}
+.admin-price-line:last-child strong{color:#65748a;font-size:12px;font-weight:500}
+</style>
 </head>
 
 <body class="admin-login-body" id="adminBody">
@@ -133,7 +146,6 @@
                                     <th style="width: 120px;">이미지</th>
                                     <th style="width: 140px;">지역 / 층수</th>
                                     <th>매물명</th>
-                                    <th>설명</th>
                                     <th style="width: 220px;">가격</th>
                                     <th style="width: 120px; text-align: center;">등록자</th>
                                     <th style="width: 110px; text-align: center;">관리</th>
@@ -1076,11 +1088,37 @@
         }
 
         // Render Property rows in table
+        function adminAreaText(value) {
+            const s = String(value ?? '').trim();
+            if (!s) return '-';
+            const n = Number(s.replace(/,/g, '').match(/[\d.]+/)?.[0]);
+            if (!Number.isFinite(n)) return s;
+            const fmt = value => value.toLocaleString('ko-KR', {maximumFractionDigits: 2});
+            if (/㎡|m²|m2/i.test(s)) return fmt(n) + '㎡ (' + fmt(n / 3.305785) + 'py)';
+            if (/평|py/i.test(s)) return fmt(n * 3.305785) + '㎡ (' + fmt(n) + 'py)';
+            return s + ' (단위 확인 필요)';
+        }
+        function adminPriceHtml(p) {
+            const value = String(p.price || '').trim();
+            const parts = value.split('/');
+            const pair = (label, amount) => '<div class="admin-price-line"><span>' + escapeHtml(label) + '</span><strong>' + escapeHtml(amount || '미입력') + '</strong></div>';
+            let html = '';
+            if (parts.length === 2) {
+                html += pair('보증금', parts[0].replace(/^보증금\s*/, '').trim());
+                html += pair('월세', parts[1].trim().replace(/^월세?\s*/, '').trim());
+            } else if (value.startsWith('매매')) html += pair('매매가', value.replace(/^매매\s*/, ''));
+            else if (value.startsWith('전세')) html += pair('전세금', value.replace(/^전세\s*/, ''));
+            else html += pair('가격', value);
+            const hasFee = p.maintenance !== null && p.maintenance !== undefined && String(p.maintenance).trim() !== '' && Number.isFinite(Number(p.maintenance));
+            html += pair('관리비', hasFee ? (Number(p.maintenance) / 10000).toLocaleString('ko-KR', {maximumFractionDigits: 2}) + '만원' : '미입력');
+            return '<div class="admin-price-block">' + html + '</div>';
+        }
+
         function renderAdminProperties(list) {
             propertyTableBody.innerHTML = '';
             
             if (list.length === 0) {
-                propertyTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #888; padding: 30px;">검색 조건에 맞는 매물이 없습니다.</td></tr>';
+                propertyTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #888; padding: 30px;">검색 조건에 맞는 매물이 없습니다.</td></tr>';
                 return;
             }
 
@@ -1098,12 +1136,10 @@
                         <div style="font-size: 11px; font-weight: normal; color: #64748b; margin-top: 5px; background: #f8fafc; border: 1px solid #e2e8f0; padding: 6px 10px; border-radius: 4px; line-height: 1.5; width: max-content; max-width: 320px;">
                             <span style="color: #c5a059; font-weight: bold; display: block; margin-bottom: 2px;"><i class="fas fa-lock" style="margin-right: 4px;"></i>임대인 전용 비공개 정보</span>
                             성함: ${escapeHtml(p.lessorName || '미지정')} / 연락처: ${escapeHtml(p.lessorPhone || '미지정')}<br>
-                            관리비: ${p.maintenance ? parseInt(p.maintenance).toLocaleString() + '원' : '0원'}<br>
-                            면적: 임대 ${escapeHtml(p.supplyArea || '-')} / 전용 ${escapeHtml(p.exclusiveArea || '-')} ${p.areaNeedsReview ? '(자동 보완 · 실면적 확인 필요)' : ''}
+                            면적: 임대 ${escapeHtml(adminAreaText(p.supplyArea))} / 전용 ${escapeHtml(adminAreaText(p.exclusiveArea))} ${p.areaNeedsReview ? '(자동 보완 · 실면적 확인 필요)' : ''}
                         </div>
                     </td>
-                    <td style="font-size: 13px; color: #64748b;">${escapeHtml(p.desc)}</td>
-                    <td style="font-weight: bold; color: var(--accent-color); font-size: 14px;">${escapeHtml(p.price)}</td>
+                    <td>${adminPriceHtml(p)}</td>
                     <td style="text-align: center; font-weight: 500; font-size: 13px; color: #475569;">
                         ${escapeHtml(p.writer || '마스터 관리자')}
                     </td>
@@ -3033,3 +3069,4 @@
 </body>
 
 </html>
+
