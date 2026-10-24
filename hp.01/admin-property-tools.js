@@ -9,10 +9,10 @@
     const filters=document.getElementById('adminFilterRegion');
     if(filters){
         const select=document.createElement('select');select.id='adminFilterWriter';select.setAttribute('aria-label','담당 매니저별 매물 필터');select.style.cssText=filters.style.cssText;
-        const search=document.createElement('input');search.type='search';search.placeholder='담당 매니저 검색';search.style.cssText='padding:8px;border:1px solid #ddd;border-radius:4px;width:150px';search.setAttribute('aria-label','담당 매니저 검색');
+        const search=document.createElement('input');search.type='search';search.id='adminPropertySearch';search.placeholder='매물 검색 (주소·번지·매물명)';search.style.cssText='padding:8px;border:1px solid #ddd;border-radius:4px;width:250px';search.setAttribute('aria-label','매물 검색');
         const current=JSON.parse(sessionStorage.getItem('nest_currentUser')||'{"role":"master"}');
-        function fill(){const previous=select.value;select.replaceChildren(new Option('전체 담당자',''));const names=new Set([...users().map(u=>u.name),...read('nest_properties',[]).map(p=>p.writer)].filter(Boolean));[...names].sort().filter(n=>(current.role==='master'||n===current.name)&&(!search.value||n.includes(search.value)||n===previous)).forEach(n=>select.add(new Option(n,n)));select.value=[...select.options].some(o=>o.value===previous)?previous:'';}
-        filters.before(search,select);fill();search.oninput=fill;select.onchange=()=>applyAdminFilters();window.addEventListener('focus',fill);window.addEventListener('storage',e=>{if(e.key==='nest_users'){fill();applyAdminFilters()}});
+        function fill(){const previous=select.value;select.replaceChildren(new Option('전체 담당자',''));const names=new Set(users().map(u=>u.name).filter(Boolean));[...names].sort().filter(n=>(current.role==='master'||n===current.name)).forEach(n=>select.add(new Option(n,n)));select.value=[...select.options].some(o=>o.value===previous)?previous:'';}
+        filters.before(search,select);fill();search.oninput=()=>applyAdminFilters();select.onchange=()=>applyAdminFilters();window.addEventListener('focus',fill);window.addEventListener('storage',e=>{if(e.key==='nest_users'){fill();applyAdminFilters()}});
     }
     const writer=document.getElementById('editWriter');
     if(writer){

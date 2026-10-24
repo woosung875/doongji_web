@@ -1050,7 +1050,11 @@
             const filtered = allProps.filter(p => {
                 // 로그인 계정 작성자 격리 필터
                 const selectedWriter = document.getElementById('adminFilterWriter')?.value || '';
-                const writerMatch = (user.role === 'master' || p.writer === user.name) && (!selectedWriter || p.writer === selectedWriter);
+                const recordedWriter = String(p.writer || '').trim();
+                const writerMatch = (user.role === 'master' || p.writer === user.name) && (!selectedWriter || recordedWriter === selectedWriter || recordedWriter.startsWith(selectedWriter + ' ') || recordedWriter.startsWith(selectedWriter + '/'));
+                const compact = value => String(value || '').normalize('NFKC').toLowerCase().replace(/\s+/g, '');
+                const query = compact(document.getElementById('adminPropertySearch')?.value);
+                const searchMatch = !query || [p.address, p.title, p.desc].some(value => compact(value).includes(query));
                 
                 const regionMatch = !region || p.tag === region;
                 const typeMatch = !type || p.type === type;
@@ -1064,7 +1068,7 @@
                     floorMatch = p.floor && !p.floor.startsWith('-') && p.floor !== '1층';
                 }
                 
-                return writerMatch && regionMatch && typeMatch && floorMatch;
+                return writerMatch && regionMatch && typeMatch && floorMatch && searchMatch;
             });
 
             document.getElementById('adminFilterCount').innerText = `검색된 매물: ${filtered.length}개`;
