@@ -51,6 +51,12 @@
     `;document.head.append(css);
     const property=typeof p!=='undefined'?p:{};
     const publicNumber=property.propertyNo||property.naverPropertyNo;
+    const numberTab=document.getElementById('tabPropNo');
+    if(numberTab&&publicNumber){
+        numberTab.textContent='매물번호 '+String(publicNumber);
+        numberTab.style.setProperty('display','flex','important');
+        numberTab.style.cssText+=';font-size:11px;height:28px;padding:0 8px;margin-right:8px;flex-shrink:0;white-space:nowrap;';
+    }
     const text=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value||'확인 필요'};
     // Show only recorded values rather than static sample details.
     text('specDirection',property.direction);text('specPurpose',property.purpose);text('specRooms',property.rooms);text('specElevator',property.elevator);text('specMoveInDate',property.moveInDate);text('specParking',property.parking);text('specFloor',property.floor);text('specUnregistered',property.unregistered);text('specViolation',property.violation);
