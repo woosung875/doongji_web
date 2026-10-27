@@ -91,6 +91,7 @@
                     if (!owner.valid) throw Error('담당자 확인 필요: ' + (owner.candidate || '메모 없음') + ' (등록된 임직원 이름과 일치해야 합니다)');
                     if (currentUser.role !== 'master' && owner.name !== currentUser.name) throw Error('다른 담당자의 매물은 마스터 계정에서 등록하세요: ' + owner.name);
                     p.writer = owner.name;
+                    p.managerCode = window.NestPublic ? window.NestPublic.managerCode(owner.name) : (users.find(u=>u.name===owner.name)?.managerCode || '');
                     const duplicate = keys.has(p.propertyNo); keys.add(p.propertyNo);
                     const matches = existing.filter(old => text(old.propertyNo || old.naverPropertyNo) === p.propertyNo);
                     if (matches.length > 1) throw Error('기존 데이터에 동일 매물번호가 여러 건입니다: ' + p.propertyNo);

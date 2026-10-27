@@ -676,7 +676,7 @@
             panelTypeFloor.innerText = `${p.type || '사무실'} / ${displayFloor}`;
             
             const supply = p.supplyArea ? `임대 ${p.supplyArea}` : '임대 -';
-            const exclusive = p.exclusiveArea ? `전용 ${p.exclusiveArea}` : `전용 ${p.desc.split('/')[0] || '-'}`;
+            const exclusive = `전용 ${NestPublic.exclusive(p)}`;
             panelArea.innerText = `${supply} / ${exclusive}`;
             
             const maint = p.maintenance ? parseInt(p.maintenance).toLocaleString() + '원' : '가격 협의';

@@ -1357,8 +1357,8 @@
 
         document.title = mode === 'add' ? '새 매물 등록 - 둥지부동산' : (mode === 'edit' ? '매물 수정 - 둥지부동산' : `${NestPublic.title(p)} - 매물 상세 정보 | 둥지부동산`);
         
-        document.getElementById('tabPropNo').innerText = mode === 'add' ? '신규 매물 등록' : `매물번호 ${p.id.toUpperCase()}`;
-        document.getElementById('sidePropNo').innerText = mode === 'add' ? '신규 매물 등록' : `매물번호 ${p.id.toUpperCase()}`;
+        document.getElementById('tabPropNo').innerText = mode === 'add' ? '신규 매물 등록' : `매물번호 ${p.propertyNo || p.naverPropertyNo || '미연결'}`;
+        document.getElementById('sidePropNo').innerText = mode === 'add' ? '신규 매물 등록' : `매물번호 ${p.propertyNo || p.naverPropertyNo || '미연결'}`;
         document.getElementById('sideTitle').innerText = NestPublic.title(p) || '신규 등록할 매물 제목';
 
         // 담당 브로커 정보 실시간 렌더링 호출
@@ -1505,11 +1505,11 @@
             };
             
             if (isPyung) {
-                document.getElementById('specArea').innerText = `임대 ${NestPublic.area(supplyText)} / 전용 ${NestPublic.area(exclusiveText)}`;
-                document.getElementById('sideSpecArea').innerHTML = `<i class="fas fa-ruler-combined"></i> 전용 ${NestPublic.area(exclusiveText)}`;
+                document.getElementById('specArea').innerText = `임대 ${NestPublic.area(supplyText)} / 전용 ${NestPublic.area(exclusiveText)}${NestPublic.managerCode(p) ? ' · ' + NestPublic.managerCode(p) : ''}`;
+                document.getElementById('sideSpecArea').innerHTML = `<i class="fas fa-ruler-combined"></i> 전용 ${NestPublic.area(exclusiveText)}${NestPublic.managerCode(p) ? ' · ' + NestPublic.managerCode(p) : ''}`;
             } else {
-                document.getElementById('specArea').innerText = `임대 ${getSqm(supplyText)} / 전용 ${getSqm(exclusiveText)}`;
-                document.getElementById('sideSpecArea').innerHTML = `<i class="fas fa-ruler-combined"></i> 전용 ${getSqm(exclusiveText)}`;
+                document.getElementById('specArea').innerText = `임대 ${getSqm(supplyText)} / 전용 ${NestPublic.area(exclusiveText)}${NestPublic.managerCode(p) ? ' · ' + NestPublic.managerCode(p) : ''}`;
+                document.getElementById('sideSpecArea').innerHTML = `<i class="fas fa-ruler-combined"></i> 전용 ${NestPublic.area(exclusiveText)}${NestPublic.managerCode(p) ? ' · ' + NestPublic.managerCode(p) : ''}`;
             }
         }
         updateAreaDisplay();
@@ -1748,7 +1748,7 @@
                         <div class="other-body">
                             <div class="other-region">${item.tag} | ${item.floor || ''} · ${item.nearbyDistanceKm == null ? '같은 동·읍·면' : item.nearbyDistanceKm < 1 ? Math.round(item.nearbyDistanceKm * 1000) + 'm' : item.nearbyDistanceKm.toFixed(1) + 'km'}</div>
                             <div class="other-title" title="${NestPublic.title(item)}">${NestPublic.title(item)}</div>
-                            <div class="other-price">${item.price}</div>
+                            <div class="other-price">${item.price}</div><div style="font-size:11px;color:#798698;margin-top:5px">전용 ${NestPublic.exclusive(item)}</div>
                         </div>
                     </div>
                 `;
@@ -1774,7 +1774,7 @@
         const inqPropNo = document.getElementById('inqPropNo');
 
         window.openInquiryModal = function() {
-            inqPropNo.value = p.id.toUpperCase();
+            inqPropNo.value = p.propertyNo || p.naverPropertyNo || '미연결';
             inquiryModal.classList.add('open');
         };
 
@@ -2136,6 +2136,7 @@
                             lessorName: document.getElementById('editLessorName') ? document.getElementById('editLessorName').value.trim() : '',
                             lessorPhone: document.getElementById('editLessorPhone') ? document.getElementById('editLessorPhone').value.trim() : '',
                             writer,
+                            managerCode: NestPublic.managerCode(writer),
                             direction: document.getElementById('editDirection') ? document.getElementById('editDirection').value.trim() : '동향',
                             purpose: document.getElementById('editPurpose') ? document.getElementById('editPurpose').value.trim() : '업무시설',
                             rooms: document.getElementById('editRooms') ? document.getElementById('editRooms').value.trim() : '0개',

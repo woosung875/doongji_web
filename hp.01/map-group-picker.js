@@ -68,7 +68,7 @@
         if(detail?.classList.contains('drawer-open'))window.closePremiumDetailModal?.();
         heading.textContent=`이 위치의 매물 ${items.length}개`;list.replaceChildren();
         items.forEach(p=>{const b=document.createElement('button');b.type='button';
-            [['picker-kind',`${p.type||'매물'} · ${p.floor||'층수 미기재'}`],['picker-title',NestPublic.title(p)],['picker-price',p.price||'가격 문의'],['picker-meta',`임대 ${NestPublic.area(p.supplyArea)} / 전용 ${NestPublic.area(p.exclusiveArea)}`],['picker-address',NestPublic.address(p.address)],['picker-link','매물 상세 보기 →']].forEach(([cls,value])=>{const span=document.createElement('span');span.className=cls;span.textContent=value;b.append(span)});
+            [['picker-kind',`${p.type||'매물'} · ${p.floor||'층수 미기재'}`],['picker-title',NestPublic.title(p)],['picker-price',p.price||'가격 문의'],['picker-meta',`임대 ${NestPublic.area(p.supplyArea)} / 전용 ${NestPublic.exclusive(p)}`],['picker-address',NestPublic.address(p.address)],['picker-link','매물 상세 보기 →']].forEach(([cls,value])=>{const span=document.createElement('span');span.className=cls;span.textContent=value;b.append(span)});
             b.onclick=()=>{for(const card of list.children){card.classList.remove('selected');card.setAttribute('aria-pressed','false')}b.classList.add('selected');b.setAttribute('aria-pressed','true');openPremiumDetailModal(p.id)};list.append(b)});
         panel.inert=false;panel.setAttribute('aria-hidden','false');panel.classList.add('open');close.focus();
     };

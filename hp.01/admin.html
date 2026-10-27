@@ -37,6 +37,7 @@
 .admin-price-line strong{text-align:right;color:#b29453;font-variant-numeric:tabular-nums;font-weight:650}
 .admin-price-line:last-child strong{color:#65748a;font-size:12px;font-weight:500}
 </style>
+<script src="public-display.js"></script>
 </head>
 
 <body class="admin-login-body" id="adminBody">
@@ -49,7 +50,7 @@
         <form id="loginForm">
             <div class="form-group">
                 <label>아이디</label>
-                <input type="text" id="username" placeholder="아이디를 입력하세요" required>
+                <input type="text" id="username" lang="en" inputmode="email" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="username" style="ime-mode:inactive" placeholder="아이디를 입력하세요" required>
             </div>
             <div class="form-group" style="margin-bottom: 25px;">
                 <label>비밀번호</label>
@@ -635,7 +636,7 @@
                 <input type="hidden" id="userId">
                 <div class="form-group">
                     <label>로그인 아이디 (ID) <span style="color: red;">*</span></label>
-                    <input type="text" id="userLoginId" placeholder="아이디를 입력하세요" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                    <input type="text" id="userLoginId" lang="en" inputmode="email" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="아이디를 입력하세요" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
                 </div>
                 <div class="form-group">
                     <label>비밀번호 (Password) <span style="color: red;">*</span></label>
@@ -644,9 +645,14 @@
                 <div class="form-group">
                     <label>임직원 실명 <span style="color: red;">*</span></label>
                     <input type="text" id="userName" placeholder="예: 홍길동" required style="width: 100%; padding: 12px; border: 1px solid #ddd; outline: none; border-radius: 4px; box-sizing: border-box; font-family: inherit;">
+                    <label for="userManagerCode" style="display:block;margin-top:14px">담당자 코드</label>
+                    <input type="text" id="userManagerCode" placeholder="예: KK, BB, AA, RR" maxlength="8" pattern="[A-Za-z0-9]{2,8}" autocapitalize="characters" spellcheck="false" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:4px;box-sizing:border-box;text-transform:uppercase">
+                    <small style="display:block;color:#8490a0;margin-top:5px">영문·숫자 2~8자, 중복 불가. 전화 접수 직원은 비워둘 수 있습니다.</small>
                 </div>
 
                 <div class="form-group">
+                    <label>계정 유형</label>
+                    <select id="userRole" style="width:100%;padding:10px;margin:6px 0 14px"><option value="staff">일반 매니저</option><option value="receptionist">전화 접수 직원 (매물관리·중개의뢰)</option></select>
                     <label>관리자 권한 선택 <span style="color: red;">*</span></label>
                     <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px; background: #f8fafc; padding: 15px; border-radius: 6px; border: 1px solid #e2e8f0;">
                         <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer;">
@@ -935,7 +941,7 @@
             // 상단 환영 라벨 업데이트
             const label = document.getElementById('currentUserLabel');
             if (label) {
-                const roleBadge = user.role === 'master' ? '[마스터]' : '[임직원]';
+                const roleBadge = user.role === 'master' ? '[마스터]' : user.role === 'receptionist' ? '[전화 접수]' : '[임직원]';
                 label.innerHTML = `<i class="fas fa-user-shield" style="color: var(--accent-color); margin-right: 5px;"></i> <strong>${escapeHtml(user.name)}</strong> ${roleBadge}님`;
             }
 
@@ -947,8 +953,8 @@
             const tabBtnUsers = document.getElementById('tabBtnUsers');
 
             const hasProp = user.role === 'master' || user.permissions.includes('properties');
-            const hasGuide = user.role === 'master' || user.permissions.includes('guides');
-            const hasReview = user.role === 'master' || user.permissions.includes('reviews');
+            const hasGuide = user.role === 'master' || (user.role !== 'receptionist' && user.permissions.includes('guides'));
+            const hasReview = user.role === 'master' || (user.role !== 'receptionist' && user.permissions.includes('reviews'));
             const hasBroker = user.role === 'master' || user.permissions.includes('brokerage');
             const hasUsers = user.role === 'master';
 
@@ -1063,7 +1069,7 @@
                 // 로그인 계정 작성자 격리 필터
                 const selectedWriter = document.getElementById('adminFilterWriter')?.value || '';
                 const recordedWriter = String(p.writer || '').trim();
-                const writerMatch = (user.role === 'master' || p.writer === user.name) && (!selectedWriter || recordedWriter === selectedWriter || recordedWriter.startsWith(selectedWriter + ' ') || recordedWriter.startsWith(selectedWriter + '/'));
+                const writerMatch = (['master','receptionist'].includes(user.role) || p.writer === user.name) && (!selectedWriter || recordedWriter === selectedWriter || recordedWriter.startsWith(selectedWriter + ' ') || recordedWriter.startsWith(selectedWriter + '/'));
                 const compact = value => String(value || '').normalize('NFKC').toLowerCase().replace(/\s+/g, '');
                 const query = compact(document.getElementById('adminPropertySearch')?.value);
                 const searchMatch = !query || [p.address, p.title, p.desc].some(value => compact(value).includes(query));
@@ -1345,6 +1351,7 @@
                 list.unshift(newProp); // Put new items at the beginning
             }
 
+            list.forEach(item=>{item.managerCode=NestPublic.managerCode(item);});
             localStorage.setItem('nest_properties', JSON.stringify(list));
             closeModal();
             applyAdminFilters();
@@ -1359,7 +1366,7 @@
 
             // 계정 보안: 마스터가 아니고 작성자가 본인이 아닐 경우 편집 금지
             const user = JSON.parse(sessionStorage.getItem('nest_currentUser')) || { role: 'master' };
-            if (user.role !== 'master' && matched.writer !== user.name) {
+            if (!['master','receptionist'].includes(user.role) && matched.writer !== user.name) {
                 alert('본인이 등록한 매물만 수정할 수 있습니다.');
                 return;
             }
@@ -1405,6 +1412,8 @@
         
         // Tab switching logic
         function switchTab(tabName) {
+            const activeUser=JSON.parse(sessionStorage.getItem('nest_currentUser')||'null');
+            if(activeUser?.role==='receptionist'&&!['properties','brokerage'].includes(tabName))return;
             // 현재 활성화된 탭명을 세션스토리지에 저장하여 새로고침 시 복원하도록 지원
             sessionStorage.setItem('nest_admin_active_tab', tabName);
 
@@ -1814,7 +1823,7 @@
 
             // 권한 가드 및 마스터 담당자 필터 연동
             let displayList = list;
-            if (user.role !== 'master') {
+            if (!['master','receptionist'].includes(user.role)) {
                 // 일반 직원은 본인이 담당자인 건만 필터링 노출
                 displayList = list.filter(b => b.agent === user.name);
             } else {
@@ -2127,14 +2136,14 @@
             inputBrokerageAgent.appendChild(optUnassigned);
             
             // 2. 모든 임직원 명단을 드롭다운 옵션으로 이식
-            users.forEach(u => {
+            users.filter(u=>u.role!=='receptionist').forEach(u => {
                 const opt = document.createElement('option');
                 opt.value = u.name;
                 opt.textContent = u.name;
                 inputBrokerageAgent.appendChild(opt);
             });
             
-            if (user.role === 'master') {
+            if (['master','receptionist'].includes(user.role)) {
                 inputBrokerageAgent.disabled = false;
                 if (selectedAgent) {
                     inputBrokerageAgent.value = selectedAgent;
@@ -2885,6 +2894,7 @@
                 userModalTitle.innerText = "새 임직원 계정 등록";
                 inputUserId.value = '';
                 userForm.reset();
+                document.getElementById('userRole').disabled=false;
                 inputUserLoginId.disabled = false;
                 userModal.classList.add('open');
             });
@@ -2906,14 +2916,21 @@
                 const loginId = inputUserLoginId.value.trim().toLowerCase();
                 const password = inputUserPassword.value.trim();
                 const name = inputUserName.value.trim();
+                const managerCode=document.getElementById('userManagerCode').value.trim().toUpperCase();
+                if(managerCode&&!/^[A-Z0-9]{2,8}$/.test(managerCode)){alert('담당자 코드는 영문·숫자 2~8자로 입력하세요.');return;}
+                const effectiveCode=u=>Object.prototype.hasOwnProperty.call(u,'managerCode')?String(u.managerCode||'').toUpperCase():NestPublic.managerCode(u.name);
+                if(managerCode&&list.some(u=>u.id!==id&&effectiveCode(u)===managerCode)){alert('이미 사용 중인 담당자 코드입니다. 다른 코드를 입력하세요.');return;}
+                const originalName=list.find(u=>u.id===id)?.name||name;
 
                 // 권한 체크박스 추출
                 const permChecks = document.querySelectorAll('.user-perm-check');
-                const permissions = [];
+                let permissions = [];
                 permChecks.forEach(cb => {
                     if (cb.checked) permissions.push(cb.value);
                 });
 
+                const requestedRole=document.getElementById('userRole').value;
+                if(requestedRole==='receptionist')permissions=['properties','brokerage'];
                 if (id) {
                     // Edit
                     const idx = list.findIndex(u => u.id === id);
@@ -2927,8 +2944,10 @@
                         list[idx].loginId = loginId; // 수정된 로그인 ID 적용
                         list[idx].password = password;
                         list[idx].name = name;
+                        list[idx].managerCode = managerCode;
                         list[idx].agentLink = name; // 하위 호환성 및 실명 동기화
                         list[idx].permissions = permissions;
+                        if(list[idx].role!=='master')list[idx].role=requestedRole;
                     }
                 } else {
                     // Add (ID 중복 체크)
@@ -2941,13 +2960,24 @@
                         loginId,
                         password,
                         name,
+                        managerCode,
                         agentLink: name, // 실명 대조 동기화
-                        role: "staff",
+                        role: requestedRole,
                         permissions: permissions
                     };
                     list.push(newUser);
                 }
 
+                // Keep a backup before synchronizing codes on already registered listings.
+                const propertiesRaw=localStorage.getItem('nest_properties');
+                if(propertiesRaw){
+                    try {
+                        const properties=JSON.parse(propertiesRaw);
+                        const belongs=writer=>[originalName,name].some(n=>writer===n||String(writer||'').startsWith(n+' ')||String(writer||'').startsWith(n+'/'));
+                        const affected=properties.filter(p=>belongs(p.writer));
+                        if(affected.length){localStorage.setItem('nest_properties_backup_codes_'+Date.now(),propertiesRaw);affected.forEach(p=>{p.managerCode=managerCode});localStorage.setItem('nest_properties',JSON.stringify(properties));}
+                    }catch(e){alert('담당자 코드를 기존 매물에 반영하지 못했습니다. 브라우저 저장 공간을 확인하세요.');return;}
+                }
                 localStorage.setItem('nest_users', JSON.stringify(list));
                 closeUserModal();
                 renderAdminUsers();
@@ -2972,6 +3002,8 @@
 
             userModalTitle.innerText = "임직원 정보 & 권한 수정";
             inputUserId.value = matched.id;
+            document.getElementById('userRole').value=matched.role==='receptionist'?'receptionist':'staff';
+            document.getElementById('userRole').disabled=matched.role==='master';
             inputUserLoginId.value = matched.loginId;
             
             // 마스터 관리자 계정인 경우에만 ID 수정 가능하도록 제한적으로 해제
@@ -2984,6 +3016,7 @@
             
             inputUserPassword.value = matched.password;
             inputUserName.value = matched.name;
+            document.getElementById('userManagerCode').value=Object.prototype.hasOwnProperty.call(matched,'managerCode')?matched.managerCode:NestPublic.managerCode(matched.name);
 
             // 권한 체크박스 바인딩
             const permChecks = document.querySelectorAll('.user-perm-check');

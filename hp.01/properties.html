@@ -222,7 +222,7 @@
                     </div>
                     <div class="card-body">
                         <h3 style="cursor: pointer;" onclick="openPremiumDetailModal('${p.id}')">${escapeHtml(NestPublic.title(p))}</h3>
-                        <p class="desc">${escapeHtml(p.desc)}</p>
+                        <p class="desc">${escapeHtml(p.desc)}</p><div style="font-size:12px;color:#798698;margin-bottom:10px">전용 ${escapeHtml(NestPublic.exclusive(p))}</div>
                         <div class="card-footer">
                             <span class="price">${escapeHtml(p.price)}</span>
                              <button class="btn-text" onclick="openPremiumDetailModal('${p.id}')">자세히 보기 &rarr;</button>
