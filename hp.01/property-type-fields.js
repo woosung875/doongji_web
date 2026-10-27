@@ -62,9 +62,28 @@
     function visibility(){
         const type=visibleType(),housing=isHousing(type),commercial=['상가','사무실'].includes(type);
         room.item.style.display=housing||type==='상가'?'':'none';bathroom.item.style.display=housing?'':'none';parking.item.style.display=parkingCount.item.style.display=housing||commercial?'':'none';card.style.display=housing?'':'none';
-        if(directionLabel)directionLabel.textContent=housing?'방향 (주실 기준)':'방향 (주출입구)';
+        if(directionLabel)directionLabel.textContent='방향';
+        const direction=document.getElementById('specDirection');
+        if(direction&&!editing){
+            const value=String(record.direction||'확인 필요').replace(/\s*\([^)]*기준[^)]*\)/g,'').trim();
+            direction.textContent=value+' '+(housing?'(주실기준)':'(주출입구기준)');
+        }
     }
     visibility();typeInput?.addEventListener('change',visibility);
+    function splitAreaDisplay(){
+        const area=document.getElementById('specArea');
+        if(!area||editing)return;
+        area.replaceChildren();area.style.cssText+=';display:grid;gap:4px;width:100%;text-align:left;';
+        [['임대',record.supplyArea],['전용',record.exclusiveArea||record.supplyArea]].forEach(([label,value])=>{
+            const line=document.createElement('span');line.style.cssText='display:grid;grid-template-columns:26px minmax(0,1fr);gap:5px;align-items:baseline;';
+            const name=document.createElement('span'),amount=document.createElement('span');name.textContent=label;amount.textContent=window.NestPublic?window.NestPublic.area(value):String(value||'확인 필요');line.append(name,amount);area.append(line);
+        });
+    }
+    splitAreaDisplay();
+    if(typeof window.toggleAreaUnit==='function'){
+        const toggle=window.toggleAreaUnit;
+        window.toggleAreaUnit=function(){toggle();splitAreaDisplay()};
+    }
     const num=key=>controls[key]?.value===''||!controls[key]?null:Number(controls[key].value);
     window.NestPropertyFields={
         validate(){
