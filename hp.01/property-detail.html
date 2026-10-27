@@ -1505,10 +1505,10 @@
             };
             
             if (isPyung) {
-                document.getElementById('specArea').innerText = `임대 ${NestPublic.area(supplyText)} / 전용 ${NestPublic.area(exclusiveText)}${NestPublic.managerCode(p) ? ' · ' + NestPublic.managerCode(p) : ''}`;
+                document.getElementById('specArea').innerText = `임대 ${NestPublic.area(supplyText)} / 전용 ${NestPublic.area(exclusiveText)}`;
                 document.getElementById('sideSpecArea').innerHTML = `<i class="fas fa-ruler-combined"></i> 전용 ${NestPublic.area(exclusiveText)}${NestPublic.managerCode(p) ? ' · ' + NestPublic.managerCode(p) : ''}`;
             } else {
-                document.getElementById('specArea').innerText = `임대 ${getSqm(supplyText)} / 전용 ${NestPublic.area(exclusiveText)}${NestPublic.managerCode(p) ? ' · ' + NestPublic.managerCode(p) : ''}`;
+                document.getElementById('specArea').innerText = `임대 ${getSqm(supplyText)} / 전용 ${NestPublic.area(exclusiveText)}`;
                 document.getElementById('sideSpecArea').innerHTML = `<i class="fas fa-ruler-combined"></i> 전용 ${NestPublic.area(exclusiveText)}${NestPublic.managerCode(p) ? ' · ' + NestPublic.managerCode(p) : ''}`;
             }
         }

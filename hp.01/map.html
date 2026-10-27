@@ -283,8 +283,8 @@
                 loadLeaflet(() => {
                     document.getElementById('map').innerHTML = ''; // Clear loading message
                     
-                    // Center around Gangnam/Yeoksam (37.5080, 127.0360)
-                    leafletMap = L.map('map').setView([37.5080, 127.0360], 13);
+                    // Default center: Seolleung Station
+                    leafletMap = L.map('map').setView([37.5045, 127.0489], 15);
                     
                     // Load standard OpenStreetMap tiles
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -326,7 +326,7 @@
             }
 
             map = new kakao.maps.Map(document.getElementById('map'), {
-                center: new kakao.maps.LatLng(37.5080, 127.0360), // Centered around Gangnam/Yeoksam, Seoul
+                center: new kakao.maps.LatLng(37.5045, 127.0489), // Seolleung Station, Gangnam
                 level: 5 // Default Kakao map zoom level
             });
 
