@@ -2072,6 +2072,9 @@
             };
 
             window.savePropertyFromDetail = function() {
+                const fieldError=window.NestPropertyFields?.validate();
+                if(fieldError){alert(fieldError);return;}
+                const typeFields=window.NestPropertyFields?.collect() || {};
                 const title = document.getElementById('editTitle') ? document.getElementById('editTitle').value.trim() : '';
                 const address = document.getElementById('editAddress') ? document.getElementById('editAddress').value.trim() : '';
                 const supply = document.getElementById('editSupplyArea') ? document.getElementById('editSupplyArea').value.trim() : '';
@@ -2148,7 +2151,8 @@
                             buses: busesData,
                             unregistered: document.getElementById('editUnregistered') ? document.getElementById('editUnregistered').value.trim() : '해당 없음',
                             violation: document.getElementById('editViolation') ? document.getElementById('editViolation').value.trim() : '해당 없음',
-                            parking: document.getElementById('editParking') ? document.getElementById('editParking').value.trim() : '무료 1대 가능'
+                            parking: document.getElementById('editParking') ? document.getElementById('editParking').value.trim() : '',
+                            ...typeFields
                         };
 
                         const idx = list.findIndex(item => item.id === targetId);
@@ -2271,5 +2275,6 @@
     </script>
 <script src="detail-customer-ui.js"></script>
 <script src="admin-property-tools.js"></script>
+<script src="property-type-fields.js"></script>
 </body>
 </html>
