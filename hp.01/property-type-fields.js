@@ -8,7 +8,7 @@
     const isHousing=type=>housingTypes.includes(type);
     const visibleType=()=>editing?typeInput?.value||record.type:record.type;
     const hide=id=>{const row=document.getElementById(id)?.closest('.spec-item');if(row)row.style.setProperty('display','none','important');};
-    hide('specUnregistered');hide('specParking');hide('specRooms');
+    hide('specUnregistered');hide('specViolation');hide('specParking');hide('specRooms');
     const directionLabel=document.getElementById('specDirection')?.closest('.spec-item')?.querySelector('.spec-label');
     const style=document.createElement('style');style.textContent='.type-field-control{width:100%;min-width:0;padding:7px 8px;border:1px solid #d6dde5;border-radius:5px;font:inherit;box-sizing:border-box}.type-fee-card{grid-column:1/-1;margin-top:12px;padding:15px;background:#f8fafc;border:1px solid #e2e8ef;border-radius:8px}.type-fee-card h3{font-size:14px;margin:0 0 12px;color:#31465e}.type-fee-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.type-fee-fields label{font-size:12px;color:#617085;display:block}.type-fee-fields input,.type-fee-fields select{margin-top:5px}.type-fee-items{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:14px;font-size:12px}.type-fee-items label{display:flex;align-items:center;gap:5px}.type-fee-breakdown{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;font-size:12px}.type-fee-breakdown label{display:flex;align-items:center;gap:8px}.type-fee-breakdown input{width:110px}.type-fee-summary{white-space:pre-wrap;font-size:12px;color:#5f7086;line-height:1.8}@media(max-width:480px){.type-fee-fields,.type-fee-breakdown{grid-template-columns:1fr}}';document.head.append(style);
     const controls={};
@@ -24,6 +24,8 @@
         item.append(name,val);grid.append(item);return {item,val};
     }
     const parking=row('주차가능여부','parkingAvailable','select',record.parkingAvailable,['','가능','불가능']);
+    const parkingLabel=parking.item.querySelector('.spec-label');
+    if(parkingLabel)parkingLabel.style.cssText+=';white-space:nowrap;flex-basis:86px;width:86px;';
     const parkingCount=row('주차대수','parkingCount','number',record.parkingCount);
     const room=row('방 개수','roomCount','number',record.roomCount);
     const bathroom=row('화장실 수','bathroomCount','number',record.bathroomCount);
