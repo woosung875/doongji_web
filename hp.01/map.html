@@ -571,18 +571,9 @@
             // Render filtered properties
             renderAllProperties(filtered);
 
-            // Relocate map center to the first matched property if exists
-            if (filtered.length > 0) {
-                const first = filtered[0];
-                if (first.lat && first.lng) {
-                    if (map) {
-                        map.panTo(new kakao.maps.LatLng(parseFloat(first.lat), parseFloat(first.lng)));
-                        map.setLevel(4);
-                    } else if (leafletMap) {
-                        leafletMap.panTo([parseFloat(first.lat), parseFloat(first.lng)]);
-                    }
-                }
-            }
+            // Filtering and background updates preserve the current viewport.
+            // Initial map creation centers on Seolleung Station.
+
         }
 
         // URL query parameter parsing
